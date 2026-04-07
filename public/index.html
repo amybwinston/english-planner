@@ -301,22 +301,22 @@ Schedule: ${u} units, ${w} weeks/unit, ${days} days/week.${ctx?' Context: '+ctx:
 
 11 TEKS strands: 1-Oral language, 2-Vocabulary, 3-Self-sustained reading, 4-Comprehension, 5-Response, 6-Literary elements, 7-Genre study, 8-Author craft, 9-Writing process, 10-Composition genres, 11-Inquiry/research.
 
-Rules: Strands 3 and 9 appear in EVERY unit. Strands 4,5,6,7,8 (STAAR priority) appear in at least 4 units each. Strands 1,2,10,11 appear in at least 3 units each. Every unit integrates reading, writing, speaking, and listening together. Units increase in complexity.
+CRITICAL STRAND RULES — you must follow these exactly:
+- Strands 3, 9, and 10 MUST appear in the Strands list of EVERY single unit (all ${u} units)
+- Strands 4, 5, 6, 7, 8 must appear in at least 4 units each
+- Strands 1, 2, 11 must appear in at least 3 units each
+- Every unit must have at least 7 strand numbers in its Strands list
+- Every unit integrates reading, writing, speaking, and listening together
 
-For each unit use EXACTLY this format (no extra text):
+For each unit use EXACTLY this format:
 UNIT [N]
 Title: [thematic title]
 Text: [suggested text or genre]
 Question: [one essential question]
-Strands: [comma-separated strand numbers e.g. 1,2,3,4,5,6,8,9,10]
+Strands: [comma-separated numbers — minimum 7 strands including 3, 9, 10]
 Emphasis: [2-3 primary strand numbers]
 Summative: [assessment type]
-Weeks: Week 1: [focus] | Week 2: [focus] | Week 3: [focus]
-
-After ALL units, output a JSON coverage object on a single line like this EXACTLY:
-COVERAGE_JSON: {"1":[1,2,3],"2":[1,3,4],"3":[1,2,3,4,5,6,7,8,9],"4":[2,3,4,5,6,7,8],"5":[1,2,3,4,5,6],"6":[1,2,4,5,7,8],"7":[2,3,4,6,7,8,9],"8":[1,3,4,5,6,7,8,9],"9":[1,2,3,4,5,6,7,8,9],"10":[2,4,5,7,8,9],"11":[3,6,9]}
-
-Replace the example unit numbers in the JSON with the actual unit numbers where each strand appears in YOUR map. Every strand must have at least 2 unit numbers. Strands 3 and 9 must have all ${u} unit numbers.`;
+Weeks: Week 1: [focus] | Week 2: [focus] | Week 3: [focus]`;
 
   try {
     const raw = await callAPI(prompt);
@@ -332,27 +332,31 @@ Replace the example unit numbers in the JSON with the actual unit numbers where 
 function renderMap(text, numU, numW){
   const cov = {};
 
-  // Try JSON coverage first (most reliable)
-  const jsonM = text.match(/COVERAGE_JSON:\s*(\{[^\n]+\})/i);
-  if(jsonM){
-    try{
-      const parsed = JSON.parse(jsonM[1]);
-      Object.keys(parsed).forEach(k => { cov[+k] = parsed[k]; });
-    }catch(e){}
-  }
+  // Always build coverage directly from each unit's Strands line — most reliable source
+  const unitMatches = [...text.matchAll(/UNIT\s+(\d+)[^\n]*\n(?:[^\n]*\n)*?Strands:\s*([^\n]+)/gi)];
+  unitMatches.forEach(m => {
+    const unitNum = +m[1];
+    const strands = (m[2].match(/\d+/g)||[]).map(Number);
+    strands.forEach(s => {
+      if(!cov[s]) cov[s] = [];
+      if(!cov[s].includes(unitNum)) cov[s].push(unitNum);
+    });
+  });
 
-  // Fallback: parse each unit's Strands line to build coverage
-  if(Object.keys(cov).length === 0){
-    const unitMatches = [...text.matchAll(/UNIT (\d+)[\s\S]*?Strands:\s*([^\n]+)/gi)];
-    unitMatches.forEach(m => {
-      const unitNum = +m[1];
-      const strands = (m[2].match(/\d+/g)||[]).map(Number);
+  // Also scan for any "Strands:" lines we might have missed with a simpler pass
+  let lastUnitNum = 0;
+  text.split('\n').forEach(line => {
+    const uM = line.match(/^UNIT\s+(\d+)/i);
+    if(uM) lastUnitNum = +uM[1];
+    const sM = line.match(/^Strands:\s*(.+)/i);
+    if(sM && lastUnitNum > 0){
+      const strands = (sM[1].match(/\d+/g)||[]).map(Number);
       strands.forEach(s => {
         if(!cov[s]) cov[s] = [];
-        if(!cov[s].includes(unitNum)) cov[s].push(unitNum);
+        if(!cov[s].includes(lastUnitNum)) cov[s].push(lastUnitNum);
       });
-    });
-  }
+    }
+  });
   const grid = document.getElementById('cgrid');
   grid.innerHTML = '';
   SN.forEach(s=>{
