@@ -5,104 +5,128 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Texas English Lesson Planner</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; font-size: 15px; line-height: 1.6; }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0eeea;color:#1a1a1a;font-size:15px;line-height:1.6}
+.wrap{max-width:1000px;margin:0 auto;padding:2rem 1.25rem 4rem}
+h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.sub{font-size:14px;color:#666;margin-bottom:2rem}
+.stage-bar{display:flex;border:1px solid #ddd;border-radius:10px;overflow:hidden;margin-bottom:2rem;background:#e8e6e2}
+.s-step{flex:1;padding:10px 6px;text-align:center;font-size:12px;color:#888;border-right:1px solid #ddd;cursor:default}
+.s-step:last-child{border-right:none}
+.s-step.active{background:#fff;color:#1a1a1a;font-weight:700}
+.sn{display:block;font-size:10px;color:#aaa;margin-bottom:1px}
+.s-step.active .sn{color:#888}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem}
+.card-title{font-size:16px;font-weight:700;margin-bottom:1.25rem}
+label{display:block;font-size:13px;color:#555;margin-bottom:5px}
+input[type=text],input[type=number],textarea{width:100%;padding:9px 12px;border:1px solid #ccc;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;outline:none;transition:border .15s}
+input:focus,textarea:focus{border-color:#555}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
+.fr{margin-bottom:1.1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.1rem}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{padding:7px 16px;font-size:13px;border:1px solid #ccc;border-radius:8px;cursor:pointer;background:transparent;color:#666;font-family:inherit;transition:all .15s}
+.tab:hover{background:#f0f0f0}
+.tab.sel{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:500}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;font-size:14px;font-weight:500;border:1px solid #ccc;border-radius:8px;background:transparent;color:#1a1a1a;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn:hover{background:#f0f0f0}
+.btn:active{transform:scale(.98)}
+.btn-dark{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn-dark:hover{background:#333}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:1.25rem}
+.sbar{font-size:13px;color:#666;background:#f5f4f0;border-radius:8px;padding:10px 14px;margin-bottom:1.1rem}
+.sec{display:none}.sec.vis{display:block}
+.spin-row{display:none;align-items:center;gap:10px;padding:1rem 0;font-size:14px;color:#666}
+.spin{width:18px;height:18px;border:2px solid #ddd;border-top-color:#555;border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+.err{color:#c0392b;font-size:13px;min-height:20px;padding:2px 0}
+.slbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#999;display:block;margin:1.25rem 0 8px}
+.slbl:first-child{margin-top:0}
+.ob{background:#f5f4f0;border-radius:8px;padding:1rem 1.25rem;margin-bottom:.75rem;font-size:14px;line-height:1.75;color:#1a1a1a;white-space:pre-wrap}
+.divider{height:1px;background:#eee;margin:1.25rem 0}
+.tag{display:inline-block;font-size:12px;background:#f5f4f0;border:1px solid #ddd;border-radius:6px;padding:4px 12px;color:#666;margin-bottom:12px}
 
-  h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
-  .subtitle { font-size: 14px; color: #666; margin-bottom: 2rem; }
+/* COVERAGE MATRIX */
+.view-toggle{display:flex;gap:0;border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:1.5rem;width:fit-content}
+.vt-btn{padding:8px 20px;font-size:13px;font-weight:500;border:none;background:#f5f4f0;color:#888;cursor:pointer;font-family:inherit;transition:all .15s;border-right:1px solid #ddd}
+.vt-btn:last-child{border-right:none}
+.vt-btn.active{background:#1a1a1a;color:#fff}
+.matrix-wrap{overflow-x:auto;margin-bottom:1.5rem}
+.matrix{border-collapse:collapse;width:100%;min-width:700px;font-size:12px}
+.matrix th{padding:8px 6px;text-align:center;border:1px solid #e0e0e0;background:#f5f4f0;font-weight:600;color:#555;white-space:nowrap}
+.matrix th.unit-hdr{text-align:left;min-width:140px;padding-left:10px}
+.matrix td{padding:6px;text-align:center;border:1px solid #e0e0e0;vertical-align:middle}
+.matrix td.unit-name{text-align:left;padding-left:10px;font-weight:500;color:#1a1a1a;white-space:nowrap}
+.cell{width:28px;height:28px;border-radius:6px;margin:auto;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:transform .15s}
+.cell:hover{transform:scale(1.15)}
+.cell.planned{background:#27ae60;color:#fff}
+.cell.assigned{background:#f39c12;color:#fff}
+.cell.empty{background:#f0eeea;color:#ccc;cursor:default}
+.cell-legend{display:flex;gap:16px;font-size:12px;color:#666;margin-bottom:1rem;flex-wrap:wrap}
+.cell-legend span{display:flex;align-items:center;gap:6px}
+.cell-legend .dot{width:14px;height:14px;border-radius:4px;flex-shrink:0}
 
-  .stage-bar { display: flex; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; margin-bottom: 2rem; background: #eee; }
-  .s-step { flex: 1; padding: 10px 6px; text-align: center; font-size: 12px; color: #888; border-right: 1px solid #ddd; cursor: default; transition: all 0.2s; }
-  .s-step:last-child { border-right: none; }
-  .s-step.active { background: #fff; color: #1a1a1a; font-weight: 600; }
-  .s-step .sn { display: block; font-size: 10px; color: #aaa; margin-bottom: 1px; }
-  .s-step.active .sn { color: #888; }
+/* STRAND VIEW */
+.strand-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem}
+.strand-pill{padding:6px 14px;font-size:12px;border:1px solid #ccc;border-radius:20px;cursor:pointer;background:transparent;color:#666;font-family:inherit;transition:all .15s}
+.strand-pill:hover{background:#f0f0f0}
+.strand-pill.sel{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.strand-detail{display:none}
+.strand-detail.vis{display:block}
+.strand-unit-card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:1.1rem;margin-bottom:10px;border-left:4px solid #ccc}
+.strand-unit-card.planned{border-left-color:#27ae60}
+.strand-unit-card.assigned{border-left-color:#f39c12}
+.suc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.suc-title{font-size:14px;font-weight:700;color:#1a1a1a}
+.suc-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.suc-badge.planned{background:#eafaf1;color:#1e8449}
+.suc-badge.assigned{background:#fef9e7;color:#b7770d}
+.suc-badge.empty{background:#f5f4f0;color:#aaa}
+.suc-body{font-size:13px;line-height:1.6;color:#444;white-space:pre-wrap}
+.complexity-bar{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:#888}
+.cbar-track{flex:1;height:4px;background:#eee;border-radius:2px;overflow:hidden}
+.cbar-fill{height:100%;background:#3498db;border-radius:2px}
 
-  .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; }
-  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 1.25rem; }
+/* UNIT CARDS */
+.uc{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:1.1rem;margin-bottom:10px}
+.uc.planned{border-left:4px solid #27ae60}
+.uc.partial{border-left:4px solid #f39c12}
+.ut{font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px}
+.umeta{font-size:13px;color:#888}
+.ueq{font-size:13px;color:#555;font-style:italic;margin:5px 0}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.pill{font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid #ddd;color:#666;background:#f5f4f0}
+.pill.hi{background:#eafaf1;color:#1e8449;border-color:#a9dfbf;font-weight:500}
+.pill-note{font-size:11px;color:#aaa;margin-top:4px}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.status-dot.planned{background:#27ae60}
+.status-dot.assigned{background:#f39c12}
+.status-dot.empty{background:#ddd}
 
-  label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; }
-  input[type=text], input[type=number], textarea { width: 100%; padding: 9px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; color: #1a1a1a; outline: none; transition: border 0.15s; }
-  input:focus, textarea:focus { border-color: #555; }
-  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
-  .fr { margin-bottom: 1.1rem; }
+/* PLAN TYPE */
+.pt{border:1px solid #ddd;border-radius:10px;padding:1rem;cursor:pointer;transition:all .15s}
+.pt:hover{background:#f5f4f0}
+.pt.sel{border-color:#1a1a1a;background:#fff}
+.ptt{font-size:14px;font-weight:700;color:#888;margin-bottom:3px}
+.pt.sel .ptt{color:#1a1a1a}
+.ptd{font-size:12px;color:#aaa;line-height:1.4}
 
-  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.1rem; }
+/* LESSON OUTPUT */
+.day-card{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:1.1rem;margin-bottom:10px}
+.day-title{font-size:14px;font-weight:700;color:#555;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
+.df{margin-bottom:10px}
+.dfl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:2px}
+.dfv{font-size:13px;line-height:1.6;color:#1a1a1a}
 
-  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-  .tab { padding: 7px 16px; font-size: 13px; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; background: transparent; color: #666; font-family: inherit; transition: all .15s; }
-  .tab:hover { background: #f0f0f0; }
-  .tab.sel { background: #1a1a1a; color: #fff; border-color: #1a1a1a; font-weight: 500; }
-
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 14px; font-weight: 500; border: 1px solid #ccc; border-radius: 8px; background: transparent; color: #1a1a1a; cursor: pointer; font-family: inherit; transition: all .15s; }
-  .btn:hover { background: #f0f0f0; }
-  .btn:active { transform: scale(0.98); }
-  .btn-dark { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-  .btn-dark:hover { background: #333; }
-  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1.25rem; }
-
-  .sbar { font-size: 13px; color: #666; background: #f5f4f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 1.1rem; }
-
-  .sec { display: none; }
-  .sec.vis { display: block; }
-
-  .spin-row { display: none; align-items: center; gap: 10px; padding: 1rem 0; font-size: 14px; color: #666; }
-  .spin { width: 18px; height: 18px; border: 2px solid #ddd; border-top-color: #555; border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .err { color: #c0392b; font-size: 13px; min-height: 20px; padding: 2px 0; }
-
-  .slbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: #999; display: block; margin: 1.25rem 0 8px; }
-  .slbl:first-child { margin-top: 0; }
-  .ob { background: #f5f4f0; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: .75rem; font-size: 14px; line-height: 1.75; color: #1a1a1a; white-space: pre-wrap; }
-
-  .cg { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 1rem; }
-  .cc { background: #f5f4f0; border-radius: 8px; padding: 10px 12px; }
-  .cs { font-size: 12px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
-  .cn { font-size: 11px; color: #888; }
-  .cbar { height: 5px; background: #ddd; border-radius: 3px; margin-top: 6px; overflow: hidden; }
-  .cfill { height: 100%; border-radius: 3px; background: #27ae60; transition: width .4s; }
-  .cfill.warn { background: #e67e22; }
-  .cfill.low { background: #c0392b; }
-  .cleg { font-size: 12px; color: #888; margin-bottom: 1rem; }
-
-  .divider { height: 1px; background: #eee; margin: 1.25rem 0; }
-
-  .uc { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; padding: 1.1rem; margin-bottom: 10px; }
-  .ut { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 6px; }
-  .umeta { font-size: 13px; color: #888; }
-  .ueq { font-size: 13px; color: #555; font-style: italic; margin: 5px 0; }
-  .pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-  .pill { font-size: 11px; padding: 3px 9px; border-radius: 20px; border: 1px solid #ddd; color: #666; background: #f5f4f0; }
-  .pill.hi { background: #eafaf1; color: #1e8449; border-color: #a9dfbf; font-weight: 500; }
-  .pill-note { font-size: 11px; color: #aaa; margin-top: 4px; }
-
-  .tag { display: inline-block; font-size: 12px; background: #f5f4f0; border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; color: #666; margin-bottom: 12px; }
-
-  .pt { border: 1px solid #ddd; border-radius: 10px; padding: 1rem; cursor: pointer; transition: all .15s; }
-  .pt:hover { background: #f5f4f0; }
-  .pt.sel { border-color: #1a1a1a; background: #fff; }
-  .ptt { font-size: 14px; font-weight: 600; color: #888; margin-bottom: 3px; }
-  .pt.sel .ptt { color: #1a1a1a; }
-  .ptd { font-size: 12px; color: #aaa; line-height: 1.4; }
-
-  .day-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; padding: 1.1rem; margin-bottom: 10px; }
-  .day-title { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
-  .df { margin-bottom: 10px; }
-  .dfl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #aaa; margin-bottom: 2px; }
-  .dfv { font-size: 13px; line-height: 1.6; color: #1a1a1a; }
-
-  @media (max-width: 600px) {
-    .g2 { grid-template-columns: 1fr; }
-    .g3 { grid-template-columns: 1fr 1fr; }
-  }
+@media(max-width:600px){.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Texas English Lesson Planner</h1>
-  <p class="subtitle">TEKS-aligned · Backward Design · All 11 strands integrated</p>
+  <p class="sub">TEKS-aligned · Backward Design · All 11 strands integrated · Coverage auditable</p>
 
   <div class="stage-bar">
     <div class="s-step active" id="s1"><span class="sn">Step 1</span>Setup</div>
@@ -115,8 +139,7 @@
   <div class="sec vis" id="stage1">
     <div class="card">
       <div class="card-title">Course & schedule</div>
-      <div class="fr">
-        <label>Course</label>
+      <div class="fr"><label>Course</label>
         <div class="tabs" id="ctabs">
           <button class="tab sel" onclick="sc(this,'English I')">English I</button>
           <button class="tab" onclick="sc(this,'English II')">English II</button>
@@ -142,19 +165,44 @@
     </div>
   </div>
 
-  <!-- STEP 2 -->
+  <!-- STEP 2: ANNUAL MAP + AUDIT VIEWS -->
   <div class="sec" id="stage2">
     <div class="card">
-      <div class="card-title">Annual map & coverage dashboard</div>
+      <div class="card-title">Annual map & coverage audit</div>
       <div id="s2spin" class="spin-row"><div class="spin"></div>Building annual map — takes about 15 seconds...</div>
       <div id="s2err" class="err"></div>
       <div id="s2out" style="display:none">
-        <span class="slbl">Strand coverage across the year</span>
-        <div class="cg" id="cgrid"></div>
-        <p class="cleg">Green = meets target &nbsp;·&nbsp; Amber = approaching &nbsp;·&nbsp; Red = needs attention</p>
+
+        <div class="view-toggle">
+          <button class="vt-btn active" id="vt-matrix" onclick="switchView('matrix')">Unit × Strand matrix</button>
+          <button class="vt-btn" id="vt-strand" onclick="switchView('strand')">Strand detail view</button>
+          <button class="vt-btn" id="vt-units" onclick="switchView('units')">Unit list</button>
+        </div>
+
+        <!-- MATRIX VIEW -->
+        <div id="view-matrix">
+          <div class="cell-legend">
+            <span><div class="dot" style="background:#27ae60"></div>Planned (unit plan generated)</span>
+            <span><div class="dot" style="background:#f39c12"></div>Assigned (annual map only)</span>
+            <span><div class="dot" style="background:#f0eeea;border:1px solid #ddd"></div>Not assigned</span>
+          </div>
+          <div class="matrix-wrap"><table class="matrix" id="matrix-table"></table></div>
+          <p style="font-size:12px;color:#888;margin-bottom:1rem">Click any cell to see strand detail for that unit. Green cells require a unit plan to be generated first.</p>
+        </div>
+
+        <!-- STRAND VIEW -->
+        <div id="view-strand" style="display:none">
+          <p style="font-size:13px;color:#666;margin-bottom:1rem">Select a strand to see how it's addressed across all units, with specific activities laddering up to it.</p>
+          <div class="strand-selector" id="strand-selector"></div>
+          <div id="strand-content"></div>
+        </div>
+
+        <!-- UNIT LIST VIEW -->
+        <div id="view-units" style="display:none">
+          <div id="ulist"></div>
+        </div>
+
         <div class="divider"></div>
-        <span class="slbl">Units — click "Plan this unit" to continue</span>
-        <div id="ulist"></div>
         <div class="btn-row">
           <button class="btn" onclick="go(1)">← Revise setup</button>
           <button class="btn" onclick="copyMap()">Copy full map</button>
@@ -177,7 +225,7 @@
       </div>
       <div id="s3out" style="display:none">
         <span class="slbl">Big idea & essential questions</span><div class="ob" id="ubig"></div>
-        <span class="slbl">How TEKS strands integrate</span><div class="ob" id="uteks"></div>
+        <span class="slbl">How TEKS strands integrate in this unit</span><div class="ob" id="uteks"></div>
         <span class="slbl">Learning objectives</span><div class="ob" id="uobj"></div>
         <span class="slbl">Summative assessment</span><div class="ob" id="usum"></div>
         <span class="slbl">Formative checkpoints</span><div class="ob" id="uform"></div>
@@ -204,8 +252,7 @@
         <div class="fr"><label>Class duration (minutes)</label><input type="number" id="ldur" value="50" min="30" max="120" oninput="uls()"/></div>
         <div class="fr" id="lwrow"><label>Weeks per unit</label><input type="number" id="lwpu" value="3" min="1" max="10" oninput="uls()"/></div>
       </div>
-      <div class="fr" id="ldrow">
-        <label>Days per week</label>
+      <div class="fr" id="ldrow"><label>Days per week</label>
         <div class="tabs" id="ldtabs">
           <button class="tab" onclick="sld(this,3)">3</button>
           <button class="tab sel" onclick="sld(this,4)">4</button>
@@ -249,6 +296,7 @@ const SN=[
   {id:10,n:'Composition genres',s:'Comp.G'},
   {id:11,n:'Inquiry & research',s:'Inquiry'}
 ];
+
 const CF={
   'English I':'American, British, world lit; character foils, non-linear plot, setting and theme',
   'English II':'World lit across periods; archetypes, cultural and historical settings, comparative themes',
@@ -256,25 +304,30 @@ const CF={
   'English IV':'British lit across periods; classical rhetoric, critique and evaluate, rhetorical analysis'
 };
 
-let course='English I', days=4, lpDays=4, planType='unit', selUnit=null, unitData=null, mapRaw=null;
+// App state
+let course='English I', days=4, lpDays=4, planType='unit';
+let selUnit=null, unitData=null, mapRaw=null;
+let annualUnits=[]; // [{num, title, strands, emph, question, text, summative, weeks}]
+let plannedUnits={}; // {unitNum: {raw, strandDetails}} — populated when unit plans generated
+let currentView='matrix';
 
-function sc(b,c){course=c;document.querySelectorAll('#ctabs .tab').forEach(t=>t.classList.remove('sel'));b.classList.add('sel');us();}
-function sd(b,n){days=n;document.querySelectorAll('#dtabs .tab').forEach(t=>t.classList.remove('sel'));b.classList.add('sel');us();}
-function sld(b,n){lpDays=n;document.querySelectorAll('#ldtabs .tab').forEach(t=>t.classList.remove('sel'));b.classList.add('sel');uls();}
-function sp(c,t){planType=t;document.querySelectorAll('.pt').forEach(p=>p.classList.remove('sel'));c.classList.add('sel');document.getElementById('lwrow').style.display=t==='daily'?'none':'block';document.getElementById('ldrow').style.display=t==='daily'?'none':'block';uls();}
+// ── helpers ──────────────────────────────────────────────────────────────────
+function sc(b,c){course=c;document.querySelectorAll('#ctabs .tab').forEach(t=>t.classList.remove('sel'));b.classList.add('sel');us()}
+function sd(b,n){days=n;document.querySelectorAll('#dtabs .tab').forEach(t=>t.classList.remove('sel'));b.classList.add('sel');us()}
+function sld(b,n){lpDays=n;document.querySelectorAll('#ldtabs .tab').forEach(t=>t.classList.remove('sel'));b.classList.add('sel');uls()}
+function sp(c,t){planType=t;document.querySelectorAll('.pt').forEach(p=>p.classList.remove('sel'));c.classList.add('sel');document.getElementById('lwrow').style.display=t==='daily'?'none':'block';document.getElementById('ldrow').style.display=t==='daily'?'none':'block';uls()}
 
 function us(){
   const d=+document.getElementById('dur').value||50,u=+document.getElementById('upy').value||9,w=+document.getElementById('wpu').value||3,tot=u*w*days,hrs=Math.round(tot*d/60);
   document.getElementById('ss').textContent=u+' units × '+w+' weeks × '+days+' days = '+tot+' lessons ('+hrs+' hrs of instruction)';
 }
 function uls(){
-  const d=+document.getElementById('ldur').value||50,w=+document.getElementById('lwpu').value||3;
-  const el=document.getElementById('ls');
-  if(planType==='daily') el.textContent='One '+d+'-min lesson, fully detailed with timing';
-  else if(planType==='unit') el.textContent=w+' weeks × '+lpDays+' days = '+(w*lpDays)+' lessons at '+d+' min each';
+  const d=+document.getElementById('ldur').value||50,w=+document.getElementById('lwpu').value||3,el=document.getElementById('ls');
+  if(planType==='daily')el.textContent='One '+d+'-min lesson, fully detailed';
+  else if(planType==='unit')el.textContent=w+' weeks × '+lpDays+' days = '+(w*lpDays)+' lessons at '+d+' min each';
   else el.textContent='Full-year scope across all units';
 }
-us(); uls();
+us();uls();
 
 function go(n){
   document.querySelectorAll('.sec').forEach((s,i)=>s.classList.toggle('vis',i+1===n));
@@ -284,13 +337,15 @@ function go(n){
 
 async function callAPI(prompt){
   const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+  if(!r.ok)throw new Error('HTTP '+r.status);
   const data=await r.json();
-  if(data.error) throw new Error(data.error);
+  if(data.error)throw new Error(data.error);
   return data.text;
 }
 
+// ── STEP 2: Annual map ────────────────────────────────────────────────────────
 async function goS2(){
-  const u=+document.getElementById('upy').value||9, w=+document.getElementById('wpu').value||3, ctx=document.getElementById('ctx').value.trim();
+  const u=+document.getElementById('upy').value||9,w=+document.getElementById('wpu').value||3,ctx=document.getElementById('ctx').value.trim();
   go(2);
   document.getElementById('s2spin').style.display='flex';
   document.getElementById('s2out').style.display='none';
@@ -301,305 +356,423 @@ Schedule: ${u} units, ${w} weeks/unit, ${days} days/week.${ctx?' Context: '+ctx:
 
 11 TEKS strands: 1-Oral language, 2-Vocabulary, 3-Self-sustained reading, 4-Comprehension, 5-Response, 6-Literary elements, 7-Genre study, 8-Author craft, 9-Writing process, 10-Composition genres, 11-Inquiry/research.
 
-CRITICAL STRAND RULES — you must follow these exactly:
-- Strands 3, 9, and 10 MUST appear in the Strands list of EVERY single unit (all ${u} units)
+STRAND COVERAGE REQUIREMENTS (the teacher will audit these — be accurate):
+- Strands 3, 9, 10 must appear in EVERY unit (they are present in all ELA instruction)
 - Strands 4, 5, 6, 7, 8 must appear in at least 4 units each
 - Strands 1, 2, 11 must appear in at least 3 units each
-- Every unit must have at least 7 strand numbers in its Strands list
-- Every unit integrates reading, writing, speaking, and listening together
+- Every unit must list at least 8 strand numbers
+- Units increase in complexity across the year
 
-For each unit use EXACTLY this format:
+For each unit output EXACTLY this format — no deviations:
 UNIT [N]
 Title: [thematic title]
 Text: [suggested text or genre]
 Question: [one essential question]
-Strands: [comma-separated numbers — minimum 7 strands including 3, 9, 10]
-Emphasis: [2-3 primary strand numbers]
+Strands: [comma-separated numbers, minimum 8, always include 3,9,10]
+Emphasis: [2-3 primary strand numbers — these will be audited]
 Summative: [assessment type]
 Weeks: Week 1: [focus] | Week 2: [focus] | Week 3: [focus]`;
 
-  try {
-    const raw = await callAPI(prompt);
-    mapRaw = raw;
-    renderMap(raw, u, w);
+  try{
+    const raw=await callAPI(prompt);
+    mapRaw=raw;
+    annualUnits=parseUnits(raw);
+    renderAllViews();
     document.getElementById('s2out').style.display='block';
-  } catch(e) {
+  }catch(e){
     document.getElementById('s2err').textContent='Error: '+e.message+'. Please try again.';
   }
   document.getElementById('s2spin').style.display='none';
 }
 
-function renderMap(text, numU, numW){
-  const cov = {};
-
-  // Always build coverage directly from each unit's Strands line — most reliable source
-  const unitMatches = [...text.matchAll(/UNIT\s+(\d+)[^\n]*\n(?:[^\n]*\n)*?Strands:\s*([^\n]+)/gi)];
-  unitMatches.forEach(m => {
-    const unitNum = +m[1];
-    const strands = (m[2].match(/\d+/g)||[]).map(Number);
-    strands.forEach(s => {
-      if(!cov[s]) cov[s] = [];
-      if(!cov[s].includes(unitNum)) cov[s].push(unitNum);
-    });
-  });
-
-  // Also scan for any "Strands:" lines we might have missed with a simpler pass
-  let lastUnitNum = 0;
-  text.split('\n').forEach(line => {
-    const uM = line.match(/^UNIT\s+(\d+)/i);
-    if(uM) lastUnitNum = +uM[1];
-    const sM = line.match(/^Strands:\s*(.+)/i);
-    if(sM && lastUnitNum > 0){
-      const strands = (sM[1].match(/\d+/g)||[]).map(Number);
-      strands.forEach(s => {
-        if(!cov[s]) cov[s] = [];
-        if(!cov[s].includes(lastUnitNum)) cov[s].push(lastUnitNum);
-      });
-    }
-  });
-  const grid = document.getElementById('cgrid');
-  grid.innerHTML = '';
-  SN.forEach(s=>{
-    const cnt=(cov[s.id]||[]).length, tgt=[1,2,3,9,10].includes(s.id)?numU:[4,5,6,7,8].includes(s.id)?4:2;
-    const pct=Math.min(100,Math.round(cnt/tgt*100));
-    const fc=pct>=80?'cfill':pct>=50?'cfill warn':'cfill low';
-    const el=document.createElement('div');
-    el.className='cc';
-    el.innerHTML='<div class="cs">'+s.id+': '+s.s+'</div><div class="cn">'+cnt+' units · target '+tgt+'</div><div class="cbar"><div class="'+fc+'" style="width:'+pct+'%"></div></div>';
-    grid.appendChild(el);
-  });
-
-  const list = document.getElementById('ulist');
-  list.innerHTML = '';
-  const blocks = [];
-  let cur = null;
+function parseUnits(text){
+  const units=[];
+  let cur=null;
   text.split('\n').forEach(line=>{
-    if(/^UNIT \d+$/.test(line.trim())){
-      if(cur) blocks.push(cur);
-      cur = {raw: line+'\n', num: +line.trim().match(/\d+/)[0]};
-    } else if(cur && !/^COVERAGE/.test(line.trim())) {
-      cur.raw += line+'\n';
+    const uM=line.match(/^UNIT\s+(\d+)\s*$/i);
+    if(uM){
+      if(cur)units.push(finalizeUnit(cur));
+      cur={num:+uM[1],raw:''};
+    } else if(cur){
+      cur.raw+=line+'\n';
     }
   });
-  if(cur) blocks.push(cur);
+  if(cur)units.push(finalizeUnit(cur));
+  return units;
+}
 
-  blocks.forEach(b=>{
-    const tM=b.raw.match(/Title:\s*([^\n]+)/i), qM=b.raw.match(/Question:\s*([^\n]+)/i);
-    const txM=b.raw.match(/Text:\s*([^\n]+)/i), sM=b.raw.match(/Summative:\s*([^\n]+)/i);
-    const strM=b.raw.match(/Strands:\s*([^\n]+)/i), emM=b.raw.match(/Emphasis:\s*([^\n]+)/i);
-    const wkM=b.raw.match(/Weeks:\s*([^\n]+)/i);
-    const title=tM?tM[1].trim():'Unit '+b.num;
-    const stNums=(strM?strM[1].match(/\d+/g)||[]:[]).map(Number);
-    const emNums=(emM?emM[1].match(/\d+/g)||[]:[]).map(Number);
-    const pills=stNums.map(n=>{const s=SN.find(x=>x.id===n);return '<span class="pill'+(emNums.includes(n)?' hi':'')+'">'+(s?n+':'+s.s:n)+'</span>';}).join('');
+function finalizeUnit(cur){
+  const r=cur.raw;
+  const get=(key)=>{const m=r.match(new RegExp('^'+key+':\\s*(.+)','im'));return m?m[1].trim():''};
+  const strandStr=get('Strands');
+  const emphStr=get('Emphasis');
+  return {
+    num:cur.num,
+    raw:r,
+    title:get('Title')||'Unit '+cur.num,
+    text:get('Text'),
+    question:get('Question'),
+    strands:(strandStr.match(/\d+/g)||[]).map(Number),
+    emph:(emphStr.match(/\d+/g)||[]).map(Number),
+    summative:get('Summative'),
+    weeks:get('Weeks')
+  };
+}
+
+// ── View switching ────────────────────────────────────────────────────────────
+function switchView(v){
+  currentView=v;
+  ['matrix','strand','units'].forEach(name=>{
+    document.getElementById('view-'+name).style.display=name===v?'block':'none';
+    document.getElementById('vt-'+name).classList.toggle('active',name===v);
+  });
+  if(v==='strand')renderStrandSelector();
+}
+
+function renderAllViews(){
+  renderMatrix();
+  renderUnitList();
+  buildStrandSelector();
+}
+
+// ── MATRIX VIEW ───────────────────────────────────────────────────────────────
+function renderMatrix(){
+  const tbl=document.getElementById('matrix-table');
+  // Header row
+  let hdr='<tr><th class="unit-hdr">Unit</th>';
+  SN.forEach(s=>hdr+='<th title="'+s.n+'">'+s.id+'<br><span style="font-weight:400;font-size:10px">'+s.s+'</span></th>');
+  hdr+='</tr>';
+
+  let rows='';
+  annualUnits.forEach(u=>{
+    const isPlanned=!!plannedUnits[u.num];
+    rows+='<tr>';
+    rows+='<td class="unit-name"><span class="status-dot '+(isPlanned?'planned':'assigned')+'"></span>'+u.num+'. '+u.title+'</td>';
+    SN.forEach(s=>{
+      const assigned=u.strands.includes(s.id);
+      const isEmph=u.emph.includes(s.id);
+      const hasPlan=isPlanned&&plannedUnits[u.num].strandDetails&&plannedUnits[u.num].strandDetails[s.id];
+      let cls='empty', label='';
+      if(hasPlan){cls='planned';label='✓';}
+      else if(assigned){cls='assigned';label=isEmph?'★':'';}
+      rows+='<td><div class="cell '+cls+'" title="'+s.n+' in Unit '+u.num+(hasPlan?' — click for details':assigned?' — assigned':(': not assigned'))+'" onclick="cellClick('+u.num+','+s.id+')">'+label+'</div></td>';
+    });
+    rows+='</tr>';
+  });
+  tbl.innerHTML=hdr+rows;
+}
+
+function cellClick(unitNum,strandId){
+  const unit=annualUnits.find(u=>u.num===unitNum);
+  const planned=plannedUnits[unitNum];
+  const strand=SN.find(s=>s.id===strandId);
+  if(!unit||!strand)return;
+
+  let msg='';
+  if(planned&&planned.strandDetails&&planned.strandDetails[strandId]){
+    msg='Unit '+unitNum+' — '+unit.title+'\nStrand '+strandId+': '+strand.n+'\n\n'+planned.strandDetails[strandId];
+  } else if(unit.strands.includes(strandId)){
+    msg='Unit '+unitNum+' — '+unit.title+'\nStrand '+strandId+': '+strand.n+'\n\nThis strand is assigned to this unit. Generate the unit plan to see specific activities and objectives.';
+  } else {
+    msg='Unit '+unitNum+' — '+unit.title+'\nStrand '+strandId+': '+strand.n+'\n\nThis strand is not assigned to this unit.';
+  }
+  alert(msg);
+}
+
+// ── STRAND VIEW ───────────────────────────────────────────────────────────────
+function buildStrandSelector(){
+  const sel=document.getElementById('strand-selector');
+  sel.innerHTML='';
+  SN.forEach(s=>{
+    const btn=document.createElement('button');
+    btn.className='strand-pill';
+    btn.textContent=s.id+': '+s.n;
+    btn.onclick=()=>showStrand(s.id,btn);
+    sel.appendChild(btn);
+  });
+}
+
+function renderStrandSelector(){buildStrandSelector()}
+
+function showStrand(strandId,btn){
+  document.querySelectorAll('.strand-pill').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const strand=SN.find(s=>s.id===strandId);
+  const content=document.getElementById('strand-content');
+
+  let html='<div style="margin-bottom:1rem"><strong style="font-size:15px">Strand '+strandId+': '+strand.n+'</strong>';
+  const assignedUnits=annualUnits.filter(u=>u.strands.includes(strandId));
+  const plannedCount=assignedUnits.filter(u=>plannedUnits[u.num]&&plannedUnits[u.num].strandDetails&&plannedUnits[u.num].strandDetails[strandId]).length;
+  html+=' <span style="font-size:13px;color:#888">— assigned in '+assignedUnits.length+' units, planned detail in '+plannedCount+'</span></div>';
+
+  if(assignedUnits.length===0){
+    html+='<div class="ob" style="color:#c0392b">⚠ This strand is not assigned to any unit in your annual map. Return to Step 1 and regenerate, or plan it manually.</div>';
+  } else {
+    // Show all units, with detail where available
+    annualUnits.forEach((u,idx)=>{
+      const assigned=u.strands.includes(strandId);
+      const isEmph=u.emph.includes(strandId);
+      const pd=plannedUnits[u.num];
+      const detail=pd&&pd.strandDetails&&pd.strandDetails[strandId];
+      const complexity=Math.round((idx+1)/annualUnits.length*100);
+
+      let status='empty', badgeText='Not assigned', badgeCls='empty';
+      if(detail){status='planned';badgeText='Planned ✓';badgeCls='planned';}
+      else if(assigned){status='assigned';badgeText=isEmph?'Primary emphasis':'Assigned';badgeCls='assigned';}
+
+      html+='<div class="strand-unit-card '+status+'">';
+      html+='<div class="suc-header"><div class="suc-title">Unit '+u.num+' — '+u.title+'</div>';
+      html+='<span class="suc-badge '+badgeCls+'">'+badgeText+'</span></div>';
+
+      if(detail){
+        html+='<div class="suc-body">'+escHtml(detail)+'</div>';
+      } else if(assigned){
+        html+='<div class="suc-body" style="color:#888;font-style:italic">Generate the unit plan to see specific objectives, activities, and assessments that address this strand.</div>';
+        if(u.summative) html+='<div style="font-size:12px;color:#aaa;margin-top:6px">Planned summative: '+escHtml(u.summative)+'</div>';
+      } else {
+        html+='<div class="suc-body" style="color:#ccc;font-style:italic">Not addressed in this unit.</div>';
+      }
+
+      if(assigned){
+        html+='<div class="complexity-bar"><span>Complexity:</span><div class="cbar-track"><div class="cbar-fill" style="width:'+complexity+'%"></div></div><span>Unit '+u.num+'/'+annualUnits.length+'</span></div>';
+      }
+      html+='</div>';
+    });
+  }
+
+  content.innerHTML=html;
+}
+
+function escHtml(str){return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// ── UNIT LIST VIEW ────────────────────────────────────────────────────────────
+function renderUnitList(){
+  const list=document.getElementById('ulist');
+  list.innerHTML='';
+  annualUnits.forEach(u=>{
+    const isPlanned=!!plannedUnits[u.num];
+    const pills=u.strands.map(n=>{const s=SN.find(x=>x.id===n);return '<span class="pill'+(u.emph.includes(n)?' hi':'')+'">'+(s?n+':'+s.s:n)+'</span>';}).join('');
     const card=document.createElement('div');
-    card.className='uc';
+    card.className='uc'+(isPlanned?' planned':'');
     card.innerHTML=
-      '<div class="ut">Unit '+b.num+' — '+title+'</div>'+
-      (qM?'<div class="ueq">'+qM[1].trim()+'</div>':'')+
-      (txM?'<div class="umeta">Texts: '+txM[1].trim()+'</div>':'')+
-      (sM?'<div class="umeta">Summative: '+sM[1].trim()+'</div>':'')+
-      (wkM?'<div class="umeta" style="margin-top:3px">'+wkM[1].trim()+'</div>':'')+
+      '<div class="ut"><span class="status-dot '+(isPlanned?'planned':'assigned')+'"></span>Unit '+u.num+' — '+u.title+'</div>'+
+      (u.question?'<div class="ueq">'+u.question+'</div>':'')+
+      (u.text?'<div class="umeta">Texts: '+u.text+'</div>':'')+
+      (u.summative?'<div class="umeta">Summative: '+u.summative+'</div>':'')+
+      (u.weeks?'<div class="umeta" style="margin-top:3px">'+u.weeks+'</div>':'')+
       '<div class="pills">'+pills+'</div>'+
-      '<div class="pill-note">Green = primary strand emphasis</div>'+
-      '<button class="btn" style="font-size:12px;padding:6px 14px;margin-top:10px" onclick=\'pickUnit('+b.num+','+JSON.stringify(title)+','+JSON.stringify(stNums)+','+JSON.stringify(emNums)+')\'>Plan this unit →</button>';
+      '<div class="pill-note">Green = primary emphasis · '+(isPlanned?'Unit plan generated':'Unit plan not yet generated')+'</div>'+
+      '<button class="btn btn-sm" style="margin-top:10px" onclick=\'pickUnit('+u.num+')\'>Plan this unit →</button>';
     list.appendChild(card);
   });
 }
 
-function pickUnit(num, title, strands, emph){
-  selUnit = {num, title, strands, emph};
-  document.getElementById('utag').innerHTML='<div class="tag">Unit '+num+' — '+title+' · '+course+'</div>';
+// ── STEP 3: Unit plan ─────────────────────────────────────────────────────────
+function pickUnit(num){
+  selUnit=annualUnits.find(u=>u.num===num);
+  if(!selUnit)return;
+  document.getElementById('utag').innerHTML='<div class="tag">Unit '+num+' — '+selUnit.title+' · '+course+'</div>';
   document.getElementById('s3out').style.display='none';
   document.getElementById('s3genrow').style.display='flex';
   go(3);
 }
 
 async function genUnit(){
-  if(!selUnit) return;
+  if(!selUnit)return;
   document.getElementById('s3genrow').style.display='none';
   document.getElementById('s3spin').style.display='flex';
   document.getElementById('s3out').style.display='none';
   document.getElementById('s3err').textContent='';
+
   const hint=document.getElementById('utxt').value.trim();
   const sNames=selUnit.strands.map(n=>{const s=SN.find(x=>x.id===n);return n+'('+(s?s.n:'?')+')';}).join(', ');
   const eNames=selUnit.emph.map(n=>{const s=SN.find(x=>x.id===n);return n+'('+(s?s.n:'?')+')';}).join(', ');
 
   const prompt=`Backward Design unit plan for ${course}. Unit ${selUnit.num}: "${selUnit.title}".${hint?' Text/theme: '+hint+'.':''}
 
-Integrated TEKS strands (never in isolation): ${sNames}
-Primary emphasis: ${eNames}
+Integrated TEKS strands: ${sNames}
+Primary emphasis strands: ${eNames}
 
-The summative assessment must require reading + writing + speaking together. All objectives must integrate multiple strands.
+IMPORTANT: For each primary emphasis strand, explicitly state how it is addressed in this unit — what specific activities, objectives, and assessments connect to it. This data will be used for a coverage audit.
 
 Format EXACTLY:
+
 BIG IDEA:
-[2-sentence big idea. Then 3 open-ended essential questions connecting reading, writing, and speaking.]
+[2-sentence big idea + 3 open-ended essential questions]
 
 TEKS INTEGRATION:
-[3 sentences explaining how strands weave together through the shared text or theme.]
+[For each primary emphasis strand, write one paragraph: "Strand N (Name): [how it's specifically addressed in this unit — activities, objectives, assessments]"]
 
 OBJECTIVES:
-[5 SMART objectives using Blooms Taxonomy verbs. Each must integrate 2+ strands. Format: "Students will [verb] [what] by [evidence]."]
+[5 SMART objectives using Blooms verbs. Each must reference strand numbers. Format: "(Strands X,Y) Students will [verb] [what] by [evidence]."]
 
 SUMMATIVE:
-[One authentic task requiring reading + writing + speaking. Describe task, form, and evidence of mastery.]
+[Authentic task requiring reading+writing+speaking. Describe task, form, evidence of mastery, and which strands it assesses.]
 
 FORMATIVE:
-[4 checkpoints across the unit: entrance ticket, close reading annotation, draft response, exit ticket.]`;
+[4 checkpoints, each labeled with the strand it assesses: "Strand N — [checkpoint description]"]`;
 
-  try {
-    const raw = await callAPI(prompt);
+  try{
+    const raw=await callAPI(prompt);
     const get=(a,b)=>{const m=raw.match(new RegExp(a+':[\\s\\S]*?(?='+b+':|$)','i'));return m?m[0].replace(new RegExp(a+':','i'),'').trim():'';};
     document.getElementById('ubig').textContent=get('BIG IDEA','TEKS INTEGRATION');
     document.getElementById('uteks').textContent=get('TEKS INTEGRATION','OBJECTIVES');
     document.getElementById('uobj').textContent=get('OBJECTIVES','SUMMATIVE');
     document.getElementById('usum').textContent=get('SUMMATIVE','FORMATIVE');
     document.getElementById('uform').textContent=get('FORMATIVE','ZZZZZ');
-    unitData={raw, title:selUnit.title, strands:selUnit.strands};
+
+    // Extract strand details for audit
+    const strandDetails={};
+    const teksSection=get('TEKS INTEGRATION','OBJECTIVES');
+    selUnit.emph.forEach(sid=>{
+      const s=SN.find(x=>x.id===sid);
+      if(!s)return;
+      const rx=new RegExp('Strand\\s*'+sid+'[^:]*:\\s*([\\s\\S]*?)(?=Strand\\s*\\d|$)','i');
+      const m=teksSection.match(rx);
+      if(m)strandDetails[sid]=m[1].trim();
+    });
+    // Also extract from objectives
+    selUnit.strands.forEach(sid=>{
+      if(strandDetails[sid])return;
+      const rx=new RegExp('\\(Strands[^)]*\\b'+sid+'\\b[^)]*\\)([^\\n]+)','gi');
+      const matches=[...raw.matchAll(rx)];
+      if(matches.length>0)strandDetails[sid]=matches.map(m=>m[1].trim()).join('\n');
+    });
+
+    unitData={raw,title:selUnit.title,strands:selUnit.strands,strandDetails};
+    plannedUnits[selUnit.num]={raw,strandDetails};
+
     document.getElementById('s3out').style.display='block';
     document.getElementById('ldur').value=document.getElementById('dur').value;
     document.getElementById('lwpu').value=document.getElementById('wpu').value;
     document.getElementById('s4tag').innerHTML='<div class="tag">Unit '+selUnit.num+' — '+selUnit.title+' · '+course+'</div>';
     uls();
-  } catch(e) {
+
+    // Refresh audit views with new planned data
+    renderMatrix();
+    renderUnitList();
+
+  }catch(e){
     document.getElementById('s3err').textContent='Error: '+e.message+'. Please try again.';
     document.getElementById('s3genrow').style.display='flex';
   }
   document.getElementById('s3spin').style.display='none';
 }
 
+// ── STEP 4: Lessons ───────────────────────────────────────────────────────────
 async function genL(){
-  if(!unitData) return;
-  const dur=+document.getElementById('ldur').value||50, w=+document.getElementById('lwpu').value||3, tot=w*lpDays;
+  if(!unitData)return;
+  const dur=+document.getElementById('ldur').value||50,w=+document.getElementById('lwpu').value||3,tot=w*lpDays;
   const sNames=selUnit.strands.map(n=>{const s=SN.find(x=>x.id===n);return n+'('+(s?s.s:'?')+')';}).join(', ');
   document.getElementById('s4card').style.display='block';
   document.getElementById('s4spin').style.display='flex';
   document.getElementById('s4out').style.display='none';
   document.getElementById('s4err').textContent='';
-  const msgs={unit:'Building '+tot+' integrated lessons...',daily:'Building detailed single lesson...',annual:'Building full-year scope...'};
+  const msgs={unit:'Building '+tot+' integrated lessons...',daily:'Building detailed lesson...',annual:'Building full-year scope...'};
   document.getElementById('s4msg').textContent=msgs[planType];
 
-  const base=`Course: ${course}. Unit ${selUnit.num}: "${selUnit.title}". TEKS strands: ${sNames}.
-Unit objectives summary: ${unitData.raw.substring(0,300)}\n\n`;
+  const base=`Course: ${course}. Unit ${selUnit.num}: "${selUnit.title}". Strands: ${sNames}.
+Unit objectives: ${unitData.raw.substring(0,400)}\n\n`;
 
   let prompt='';
   if(planType==='unit'){
-    prompt=base+`Create ${tot} lesson plans (${w} weeks × ${lpDays} days, ${dur} min each). Integrate reading, writing, speaking, and listening every lesson — never one strand in isolation.
+    prompt=base+`Create ${tot} lessons (${w} weeks × ${lpDays} days, ${dur} min). Label each lesson segment with the strand numbers it addresses. Integrate reading, writing, speaking, listening every day.
 
-WEEK [N]: [week theme]
-LESSON [N]: [lesson title]
-Obj: [strand-integrated objective]
-Hook(${Math.round(dur*.1)}min): [entry connecting to essential question]
-Read(${Math.round(dur*.25)}min): [text encounter + teacher modeling]
-Practice(${Math.round(dur*.35)}min): [reading, writing, and discussion woven together]
-Respond(${Math.round(dur*.2)}min): [written or oral response]
-Close(${Math.round(dur*.1)}min): [exit ticket tied to essential question]
-Strands: [active strand numbers this lesson]
+WEEK [N]: [theme]
+LESSON [N]: [title]
+Strands today: [numbers]
+Obj: [objective]
+Hook(${Math.round(dur*.1)}min): [entry — Strand(s): X]
+Read(${Math.round(dur*.25)}min): [text+modeling — Strand(s): X]
+Practice(${Math.round(dur*.35)}min): [activity — Strand(s): X,Y]
+Respond(${Math.round(dur*.2)}min): [response — Strand(s): X]
+Close(${Math.round(dur*.1)}min): [exit ticket — Strand(s): X]
 
-After all lessons:
+After lessons:
 DISCUSSION QUESTIONS:
-[5 Socratic seminar questions spanning reading, writing, and speaking]
+[5 Socratic questions, each labeled with strand]
 RUBRIC:
-Reading/Analysis: 4:... | 3:... | 2:... | 1:...
-Writing/Composition: 4:... | 3:... | 2:... | 1:...
-Speaking/Discussion: 4:... | 3:... | 2:... | 1:...`;
+Reading/Analysis (Strands 4,5,6,8): 4:... | 3:... | 2:... | 1:...
+Writing/Composition (Strands 9,10): 4:... | 3:... | 2:... | 1:...
+Speaking/Discussion (Strands 1,5): 4:... | 3:... | 2:... | 1:...`;
   } else if(planType==='daily'){
-    prompt=base+`Create one fully detailed ${dur}-minute integrated lesson. Every segment must involve at least 2 TEKS strands simultaneously.
+    prompt=base+`One detailed ${dur}-min lesson. Label every segment with strand numbers.
 
 TITLE: [title]
-OBJ: [objective referencing 3+ strands]
-MATERIALS: [list all needed materials]
-HOOK(${Math.round(dur*.1)}min): [activate prior knowledge, connect to essential question]
-READ(${Math.round(dur*.25)}min): [close reading + teacher modeling — Strands 4,8 primary]
-DISCUSS(${Math.round(dur*.15)}min): [structured academic discussion — Strands 1,5 primary]
-WRITE(${Math.round(dur*.3)}min): [writing responsive to reading — Strands 9,10 primary]
-CLOSE(${Math.round(dur*.1)}min): [share-out + exit ticket]
-STRANDS: [all strand numbers active today]
-SUPPORT: [scaffold strategy for struggling students]
-EXTENSION: [challenge for advanced students]
-ASSESS: [how you will check for understanding]`;
+STRANDS TODAY: [numbers]
+OBJ: [objective — Strands: X,Y,Z]
+MATERIALS: [list]
+HOOK(${Math.round(dur*.1)}min — Strands 4,5): [activate prior knowledge]
+READ(${Math.round(dur*.25)}min — Strands 4,8): [close reading + modeling]
+DISCUSS(${Math.round(dur*.15)}min — Strands 1,5): [structured discussion]
+WRITE(${Math.round(dur*.3)}min — Strands 9,10): [writing task]
+CLOSE(${Math.round(dur*.1)}min — Strands 1,5): [share + exit ticket]
+SUPPORT: [scaffold for struggling students]
+EXTENSION: [challenge for advanced]
+ASSESS: [how you check understanding today]`;
   } else {
-    prompt=base+`Create a full-year scope and sequence for ${course} covering all ${document.getElementById('upy').value} units. Use this unit as a model for integration depth.
-
-For each unit:
-UNIT [N]: [title] | Text: [text or genre] | Question: [EQ] | Strands: [numbers] | Emphasis: [2-3] | Integration: [1 sentence — how reading+writing+speaking connect] | Summative: [type]
-
-End with:
-COVERAGE SUMMARY
-[Each of the 11 strands and which unit numbers address it]`;
+    prompt=base+`Full-year scope for ${course}, ${document.getElementById('upy').value} units.
+UNIT [N]: [title] | Text: [text] | Question: [EQ] | Strands: [numbers] | Emphasis: [2-3] | Integration: [how reading+writing+speaking connect] | Summative: [type]
+End with COVERAGE SUMMARY showing each strand and which units address it.`;
   }
 
-  try {
-    const raw = await callAPI(prompt);
-    renderL(raw, dur);
+  try{
+    const raw=await callAPI(prompt);
+    renderL(raw,dur);
     document.getElementById('s4out').style.display='block';
-  } catch(e) {
+  }catch(e){
     document.getElementById('s4err').textContent='Error: '+e.message+'. Please try again.';
   }
   document.getElementById('s4spin').style.display='none';
 }
 
-function renderL(text, dur){
+function renderL(text,dur){
   const body=document.getElementById('s4body');
   if(planType==='unit'){
     const wks=text.split(/(?=WEEK \d+:)/i).filter(s=>/WEEK \d+/i.test(s)&&!/DISCUSSION|RUBRIC/i.test(s.substring(0,30)));
     let html='';
     wks.forEach((wb,wi)=>{
-      const wm=wb.match(/WEEK (\d+):\s*([^\n]+)/i), wl=wm?'Week '+wm[1]+': '+wm[2].trim():'Week '+(wi+1);
+      const wm=wb.match(/WEEK (\d+):\s*([^\n]+)/i),wl=wm?'Week '+wm[1]+': '+wm[2].trim():'Week '+(wi+1);
       const ls=wb.split(/(?=LESSON \d+:)/i).filter(s=>/LESSON \d+/i.test(s));
       let lh='';
       ls.forEach(lb=>{
-        const lm=lb.match(/LESSON (\d+):\s*([^\n]+)/i), lt=lm?'Lesson '+lm[1]+': '+lm[2].trim():'Lesson';
+        const lm=lb.match(/LESSON (\d+):\s*([^\n]+)/i),lt=lm?'Lesson '+lm[1]+': '+lm[2].trim():'Lesson';
         let fh='';
-        ['Obj','Hook','Read','Practice','Respond','Close','Strands'].forEach(f=>{
+        ['Strands today','Obj','Hook','Read','Practice','Respond','Close'].forEach(f=>{
           const m=lb.match(new RegExp(f+'[^:]*:\\s*([^\\n]+)','i'));
-          if(m) fh+='<div class="df"><div class="dfl">'+f+'</div><div class="dfv">'+m[1].trim()+'</div></div>';
+          if(m)fh+='<div class="df"><div class="dfl">'+f+'</div><div class="dfv">'+m[1].trim()+'</div></div>';
         });
         lh+='<div style="border-top:1px solid #f0f0f0;padding-top:10px;margin-top:10px"><div class="day-title">'+lt+'</div>'+fh+'</div>';
       });
-      html+='<div class="day-card"><div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:4px">'+wl+'</div>'+lh+'</div>';
+      html+='<div class="day-card"><div style="font-size:15px;font-weight:700;margin-bottom:4px">'+wl+'</div>'+lh+'</div>';
     });
     const dm=text.match(/DISCUSSION QUESTIONS:\s*([\s\S]*?)(?=RUBRIC:|$)/i);
     const rm=text.match(/RUBRIC:\s*([\s\S]*?)$/i);
-    if(dm) html+='<span class="slbl" style="display:block;margin:1.5rem 0 .5rem">Discussion questions</span><div class="ob">'+dm[1].trim()+'</div>';
-    if(rm) html+='<span class="slbl" style="display:block;margin:1.5rem 0 .5rem">Rubric</span><div class="ob">'+rm[1].trim()+'</div>';
+    if(dm)html+='<span class="slbl" style="display:block;margin:1.5rem 0 .5rem">Discussion questions</span><div class="ob">'+dm[1].trim()+'</div>';
+    if(rm)html+='<span class="slbl" style="display:block;margin:1.5rem 0 .5rem">Rubric</span><div class="ob">'+rm[1].trim()+'</div>';
     body.innerHTML=html;
   } else if(planType==='daily'){
-    const fs=['TITLE','OBJ','MATERIALS','HOOK','READ','DISCUSS','WRITE','CLOSE','STRANDS','SUPPORT','EXTENSION','ASSESS'];
+    const fs=['TITLE','STRANDS TODAY','OBJ','MATERIALS','HOOK','READ','DISCUSS','WRITE','CLOSE','SUPPORT','EXTENSION','ASSESS'];
     let html='<div class="day-card">';
     fs.forEach((f,i)=>{
       const nxt=fs[i+1]||'ZZZZ';
-      const m=text.match(new RegExp(f+'[^:]*:\\s*([\\s\\S]*?)(?='+nxt+'[^:]*:|$)','i'));
-      if(m&&m[1].trim()) html+='<div class="df"><div class="dfl">'+f.toLowerCase()+'</div><div class="dfv" style="white-space:pre-wrap">'+m[1].trim()+'</div></div><hr style="border:none;border-top:1px solid #f0f0f0;margin:10px 0"/>';
+      const m=text.match(new RegExp(f.replace(/[()]/g,'\\$&')+'[^:]*:\\s*([\\s\\S]*?)(?='+nxt.replace(/[()]/g,'\\$&')+'[^:]*:|$)','i'));
+      if(m&&m[1].trim())html+='<div class="df"><div class="dfl">'+f.toLowerCase()+'</div><div class="dfv" style="white-space:pre-wrap">'+m[1].trim()+'</div></div><hr style="border:none;border-top:1px solid #f0f0f0;margin:10px 0"/>';
     });
     body.innerHTML=html+'</div>';
   } else {
     const us=text.split(/(?=UNIT \d+:)/i).filter(s=>/^UNIT \d+:/i.test(s)&&!s.includes('COVERAGE'));
     let html='';
-    us.forEach((u,i)=>{
-      const m=u.match(/UNIT (\d+):\s*([^\n]+)/i), t=m?'Unit '+m[1]+': '+m[2].trim():'Unit '+(i+1);
-      html+='<div class="day-card"><div class="ut">'+t+'</div><div style="font-size:13px;line-height:1.7;color:#333;white-space:pre-wrap;margin-top:6px">'+u.replace(/UNIT \d+:[^\n]*/i,'').trim()+'</div></div>';
-    });
+    us.forEach((u,i)=>{const m=u.match(/UNIT (\d+):\s*([^\n]+)/i),t=m?'Unit '+m[1]+': '+m[2].trim():'Unit '+(i+1);html+='<div class="day-card"><div style="font-size:15px;font-weight:700;margin-bottom:6px">'+t+'</div><div style="font-size:13px;line-height:1.7;color:#333;white-space:pre-wrap">'+u.replace(/UNIT \d+:[^\n]*/i,'').trim()+'</div></div>';});
     const cm=text.match(/COVERAGE SUMMARY([\s\S]*?)$/i);
-    if(cm) html+='<span class="slbl" style="display:block;margin:1.5rem 0 .5rem">Coverage summary</span><div class="ob">'+cm[1].trim()+'</div>';
+    if(cm)html+='<span class="slbl" style="display:block;margin:1.5rem 0 .5rem">Coverage summary</span><div class="ob">'+cm[1].trim()+'</div>';
     body.innerHTML=html;
   }
 }
 
-function copyMap(){
-  navigator.clipboard.writeText(mapRaw||'').then(()=>alert('Annual map copied to clipboard!')).catch(()=>alert('Please select text and copy manually.'));
-}
-function copyL(){
-  const t=document.getElementById('s4body').innerText;
-  const u=unitData?'UNIT PLAN: '+selUnit.title+'\n\n'+unitData.raw+'\n\n---\n\n':'';
-  navigator.clipboard.writeText(u+t).then(()=>alert('Copied to clipboard!')).catch(()=>alert('Please select text and copy manually.'));
-}
-function startOver(){
-  unitData=null; selUnit=null; mapRaw=null;
-  document.getElementById('s4card').style.display='none';
-  go(1);
-}
+function copyMap(){navigator.clipboard.writeText(mapRaw||'').then(()=>alert('Copied!')).catch(()=>alert('Select and copy manually.'))}
+function copyL(){navigator.clipboard.writeText(document.getElementById('s4body').innerText).then(()=>alert('Copied!')).catch(()=>alert('Select and copy manually.'))}
+function startOver(){unitData=null;selUnit=null;mapRaw=null;annualUnits=[];plannedUnits={};document.getElementById('s4card').style.display='none';go(1)}
 </script>
 </body>
 </html>
