@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Texas ELA Planner</title>
+<title>Texas English Lesson Planner</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0eeea;color:#1a1a1a;font-size:15px;line-height:1.6}
@@ -653,11 +653,13 @@ function parseUnits(text){
   var units=[];
   var cur=null;
   text.split('\n').forEach(function(line){
-    if(/^UNIT\s+\d+\s*$/i.test(line.trim())){
+    var t=line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
+    if(/^UNIT\s+\d+/i.test(t)){
       if(cur) units.push(finalize(cur));
-      cur={num:+line.trim().match(/\d+/)[0],raw:''};
+      var m=t.match(/\d+/);
+      cur={num:m?+m[0]:units.length+1,raw:''};
     } else if(cur){
-      cur.raw+=line+'\n';
+      cur.raw+=line.replace(/\*+/g,'')+'\n';
     }
   });
   if(cur) units.push(finalize(cur));
@@ -665,8 +667,8 @@ function parseUnits(text){
 }
 
 function finalize(cur){
-  var r=cur.raw;
-  function get(k){var m=r.match(new RegExp('^'+k+':\\s*(.+)','im'));return m?m[1].trim():'';}
+  var r=cur.raw.replace(/\*+/g,'');
+  function get(k){var m=r.match(new RegExp(k+'[:\\s]+([^\\n]+)','im'));return m?m[1].trim().replace(/^[:\\s]+/,''):'';};
   var strStr=get('Strands');
   var emStr=get('Emphasis');
   return {
