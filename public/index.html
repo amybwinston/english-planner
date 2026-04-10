@@ -913,36 +913,60 @@ function renderLessons(text, numWeeks, daysPerWeek){
   var weekBlocks=[];
   var curWeek=null;
   var curLesson=null;
-  var lessons=[];
+
+  // Field aliases - match any of these prefixes (AI varies its labels)
+  var FIELDS=[
+    {key:'Strands', aliases:['Strands today','Strands','TEKS strands']},
+    {key:'Objective', aliases:['Obj','Objective','Learning objective','SWBAT']},
+    {key:'Hook', aliases:['Hook','Do Now','Warm up','Warm-up','Entry','Bell ringer','Opening']},
+    {key:'Read', aliases:['Read','Reading','Close read','Text','Read/Analyze','Analyze','Mini lesson','Direct instruction']},
+    {key:'Discuss', aliases:['Discuss','Discussion','Socratic','Talk','Speaking']},
+    {key:'Write', aliases:['Write','Writing','Practice','Work time','Independent practice','Written response']},
+    {key:'Close', aliases:['Close','Closure','Exit','Exit ticket','Wrap up','Closing']},
+    {key:'Support', aliases:['Support','Scaffold','ELL','Differentiation']},
+    {key:'Materials', aliases:['Materials','Resources','Texts']}
+  ];
 
   text.split(/\r?\n/).forEach(function(line){
-    var clean=line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
-    if(/^WEEK\s+\d+/i.test(clean)){
+    var raw=line.trim();
+    var clean=raw.replace(/^#+\s*/,'').replace(/\*+/g,'').replace(/^-+\s*/,'');
+
+    if(/^WEEK[\s]+\d+/i.test(clean)){
       var m=clean.match(/\d+/);
       curWeek=m?+m[0]:weekBlocks.length+1;
       weekBlocks.push({num:curWeek,lessons:[]});
-    } else if(/^LESSON\s+\d+/i.test(clean)){
-      var m=clean.match(/LESSON\s+(\d+)[:\s]+(.+)/i);
-      curLesson={num:m?+m[1]:lessons.length+1,title:m?m[2].trim():'',week:curWeek||1,fields:{}};
+      curLesson=null;
+    } else if(/^LESSON[\s]+\d+/i.test(clean)){
+      var m=clean.match(/LESSON[\s]+(\d+)[:\s-]+(.+)/i);
+      curLesson={num:m?+m[1]:0,title:m&&m[2]?m[2].trim():'',fields:{}};
+      if(!curLesson.title){var t=clean.replace(/^LESSON[\s]+\d+[:\s-]*/i,'');if(t)curLesson.title=t;}
       if(weekBlocks.length===0) weekBlocks.push({num:1,lessons:[]});
       weekBlocks[weekBlocks.length-1].lessons.push(curLesson);
-    } else if(curLesson){
-      var flds=['Strands today','Obj','Hook','Read','Discuss','Write','Close'];
-      for(var fi=0;fi<flds.length;fi++){
-        var f=flds[fi];
-        var rx=new RegExp('^'+f+'[^:]*:\\s*(.+)','i');
-        var m=line.match(rx);
-        if(m){curLesson.fields[f]=m[1].trim();break;}
+    } else if(curLesson && clean.length>0){
+      var matched=false;
+      for(var fi=0;fi<FIELDS.length;fi++){
+        var field=FIELDS[fi];
+        for(var ai=0;ai<field.aliases.length;ai++){
+          var alias=field.aliases[ai];
+          // Match "Label:" or "Label(anything):" at start of line
+          var rx=new RegExp('^'+alias+'(\\s*\\([^)]*\\))?\\s*[:\\-]+\\s*(.+)','i');
+          var m=clean.match(rx);
+          if(m && m[2]){
+            curLesson.fields[field.key]=(curLesson.fields[field.key]?curLesson.fields[field.key]+' ':'') + m[2].trim();
+            matched=true;
+            break;
+          }
+        }
+        if(matched) break;
       }
     }
   });
 
-  // Grab discussion questions and rubric
   var dqM=text.match(/DISCUSSION QUESTIONS[^:]*:([\s\S]*?)(?=RUBRIC|$)/i);
   var rbM=text.match(/RUBRIC[^:]*:([\s\S]*?)$/i);
 
   if(weekBlocks.length===0){
-    body.innerHTML='<div class="ob">'+text+'</div>';
+    body.innerHTML='<div class="ob">'+text.replace(/</g,'&lt;')+'</div>';
     return;
   }
 
@@ -962,16 +986,25 @@ function renderLessons(text, numWeeks, daysPerWeek){
     wdiv.style.display=wi===0?'block':'none';
 
     if(wb.lessons.length===0){
-      wdiv.innerHTML='<div class="ob" style="color:#888">No lessons found for this week.</div>';
+      wdiv.innerHTML='<div class="ob" style="color:#888">No lessons parsed for this week.</div>';
     } else {
       wb.lessons.forEach(function(ls){
         var card=document.createElement('div');
         card.className='dc';
         card.style.marginBottom='12px';
         var html='<div class="dt">Lesson '+ls.num+(ls.title?' - '+ls.title:'')+'</div>';
-        ['Strands today','Obj','Hook','Read','Discuss','Write','Close'].forEach(function(f){
-          if(ls.fields[f]) html+='<div class="df"><div class="dfl">'+f+'</div><div class="dfv">'+ls.fields[f]+'</div></div>';
+        var order=['Strands','Objective','Hook','Read','Discuss','Write','Close','Materials','Support'];
+        var labels={Strands:'Strands today',Objective:'Objective',Hook:'Hook',Read:'Read / Analyze',Discuss:'Discuss',Write:'Write / Practice',Close:'Close',Materials:'Materials',Support:'Support'};
+        var hasContent=false;
+        order.forEach(function(k){
+          if(ls.fields[k]){
+            html+='<div class="df"><div class="dfl">'+labels[k]+'</div><div class="dfv">'+ls.fields[k]+'</div></div>';
+            hasContent=true;
+          }
         });
+        if(!hasContent){
+          html+='<div style="font-size:13px;color:#aaa;padding:4px 0">Lesson content not parsed - try regenerating</div>';
+        }
         card.innerHTML=html;
         wdiv.appendChild(card);
       });
@@ -982,13 +1015,13 @@ function renderLessons(text, numWeeks, daysPerWeek){
   if(dqM){
     var d=document.createElement('div');
     d.style.marginTop='1.5rem';
-    d.innerHTML='<span class="slbl">Discussion questions</span><div class="ob">'+dqM[1].trim()+'</div>';
+    d.innerHTML='<span class="slbl">Discussion questions</span><div class="ob">'+dqM[1].trim().replace(/</g,'&lt;')+'</div>';
     body.appendChild(d);
   }
   if(rbM){
     var r=document.createElement('div');
     r.style.marginTop='1rem';
-    r.innerHTML='<span class="slbl">Assessment rubric</span><div class="ob">'+rbM[1].trim()+'</div>';
+    r.innerHTML='<span class="slbl">Assessment rubric</span><div class="ob">'+rbM[1].trim().replace(/</g,'&lt;')+'</div>';
     body.appendChild(r);
   }
 }
