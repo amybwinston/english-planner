@@ -198,7 +198,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
         <span class="slbl">Summative assessment</span><div class="ob" id="usum"></div>
         <span class="slbl">Formative checkpoints</span><div class="ob" id="uform"></div>
         <div class="btn-row">
-          <button class="btn btn-dark" onclick="go(4)">Generate lessons</button>
+          <button class="btn btn-dark" onclick="goToLessons()">Generate lessons</button>
           <button class="btn" onclick="genUnit()">Regenerate</button>
           <button class="btn" onclick="go(2)">Back to map</button>
         </div>
@@ -208,41 +208,17 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
 
   <div class="sec" id="stage4">
     <div class="card">
-      <div class="card-title">Generate plans</div>
       <div id="s4tag"></div>
-      <div class="g3">
-        <div class="pt sel" id="pt-unit" onclick="sp(this,'unit')"><div class="ptt">Unit plan</div><div class="ptd">All lessons for this unit</div></div>
-        <div class="pt" id="pt-daily" onclick="sp(this,'daily')"><div class="ptt">Single lesson</div><div class="ptd">One fully detailed class</div></div>
-        <div class="pt" id="pt-annual" onclick="sp(this,'annual')"><div class="ptt">Annual scope</div><div class="ptd">Full-year overview</div></div>
-      </div>
-      <div class="g2">
-        <div class="fr"><label>Class duration (minutes)</label><input type="number" id="ldur" value="50" min="30" max="120" oninput="uls()"/></div>
-        <div class="fr" id="lwrow"><label>Weeks per unit</label><input type="number" id="lwpu" value="3" min="1" max="10" oninput="uls()"/></div>
-      </div>
-      <div class="fr" id="ldrow"><label>Days per week</label>
-        <div class="tabs" id="ldtabs">
-          <button class="tab" onclick="sld(this,3)">3</button>
-          <button class="tab sel" onclick="sld(this,4)">4</button>
-          <button class="tab" onclick="sld(this,5)">5</button>
-        </div>
-      </div>
-      <div id="ls" class="sbar"></div>
-      <div class="btn-row">
-        <button class="btn btn-dark" onclick="genL()">Generate</button>
-        <button class="btn" onclick="go(3)">Back to unit plan</button>
-      </div>
-    </div>
-    <div id="s4card" style="display:none">
-      <div class="card">
-        <div id="s4spin" class="spin-row"><div class="spin"></div><span id="s4msg">Building...</span></div>
-        <div id="s4err" class="err"></div>
-        <div id="s4out" style="display:none">
-          <div id="s4body"></div>
-          <div class="btn-row" style="margin-top:1.5rem">
-            <button class="btn btn-dark" onclick="copyL()">Copy all</button>
-            <button class="btn" onclick="genL()">Regenerate</button>
-            <button class="btn" onclick="startOver()">Start over</button>
-          </div>
+      <div id="s4spin" class="spin-row"><div class="spin"></div><span id="s4msg">Generating lessons...</span></div>
+      <div id="s4err" class="err"></div>
+      <div id="s4out" style="display:none">
+        <div id="week-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem"></div>
+        <div id="s4body"></div>
+        <div class="btn-row" style="margin-top:1.5rem;border-top:1px solid #eee;padding-top:1.25rem">
+          <button class="btn btn-dark" onclick="copyL()">Copy all lessons</button>
+          <button class="btn" onclick="genL()">Regenerate</button>
+          <button class="btn" onclick="go(3)">Back to unit plan</button>
+          <button class="btn" onclick="startOver()">Start over</button>
         </div>
       </div>
     </div>
@@ -863,10 +839,6 @@ function genUnit(){
     unitData={raw:raw,title:selUnit.title,strands:selUnit.strands,sd:sd};
     plannedUnits[selUnit.num]={raw:raw,sd:sd};
     document.getElementById('s3out').style.display='block';
-    document.getElementById('ldur').value=document.getElementById('dur').value;
-    document.getElementById('lwpu').value=document.getElementById('wpu').value;
-    document.getElementById('s4tag').innerHTML='<div class="tag">Unit '+selUnit.num+' - '+selUnit.title+' - '+course+'</div>';
-    uls();
     renderMatrix();
     renderUnitList();
   }).catch(function(e){
@@ -877,61 +849,52 @@ function genUnit(){
   });
 }
 
-function genL(){
+function goToLessons(){
   if(!unitData) return;
-  var dur=+document.getElementById('ldur').value||50;
-  var w=+document.getElementById('lwpu').value||3;
-  var tot=w*lpDays;
-  var sNames=selUnit.strands.map(function(n){var s=STRANDS.find(function(x){return x.id===n;});return n+'('+(s?s.short:'?')+')'}).join(', ');
-  document.getElementById('s4card').style.display='block';
+  var dur=+document.getElementById('dur').value||50;
+  var w=+document.getElementById('wpu').value||3;
+  var d=days;
+  document.getElementById('s4tag').innerHTML='<div class="tag">Unit '+selUnit.num+' - '+selUnit.title+' - '+course+'</div>';
+  go(4);
+  genL(dur, w, d);
+}
+
+function genL(dur, w, d){
+  if(!unitData) return;
+  dur = dur || +document.getElementById('dur').value || 50;
+  w = w || +document.getElementById('wpu').value || 3;
+  d = d || days;
+  var tot=w*d;
+  var sNames=selUnit.strands.map(function(n){var s=STRANDS.find(function(x){return x.id===n;});return n+'('+(s?s.short:'?')+')';}).join(', ');
   document.getElementById('s4spin').style.display='flex';
   document.getElementById('s4out').style.display='none';
   document.getElementById('s4err').textContent='';
-  var msgs={unit:'Building '+tot+' lessons...',daily:'Building detailed lesson...',annual:'Building full-year scope...'};
-  document.getElementById('s4msg').textContent=msgs[planType];
+  document.getElementById('s4msg').textContent='Generating '+tot+' lessons for '+w+' weeks...';
 
-  var base='Course: '+course+'. Unit '+selUnit.num+': "'+selUnit.title+'". Strands: '+sNames+'.\nUnit summary: '+unitData.raw.substring(0,350)+'\n\n';
-  var prompt='';
-
-  if(planType==='unit'){
-    prompt=base+'Create '+tot+' lesson plans ('+w+' weeks x '+lpDays+' days, '+dur+' min). Label every segment with TEKS strand numbers.\n\n'
-      +'WEEK [N]: [theme]\n'
-      +'LESSON [N]: [title]\n'
-      +'Strands today: [numbers]\n'
-      +'Obj: [objective]\n'
-      +'Hook('+Math.round(dur*.1)+'min - S2): [entry connecting to essential question]\n'
-      +'Read('+Math.round(dur*.25)+'min - S2,S5): [text + modeling]\n'
-      +'Discuss('+Math.round(dur*.2)+'min - S1,S3): [structured discussion]\n'
-      +'Write('+Math.round(dur*.35)+'min - S6,S3): [writing task]\n'
-      +'Close('+Math.round(dur*.1)+'min - S3): [exit ticket]\n\n'
-      +'After lessons:\n'
-      +'DISCUSSION QUESTIONS:\n[5 Socratic questions each labeled with strand]\n'
-      +'RUBRIC:\n'
-      +'Reading/Analysis (S2,S5): 4:... | 3:... | 2:... | 1:...\n'
-      +'Writing/Response (S3,S6): 4:... | 3:... | 2:... | 1:...\n'
-      +'Speaking/Discussion (S1,S3): 4:... | 3:... | 2:... | 1:...';
-  } else if(planType==='daily'){
-    prompt=base+'Create one detailed '+dur+'-min lesson. Label every segment with strand numbers.\n\n'
-      +'TITLE: [title]\n'
-      +'STRANDS TODAY: [numbers]\n'
-      +'OBJ: [objective referencing strands]\n'
-      +'MATERIALS: [list]\n'
-      +'HOOK('+Math.round(dur*.1)+'min - S2): [activate prior knowledge]\n'
-      +'READ('+Math.round(dur*.25)+'min - S2,S5): [close reading and modeling]\n'
-      +'DISCUSS('+Math.round(dur*.15)+'min - S1,S3): [structured discussion]\n'
-      +'WRITE('+Math.round(dur*.3)+'min - S6,S3): [writing task]\n'
-      +'CLOSE('+Math.round(dur*.1)+'min - S1,S3): [share and exit ticket]\n'
-      +'SUPPORT: [scaffold for struggling students]\n'
-      +'EXTENSION: [challenge for advanced]\n'
-      +'ASSESS: [how you check understanding today]';
-  } else {
-    prompt=base+'Full-year scope for '+course+', '+document.getElementById('upy').value+' units. Use the 7 official Texas ELA TEKS strands.\n'
-      +'UNIT [N]: [title] | Text: [text] | Question: [EQ] | Emphasis: [2-3 strands] | Summative: [type] | Integration: [1 sentence]\n'
-      +'End with STRAND COVERAGE showing each strand and which units address it.';
-  }
+  var nl='\n';
+  var base='Course: '+course+'. Unit '+selUnit.num+'. Title: '+selUnit.title+'. Strands: '+sNames+'.'+nl+'Unit summary: '+unitData.raw.substring(0,350)+nl+nl;
+  var h=Math.round;
+  var prompt=base
+    +'Create '+tot+' lesson plans ('+w+' weeks x '+d+' days, '+dur+' min each). Label every segment with TEKS strand numbers.'+nl+nl
+    +'WEEK [N]'+nl
+    +'LESSON [N]: [title]'+nl
+    +'Strands today: [numbers]'+nl
+    +'Obj: [objective]'+nl
+    +'Hook('+h(dur*.1)+'min): [entry task - Strand 2]'+nl
+    +'Read('+h(dur*.25)+'min): [text and modeling - Strands 2,5]'+nl
+    +'Discuss('+h(dur*.2)+'min): [structured discussion - Strands 1,3]'+nl
+    +'Write('+h(dur*.35)+'min): [writing task - Strands 6,3]'+nl
+    +'Close('+h(dur*.1)+'min): [exit ticket - Strand 3]'+nl+nl
+    +'After all lessons include:'+nl
+    +'DISCUSSION QUESTIONS:'+nl
+    +'[5 Socratic questions each labeled with strand]'+nl
+    +'RUBRIC:'+nl
+    +'Reading/Analysis (S2,S5): 4:... | 3:... | 2:... | 1:...'+nl
+    +'Writing/Response (S3,S6): 4:... | 3:... | 2:... | 1:...'+nl
+    +'Speaking/Discussion (S1,S3): 4:... | 3:... | 2:... | 1:...';
 
   callAPI(prompt).then(function(raw){
-    renderL(raw);
+    renderLessons(raw, w, d);
     document.getElementById('s4out').style.display='block';
   }).catch(function(e){
     document.getElementById('s4err').textContent='Error: '+e.message+'. Please try again.';
@@ -940,58 +903,99 @@ function genL(){
   });
 }
 
-function renderL(text){
+
+function renderLessons(text, numWeeks, daysPerWeek){
   var body=document.getElementById('s4body');
-  if(planType==='unit'){
-    var wks=text.split(/(?=WEEK \d+:)/i).filter(function(s){return /WEEK \d+/i.test(s)&&!/DISCUSSION|RUBRIC/i.test(s.substring(0,30))});
-    var html='';
-    wks.forEach(function(wb,wi){
-      var wm=wb.match(/WEEK (\d+):\s*([^\n]+)/i);
-      var wl=wm?'Week '+wm[1]+': '+wm[2].trim():'Week '+(wi+1);
-      var ls=wb.split(/(?=LESSON \d+:)/i).filter(function(s){return /LESSON \d+/i.test(s)});
-      var lh='';
-      ls.forEach(function(lb){
-        var lm=lb.match(/LESSON (\d+):\s*([^\n]+)/i);
-        var lt=lm?'Lesson '+lm[1]+': '+lm[2].trim():'Lesson';
-        var fh='';
+  var tabsEl=document.getElementById('week-tabs');
+  tabsEl.innerHTML='';
+  body.innerHTML='';
+
+  var weekBlocks=[];
+  var curWeek=null;
+  var curLesson=null;
+  var lessons=[];
+
+  text.split(/\r?\n/).forEach(function(line){
+    var clean=line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
+    if(/^WEEK\s+\d+/i.test(clean)){
+      var m=clean.match(/\d+/);
+      curWeek=m?+m[0]:weekBlocks.length+1;
+      weekBlocks.push({num:curWeek,lessons:[]});
+    } else if(/^LESSON\s+\d+/i.test(clean)){
+      var m=clean.match(/LESSON\s+(\d+)[:\s]+(.+)/i);
+      curLesson={num:m?+m[1]:lessons.length+1,title:m?m[2].trim():'',week:curWeek||1,fields:{}};
+      if(weekBlocks.length===0) weekBlocks.push({num:1,lessons:[]});
+      weekBlocks[weekBlocks.length-1].lessons.push(curLesson);
+    } else if(curLesson){
+      var flds=['Strands today','Obj','Hook','Read','Discuss','Write','Close'];
+      for(var fi=0;fi<flds.length;fi++){
+        var f=flds[fi];
+        var rx=new RegExp('^'+f+'[^:]*:\\s*(.+)','i');
+        var m=line.match(rx);
+        if(m){curLesson.fields[f]=m[1].trim();break;}
+      }
+    }
+  });
+
+  // Grab discussion questions and rubric
+  var dqM=text.match(/DISCUSSION QUESTIONS[^:]*:([\s\S]*?)(?=RUBRIC|$)/i);
+  var rbM=text.match(/RUBRIC[^:]*:([\s\S]*?)$/i);
+
+  if(weekBlocks.length===0){
+    body.innerHTML='<div class="ob">'+text+'</div>';
+    return;
+  }
+
+  weekBlocks.forEach(function(wb,wi){
+    var tab=document.createElement('button');
+    tab.className='tab'+(wi===0?' sel':'');
+    tab.textContent='Week '+wb.num;
+    (function(idx){tab.onclick=function(){
+      document.querySelectorAll('#week-tabs .tab').forEach(function(t){t.classList.remove('sel')});
+      tab.classList.add('sel');
+      document.querySelectorAll('.wblock').forEach(function(b,i){b.style.display=i===idx?'block':'none'});
+    };})(wi);
+    tabsEl.appendChild(tab);
+
+    var wdiv=document.createElement('div');
+    wdiv.className='wblock';
+    wdiv.style.display=wi===0?'block':'none';
+
+    if(wb.lessons.length===0){
+      wdiv.innerHTML='<div class="ob" style="color:#888">No lessons found for this week.</div>';
+    } else {
+      wb.lessons.forEach(function(ls){
+        var card=document.createElement('div');
+        card.className='dc';
+        card.style.marginBottom='12px';
+        var html='<div class="dt">Lesson '+ls.num+(ls.title?' - '+ls.title:'')+'</div>';
         ['Strands today','Obj','Hook','Read','Discuss','Write','Close'].forEach(function(f){
-          var m=lb.match(new RegExp(f+'[^:]*:\\s*([^\\n]+)','i'));
-          if(m) fh+='<div class="df"><div class="dfl">'+f+'</div><div class="dfv">'+m[1].trim()+'</div></div>';
+          if(ls.fields[f]) html+='<div class="df"><div class="dfl">'+f+'</div><div class="dfv">'+ls.fields[f]+'</div></div>';
         });
-        lh+='<div style="border-top:1px solid #f0f0f0;padding-top:10px;margin-top:10px"><div class="dt">'+lt+'</div>'+fh+'</div>';
+        card.innerHTML=html;
+        wdiv.appendChild(card);
       });
-      html+='<div class="dc"><div style="font-size:15px;font-weight:700;margin-bottom:4px">'+wl+'</div>'+lh+'</div>';
-    });
-    var dm=text.match(/DISCUSSION QUESTIONS:\s*([\s\S]*?)(?=RUBRIC:|$)/i);
-    var rm=text.match(/RUBRIC:\s*([\s\S]*?)$/i);
-    if(dm) html+='<span class="slbl" style="display:block;margin:1.5rem 0 .5rem">Discussion questions</span><div class="ob">'+dm[1].trim()+'</div>';
-    if(rm) html+='<span class="slbl" style="display:block;margin:1.5rem 0 .5rem">Rubric</span><div class="ob">'+rm[1].trim()+'</div>';
-    body.innerHTML=html;
-  } else if(planType==='daily'){
-    var fs=['TITLE','STRANDS TODAY','OBJ','MATERIALS','HOOK','READ','DISCUSS','WRITE','CLOSE','SUPPORT','EXTENSION','ASSESS'];
-    var html='<div class="dc">';
-    fs.forEach(function(f,i){
-      var nxt=fs[i+1]||'ZZZZ';
-      var m=text.match(new RegExp(f+'[^:]*:\\s*([\\s\\S]*?)(?='+nxt+'[^:]*:|$)','i'));
-      if(m&&m[1].trim()) html+='<div class="df"><div class="dfl">'+f.toLowerCase()+'</div><div class="dfv" style="white-space:pre-wrap">'+m[1].trim()+'</div></div><hr style="border:none;border-top:1px solid #f0f0f0;margin:10px 0"/>';
-    });
-    body.innerHTML=html+'</div>';
-  } else {
-    var us2=text.split(/(?=UNIT \d+:)/i).filter(function(s){return /^UNIT \d+:/i.test(s)&&!s.includes('STRAND COVERAGE')});
-    var html='';
-    us2.forEach(function(u,i){
-      var m=u.match(/UNIT (\d+):\s*([^\n]+)/i);
-      var t=m?'Unit '+m[1]+': '+m[2].trim():'Unit '+(i+1);
-      html+='<div class="dc"><div style="font-size:15px;font-weight:700;margin-bottom:6px">'+t+'</div><div style="font-size:13px;line-height:1.7;color:#333;white-space:pre-wrap">'+u.replace(/UNIT \d+:[^\n]*/i,'').trim()+'</div></div>';
-    });
-    var cm=text.match(/STRAND COVERAGE([\s\S]*?)$/i);
-    if(cm) html+='<span class="slbl" style="display:block;margin:1.5rem 0 .5rem">Strand coverage</span><div class="ob">'+cm[1].trim()+'</div>';
-    body.innerHTML=html;
+    }
+    body.appendChild(wdiv);
+  });
+
+  if(dqM){
+    var d=document.createElement('div');
+    d.style.marginTop='1.5rem';
+    d.innerHTML='<span class="slbl">Discussion questions</span><div class="ob">'+dqM[1].trim()+'</div>';
+    body.appendChild(d);
+  }
+  if(rbM){
+    var r=document.createElement('div');
+    r.style.marginTop='1rem';
+    r.innerHTML='<span class="slbl">Assessment rubric</span><div class="ob">'+rbM[1].trim()+'</div>';
+    body.appendChild(r);
   }
 }
 
+
 function copyMap(){navigator.clipboard.writeText(mapRaw||'').then(function(){alert('Copied!')}).catch(function(){alert('Please select and copy manually.')});}
-function copyL(){navigator.clipboard.writeText(document.getElementById('s4body').innerText).then(function(){alert('Copied!')}).catch(function(){alert('Please select and copy manually.')});}
+function copyL(){var t=document.getElementById('s4body');navigator.clipboard.writeText(t?t.innerText:'').then(function(){alert('Copied!')}).catch(function(){alert('Select and copy manually.')});}
 function startOver(){unitData=null;selUnit=null;mapRaw=null;annualUnits=[];plannedUnits={};document.getElementById('s4card').style.display='none';go(1);}
 </script>
 </body>
