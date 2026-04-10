@@ -262,73 +262,27 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
   </div>
 </div>
 
+<script src="teks.js"></script>
 <script>
-// The 7 official Texas ELA TEKS strands with their sub-sections
-const STRANDS = [
-  {
-    id: 1,
-    name: 'Foundational language skills',
-    short: 'Foundational',
-    subs: ['(c)(1) Oral language — listening, speaking, discussion', '(c)(2) Vocabulary', '(c)(3) Self-sustained reading'],
-    color: '#8e44ad',
-    note: 'Present in every unit — students speak, discuss, build vocabulary, and read independently every day'
-  },
-  {
-    id: 2,
-    name: 'Comprehension',
-    short: 'Comprehension',
-    subs: ['(c)(4) Metacognitive reading strategies — purpose, inference, synthesis, monitoring'],
-    color: '#2980b9',
-    note: 'STAAR priority — must appear in every unit'
-  },
-  {
-    id: 3,
-    name: 'Response',
-    short: 'Response',
-    subs: ['(c)(5) Written and oral response to texts — evidence, paraphrase, register, voice'],
-    color: '#16a085',
-    note: 'STAAR priority — must appear in every unit'
-  },
-  {
-    id: 4,
-    name: 'Multiple genres',
-    short: 'Genres',
-    subs: ['(c)(6) Literary elements — theme, character, plot, setting', '(c)(7) Genre study — poetry, drama, informational, argumentative, multimodal'],
-    color: '#d35400',
-    note: 'Must appear in at least 5 units across the year'
-  },
-  {
-    id: 5,
-    name: "Author's purpose & craft",
-    short: 'Author craft',
-    subs: ["(c)(8) Author's purpose, audience, message, text structure, language, literary devices, rhetoric"],
-    color: '#c0392b',
-    note: 'STAAR priority — must appear in at least 5 units'
-  },
-  {
-    id: 6,
-    name: 'Composition',
-    short: 'Composition',
-    subs: ['(c)(9) Writing process — plan, draft, revise, edit, publish', '(c)(10) Composition genres — literary, informational, argumentative, correspondence, analysis'],
-    color: '#27ae60',
-    note: 'Present in every unit — students write in every unit'
-  },
-  {
-    id: 7,
-    name: 'Inquiry & research',
-    short: 'Inquiry',
-    subs: ['(c)(11) Formal and informal inquiry, source evaluation, citations, synthesis, presentation'],
-    color: '#f39c12',
-    note: 'Must appear in at least 3 units — typically in research-focused units'
-  }
-];
+// Pull strand and course data from teks.js (static file — no API calls needed)
+const STRANDS = TEKS.strands;
 
-const CF = {
-  'English I':   'American, British, and world literature; character foils, non-linear plot, setting and theme',
-  'English II':  'World literature across literary periods; archetypes, cultural and historical settings, comparative themes',
-  'English III': 'American literature across literary periods; rhetorical analysis, moral dilemmas, historical context',
-  'English IV':  'British literature across literary periods; classical rhetoric, critique and evaluate, rhetorical analysis'
-};
+// Build course focus strings from TEKS data
+const CF = Object.fromEntries(
+  Object.entries(TEKS.courses).map(([name, c]) => [
+    name,
+    `${c.literatureFocus}; ${c.keyElements.slice(0,3).map(e=>e.replace(/\s*\([^)]+\)/g,'')).join('; ')}`
+  ])
+);
+
+// Build compact strand reference for prompts (codes only — no full text resent)
+function strandPromptRef(courseKey) {
+  const course = TEKS.courses[courseKey];
+  const strandLines = TEKS.strands.map(s =>
+    `Strand ${s.id} (${s.name}): ${s.subsections.map(sub=>sub.code+' '+sub.title).join(', ')}`
+  ).join('\n');
+  return `${courseKey} ${course.code} — ${course.literatureFocus}\n${strandLines}\nResponse level: ${course.responseLevel}\nCraft verb: ${course.craftVerb}`;
+}
 
 // Minimum appearances per strand per year
 const STRAND_TARGETS = {1: 'all', 2: 'all', 3: 'all', 4: 5, 5: 5, 6: 'all', 7: 3};
@@ -378,28 +332,31 @@ async function goS2(){
   document.getElementById('s2out').style.display='none';
   document.getElementById('s2err').textContent='';
 
-  const strandList=STRANDS.map(s=>`Strand ${s.id} (${s.name}): ${s.subs.join('; ')}`).join('\n');
+  const strandRef = strandPromptRef(course);
+  const courseData = TEKS.courses[course];
 
-  const prompt=`Create an annual curriculum map for ${course} (${CF[course]}).
+  const prompt=`You are planning a Texas ELA curriculum. Create an annual map for ${course}.
+
+TEKS REFERENCE (19 TAC ${courseData.code}, effective 2020-2021):
+${strandRef}
+
 Schedule: ${u} units, ${w} weeks/unit, ${days} days/week.${ctx?' Context: '+ctx:''}
 
-THE 7 TEXAS ELA TEKS STRANDS (use these exactly — do not invent others):
-${strandList}
+COVERAGE RULES — teacher will audit against actual unit plans:
+- Strands 1, 2, 3, 6: present in EVERY unit (baseline ELA instruction)
+- Strands 4, 5: primary emphasis in at least 5 units
+- Strand 7: primary emphasis in at least 3 units
+- All 7 strands present in every unit — list 1,2,3,4,5,6,7 in Strands field
+- Emphasis field = 2-3 strands that are the FOCAL instructional point this unit
+- Units increase in complexity across the year
 
-COVERAGE REQUIREMENTS — the teacher will audit these against the actual unit plans:
-- Strands 1 (Foundational), 2 (Comprehension), 3 (Response), 6 (Composition): must appear in EVERY unit — they are present in all ELA instruction
-- Strands 4 (Multiple genres) and 5 (Author craft): must appear in at least 5 units
-- Strand 7 (Inquiry & research): must appear in at least 3 units
-- Every unit must address all 7 strands to some degree — list ALL 7 in Strands field
-- Primary emphasis (Emphasis field) = 2-3 strands that are the FOCAL point of instruction this unit
-
-For each unit output EXACTLY this format:
+For each unit output EXACTLY:
 UNIT [N]
 Title: [thematic title]
 Text: [suggested text or genre]
 Question: [one essential question]
 Strands: 1,2,3,4,5,6,7
-Emphasis: [2-3 strand numbers that are primary focus]
+Emphasis: [2-3 strand numbers]
 Summative: [assessment type]
 Weeks: Week 1: [focus] | Week 2: [focus] | Week 3: [focus]`;
 
@@ -623,17 +580,20 @@ async function genUnit(){
   document.getElementById('s3err').textContent='';
 
   const hint=document.getElementById('utxt').value.trim();
+  const courseData = TEKS.courses[course];
   const emphNames=selUnit.emph.map(n=>{const s=STRANDS.find(x=>x.id===n);return s?`Strand ${n} (${s.name})`:'Strand '+n;}).join(', ');
-  const strandList=STRANDS.map(s=>`Strand ${s.id} (${s.name}): ${s.subs.join('; ')}`).join('\n');
+  const strandRef = strandPromptRef(course);
 
-  const prompt=`Backward Design unit plan for ${course}. Unit ${selUnit.num}: "${selUnit.title}".${hint?' Text/theme: '+hint+'.':''}
+  const prompt=`Backward Design unit plan. Course: ${course} (19 TAC ${courseData.code}).
+Unit ${selUnit.num}: "${selUnit.title}".${hint?' Text/theme: '+hint+'.':''}
+Response level for this course: ${courseData.responseLevel}
+Craft verb for this course: ${courseData.craftVerb}
 
-All 7 Texas ELA TEKS strands are present in this unit:
-${strandList}
+TEKS strand reference: ${strandRef}
 
 Primary emphasis strands this unit: ${emphNames}
 
-IMPORTANT FOR AUDIT: For each of the 7 strands, explicitly describe how it is addressed — what specific activities, objectives, or assessments connect to it. A teacher will cross-reference this against the annual map.
+STRAND INTEGRATION AUDIT — for each of the 7 strands, describe specifically how it is addressed in THIS unit. A teacher will cross-reference this against the annual map and unit lessons.
 
 Format EXACTLY:
 
@@ -641,22 +601,22 @@ BIG IDEA:
 [2-sentence big idea. Then 3 open-ended essential questions connecting reading, writing, and speaking.]
 
 STRAND INTEGRATION:
-Strand 1 (Foundational language skills): [how oral language, vocabulary, and independent reading appear in this unit]
-Strand 2 (Comprehension): [specific comprehension strategies and how they are taught]
-Strand 3 (Response): [how students respond to texts — written, oral, annotations]
-Strand 4 (Multiple genres): [which genres/literary elements are studied and how]
-Strand 5 (Author's purpose & craft): [which craft elements are analyzed and applied]
-Strand 6 (Composition): [what students write and how the writing process is scaffolded]
-Strand 7 (Inquiry & research): [how inquiry and research are embedded, even if briefly]
+Strand 1 (Foundational language skills): [how oral language, vocabulary, and independent reading appear]
+Strand 2 (Comprehension): [specific metacognitive strategies and how they are taught with this text]
+Strand 3 (Response): [how students respond to texts — written, oral, annotations, specific tasks]
+Strand 4 (Multiple genres): [which literary elements and/or genre features are studied]
+Strand 5 (Author's purpose and craft): [which craft elements are analyzed — use course verb: ${courseData.craftVerb}]
+Strand 6 (Composition): [what students write, which (c)(10) genre types, how writing process is scaffolded]
+Strand 7 (Inquiry and research): [how inquiry is embedded — even briefly — in this unit]
 
 OBJECTIVES:
-[5 SMART objectives. Each references a strand number in parentheses. Format: "(Strand X) Students will [verb] [what] by [evidence]."]
+[5 SMART objectives. Each cites the TEKS sub-section in parentheses. Format: "((c)(X)(Y)) Students will [verb] [what] by [evidence]."]
 
 SUMMATIVE:
-[Authentic task requiring reading + writing + speaking. State which strands it primarily assesses.]
+[Authentic task. State which TEKS sub-sections it primarily assesses.]
 
 FORMATIVE:
-[4 checkpoints. Each labeled: "Strand X — [checkpoint description]"]`;
+[4 checkpoints. Each labeled: "(c)(X) — [checkpoint description]"]`;
 
   try{
     const raw=await callAPI(prompt);
