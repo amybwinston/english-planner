@@ -967,7 +967,7 @@ async function processFile(file, context){
     else { import2ExtractedText = text; }
 
     labelEl.innerHTML = '&#10003; ' + file.name + '  -  ' + text.length + ' characters extracted';
-    textEl.textContent = text.substring(0, 800) + (text.length > 800 ? '\n\n[... ' + (text.length - 800) + ' more characters ...]' : '');
+    textEl.textContent = text.substring(0, 1200);
     prevEl.style.display = 'block';
 
   } catch(e){
