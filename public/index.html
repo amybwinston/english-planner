@@ -36,7 +36,8 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
 .btn-dark:hover{background:#333}
 .btn-sm{padding:6px 14px;font-size:12px}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:1.25rem}
-.sbar{font-size:13px;color:#666;background:#f5f4f0;border-radius:8px;padding:10px 14px;margin-bottom:1.1rem}
+.sbar{font-size:13px;color:#666;background:#f5f4f0;border-radius:8px;padding:10px 14px;margin-bottom:1.1rem;min-height:0}
+.sbar:empty{display:none}
 .sec{display:none}.sec.vis{display:block}
 .spin-row{display:none;align-items:center;gap:10px;padding:1rem 0;font-size:14px;color:#666}
 .spin{width:18px;height:18px;border:2px solid #ddd;border-top-color:#555;border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
@@ -411,8 +412,17 @@ function uls(){
 us();uls();
 
 function go(n){
-  document.querySelectorAll('.sec').forEach((s,i)=>s.classList.toggle('vis',i+1===n));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('vis'));
+  const el=document.getElementById('stage'+n);
+  if(el)el.classList.add('vis');
   document.querySelectorAll('.s-step').forEach((s,i)=>s.classList.toggle('active',i+1===n));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goImport(){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('vis'));
+  document.getElementById('stage-import').classList.add('vis');
+  document.querySelectorAll('.s-step').forEach(s=>s.classList.remove('active'));
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
