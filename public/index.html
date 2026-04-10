@@ -966,10 +966,8 @@ async function processFile(file, context){
     if(isStandalone){ importExtractedText = text; }
     else { import2ExtractedText = text; }
 
-    labelEl.innerHTML = '✓ ' + file.name + ' — ' + text.length + ' characters extracted';
-    textEl.textContent = text.substring(0, 800) + (text.length > 800 ? '
-
-[... ' + (text.length - 800) + ' more characters ...]' : '');
+    labelEl.innerHTML = '&#10003; ' + file.name + ' — ' + text.length + ' characters extracted';
+    textEl.textContent = text.substring(0, 800) + (text.length > 800 ? '\n\n[... ' + (text.length - 800) + ' more characters ...]' : '');
     prevEl.style.display = 'block';
 
   } catch(e){
@@ -1027,39 +1025,20 @@ async function runAnalysis(extractedText, courseKey, teksEl, gapsEl, objEl, spin
   analysisEl.style.display = 'none';
 
   const courseData = TEKS.courses[courseKey];
-  const strandList = TEKS.strands.map(s => `Strand ${s.id} (${s.name}): ${s.subsections.map(sub=>sub.code+' '+sub.title).join(', ')}`).join('\n');
+  const strandList = TEKS.strands.map(s => 'Strand ' + s.id + ' (' + s.name + '): ' + s.subsections.map(function(sub){return sub.code+' '+sub.title;}).join(', ')).join('\n');
 
-  const prompt = `You are an expert Texas ELA curriculum analyst. A teacher has uploaded their existing unit plan. Analyse it against the 7 Texas ELA TEKS strands for ${courseKey}.
-
-TEKS STRANDS (19 TAC ${courseData.code}):
-${strandList}
-
-TEACHER'S UNIT PLAN:
-${extractedText.substring(0, 2000)}${extractedText.length > 2000 ? '\n[... document continues ...]' : ''}
-
-Provide your analysis in EXACTLY this format:
-
-STRAND MAPPING:
-Strand 1 (Foundational language skills): [Present / Partially present / Not addressed] — [brief evidence from the plan]
-Strand 2 (Comprehension): [Present / Partially present / Not addressed] — [brief evidence]
-Strand 3 (Response): [Present / Partially present / Not addressed] — [brief evidence]
-Strand 4 (Multiple genres): [Present / Partially present / Not addressed] — [brief evidence]
-Strand 5 (Author's purpose and craft): [Present / Partially present / Not addressed] — [brief evidence]
-Strand 6 (Composition): [Present / Partially present / Not addressed] — [brief evidence]
-Strand 7 (Inquiry and research): [Present / Partially present / Not addressed] — [brief evidence]
-
-COVERAGE GAPS:
-[List any strands that are Not addressed or only Partially present, with a specific recommendation for how to address each gap in daily lessons. If no gaps, say "No significant gaps identified."]
-
-OBJECTIVES EXTRACTED:
-[List the learning objectives you can identify from the plan, numbered. If none are explicit, infer 3-4 from the content.]`;
+  const prompt = 'You are an expert Texas ELA curriculum analyst. A teacher has uploaded their existing unit plan. Analyse it against the 7 Texas ELA TEKS strands for ' + courseKey + '.\n\nTEKS STRANDS (19 TAC ' + courseData.code + '):\n' + strandList + '\n\nTEACHER\'S UNIT PLAN:\n' + extractedText.substring(0, 2000) + (extractedText.length > 2000 ? '\n[document continues...]' : '') + '\n\nProvide your analysis in EXACTLY this format:\n\nSTRAND MAPPING:\nStrand 1 (Foundational language skills): [Present / Partially present / Not addressed] — [brief evidence]\nStrand 2 (Comprehension): [Present / Partially present / Not addressed] — [brief evidence]\nStrand 3 (Response): [Present / Partially present / Not addressed] — [brief evidence]\nStrand 4 (Multiple genres): [Present / Partially present / Not addressed] — [brief evidence]\nStrand 5 (Author\'s purpose and craft): [Present / Partially present / Not addressed] — [brief evidence]\nStrand 6 (Composition): [Present / Partially present / Not addressed] — [brief evidence]\nStrand 7 (Inquiry and research): [Present / Partially present / Not addressed] — [brief evidence]\n\nCOVERAGE GAPS:\n[List strands that are Not addressed or Partially present, with specific recommendations. If none, say No significant gaps identified.]\n\nOBJECTIVES EXTRACTED:\n[List learning objectives from the plan, numbered. If none explicit, infer 3-4 from the content.]';
 
   try {
     const raw = await callAPI(prompt);
-    const get = (a, b) => { const m = raw.match(new RegExp(a + ':[\\s\\S]*?(?=' + b + ':|$)', 'i')); return m ? m[0].replace(new RegExp(a + ':', 'i'), '').trim() : ''; };
-    teksEl.textContent = get('STRAND MAPPING', 'COVERAGE GAPS');
-    gapsEl.textContent = get('COVERAGE GAPS', 'OBJECTIVES EXTRACTED');
-    objEl.textContent  = get('OBJECTIVES EXTRACTED', 'ZZZZZ');
+    const sections = raw.split(/\n(?=STRAND MAPPING:|COVERAGE GAPS:|OBJECTIVES EXTRACTED:)/);
+    const getSec = function(label) {
+      const found = sections.find(function(s){ return s.trim().startsWith(label); });
+      return found ? found.replace(label, '').trim() : '';
+    };
+    teksEl.textContent = getSec('STRAND MAPPING:');
+    gapsEl.textContent = getSec('COVERAGE GAPS:');
+    objEl.textContent  = getSec('OBJECTIVES EXTRACTED:');
     analysisEl.style.display = 'block';
     return raw;
   } catch(e){
@@ -1069,6 +1048,7 @@ OBJECTIVES EXTRACTED:
     spinEl.style.display = 'none';
   }
 }
+
 
 async function analyzeImport(){
   if(!importExtractedText){ document.getElementById('parse-err').textContent = 'Please upload a file first.'; return; }
