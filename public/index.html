@@ -149,7 +149,71 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
       </div>
       <div class="fr"><label>Context (optional)</label><input type="text" id="ctx" placeholder="e.g. Title I school, honors section, 9th grade"/></div>
       <div id="ss" class="sbar"></div>
-      <div class="btn-row"><button class="btn btn-dark" onclick="goS2()">Build annual map →</button></div>
+      <div class="btn-row">
+        <button class="btn btn-dark" onclick="goS2()">Build annual map →</button>
+        <button class="btn" onclick="goImport()" style="border-style:dashed">↑ Import existing unit plan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPORT SHORTCUT -->
+  <div class="sec" id="stage-import">
+    <div class="card">
+      <div class="card-title">Import an existing unit plan</div>
+      <p style="font-size:14px;color:#666;margin-bottom:1.25rem">Upload a Word doc or PDF of your existing unit plan. The AI will read it, map it to the 7 TEKS strands, identify any coverage gaps, and generate daily lesson plans from it.</p>
+      <div class="fr">
+        <label>Course this unit belongs to</label>
+        <div class="tabs" id="ictabs">
+          <button class="tab sel" onclick="sic(this,'English I')">English I</button>
+          <button class="tab" onclick="sic(this,'English II')">English II</button>
+          <button class="tab" onclick="sic(this,'English III')">English III</button>
+          <button class="tab" onclick="sic(this,'English IV')">English IV</button>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="fr"><label>Class duration (minutes)</label><input type="number" id="idur" value="50" min="30" max="120"/></div>
+        <div class="fr"><label>Days per week</label>
+          <div class="tabs" id="idtabs">
+            <button class="tab" onclick="sidd(this,3)">3</button>
+            <button class="tab sel" onclick="sidd(this,4)">4</button>
+            <button class="tab" onclick="sidd(this,5)">5</button>
+          </div>
+        </div>
+        <div class="fr"><label>Weeks for this unit</label><input type="number" id="iwpu" value="3" min="1" max="10"/></div>
+      </div>
+      <div class="fr">
+        <label>Upload your unit plan (.docx or .pdf)</label>
+        <div id="dropzone" style="border:2px dashed #ccc;border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border .2s;background:#fafafa" onclick="document.getElementById('fileInput').click()" ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)">
+          <div id="dz-label" style="font-size:14px;color:#888">Click to choose a file, or drag and drop here<br><span style="font-size:12px;color:#aaa;margin-top:4px;display:block">.docx or .pdf · Max 10MB</span></div>
+          <input type="file" id="fileInput" accept=".docx,.pdf" style="display:none" onchange="fileChosen(this)"/>
+        </div>
+      </div>
+      <div id="parse-spin" class="spin-row"><div class="spin"></div><span id="parse-msg">Reading file...</span></div>
+      <div id="parse-err" class="err"></div>
+      <div id="parsed-preview" style="display:none">
+        <span class="slbl">Extracted text preview</span>
+        <div id="parsed-text" class="ob" style="max-height:160px;overflow-y:auto;font-size:13px"></div>
+        <div class="btn-row">
+          <button class="btn btn-dark" onclick="analyzeImport()">Analyse &amp; map to TEKS →</button>
+          <button class="btn" onclick="clearImport()">Choose different file</button>
+        </div>
+      </div>
+      <div id="import-analysis" style="display:none">
+        <div class="divider"></div>
+        <span class="slbl">TEKS strand mapping</span>
+        <div class="ob" id="import-teks"></div>
+        <span class="slbl">Coverage gaps identified</span>
+        <div class="ob" id="import-gaps"></div>
+        <span class="slbl">Objectives extracted</span>
+        <div class="ob" id="import-obj"></div>
+        <div class="btn-row">
+          <button class="btn btn-dark" onclick="goToLessonsFromImport()">Generate lesson plans →</button>
+          <button class="btn" onclick="analyzeImport()">Re-analyse</button>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:1.5rem;border-top:1px solid #eee;padding-top:1rem">
+        <button class="btn" onclick="go(1)">← Back to setup</button>
+      </div>
     </div>
   </div>
 
@@ -196,12 +260,48 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
     <div class="card">
       <div class="card-title">Unit plan</div>
       <div id="utag"></div>
-      <div class="fr"><label>Text or theme (optional)</label><input type="text" id="utxt" placeholder="e.g. The Great Gatsby, identity & belonging, dystopia"/></div>
-      <div id="s3spin" class="spin-row"><div class="spin"></div>Generating unit plan...</div>
-      <div id="s3err" class="err"></div>
-      <div id="s3genrow" class="btn-row">
-        <button class="btn btn-dark" onclick="genUnit()">Generate unit plan →</button>
-        <button class="btn" onclick="go(2)">← Back to map</button>
+      <div style="display:flex;gap:0;border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:1.25rem;width:fit-content">
+        <button id="mode-gen" style="padding:8px 18px;font-size:13px;font-weight:500;border:none;background:#1a1a1a;color:#fff;cursor:pointer;font-family:inherit;border-right:1px solid #ddd" onclick="setUnitMode('generate')">Generate new plan</button>
+        <button id="mode-imp" style="padding:8px 18px;font-size:13px;font-weight:500;border:none;background:#f5f4f0;color:#888;cursor:pointer;font-family:inherit" onclick="setUnitMode('import')">↑ Import existing plan</button>
+      </div>
+      <div id="unit-generate-mode">
+        <div class="fr"><label>Text or theme (optional)</label><input type="text" id="utxt" placeholder="e.g. The Great Gatsby, identity & belonging, dystopia"/></div>
+        <div id="s3spin" class="spin-row"><div class="spin"></div>Generating unit plan...</div>
+        <div id="s3err" class="err"></div>
+        <div id="s3genrow" class="btn-row">
+          <button class="btn btn-dark" onclick="genUnit()">Generate unit plan →</button>
+          <button class="btn" onclick="go(2)">← Back to map</button>
+        </div>
+      </div>
+      <div id="unit-import-mode" style="display:none">
+        <div class="fr">
+          <label>Upload your existing unit plan (.docx or .pdf)</label>
+          <div id="dropzone2" style="border:2px dashed #ccc;border-radius:10px;padding:2rem;text-align:center;cursor:pointer;background:#fafafa" onclick="document.getElementById('fileInput2').click()" ondragover="dzOver2(event)" ondragleave="dzLeave2(event)" ondrop="dzDrop2(event)">
+            <div id="dz2-label" style="font-size:14px;color:#888">Click to choose a file, or drag and drop here<br><span style="font-size:12px;color:#aaa;margin-top:4px;display:block">.docx or .pdf · Max 10MB</span></div>
+            <input type="file" id="fileInput2" accept=".docx,.pdf" style="display:none" onchange="fileChosen2(this)"/>
+          </div>
+        </div>
+        <div id="parse2-spin" class="spin-row"><div class="spin"></div><span id="parse2-msg">Reading file...</span></div>
+        <div id="parse2-err" class="err"></div>
+        <div id="parsed2-preview" style="display:none">
+          <span class="slbl">Extracted text preview</span>
+          <div id="parsed2-text" class="ob" style="max-height:140px;overflow-y:auto;font-size:13px"></div>
+          <div class="btn-row">
+            <button class="btn btn-dark" onclick="analyzeImport2()">Analyse & map to TEKS →</button>
+            <button class="btn" onclick="clearImport2()">Choose different file</button>
+          </div>
+        </div>
+        <div id="import2-analysis" style="display:none">
+          <div class="divider"></div>
+          <span class="slbl">TEKS strand mapping</span><div class="ob" id="import2-teks"></div>
+          <span class="slbl">Coverage gaps identified</span><div class="ob" id="import2-gaps"></div>
+          <span class="slbl">Objectives extracted</span><div class="ob" id="import2-obj"></div>
+          <div class="btn-row">
+            <button class="btn btn-dark" onclick="goToLessonsFromImport2()">Generate lesson plans →</button>
+            <button class="btn" onclick="analyzeImport2()">Re-analyse</button>
+            <button class="btn" onclick="go(2)">← Back to map</button>
+          </div>
+        </div>
       </div>
       <div id="s3out" style="display:none">
         <span class="slbl">Big idea & essential questions</span><div class="ob" id="ubig"></div>
@@ -768,6 +868,250 @@ function renderL(text){
 function copyMap(){navigator.clipboard.writeText(mapRaw||'').then(()=>alert('Copied!')).catch(()=>alert('Select and copy manually.'))}
 function copyL(){navigator.clipboard.writeText(document.getElementById('s4body').innerText).then(()=>alert('Copied!')).catch(()=>alert('Select and copy manually.'))}
 function startOver(){unitData=null;selUnit=null;mapRaw=null;annualUnits=[];plannedUnits={};document.getElementById('s4card').style.display='none';go(1)}
+
+// ── IMPORT FEATURE ────────────────────────────────────────────────────────────
+
+// Standalone import (Option B — from Step 1)
+let importCourse = 'English I';
+let importDays = 4;
+let importExtractedText = '';
+let importUnitData = null;
+
+// Inline import (Option A — toggle on Step 3)
+let import2ExtractedText = '';
+
+function goImport(){
+  // Show import section as a pseudo-step
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('vis'));
+  document.getElementById('stage-import').classList.add('vis');
+  document.querySelectorAll('.s-step').forEach(s => s.classList.remove('active'));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function sic(b, c){ importCourse = c; document.querySelectorAll('#ictabs .tab').forEach(t=>t.classList.remove('sel')); b.classList.add('sel'); }
+function sidd(b, n){ importDays = n; document.querySelectorAll('#idtabs .tab').forEach(t=>t.classList.remove('sel')); b.classList.add('sel'); }
+
+function setUnitMode(mode){
+  document.getElementById('unit-generate-mode').style.display = mode==='generate' ? 'block' : 'none';
+  document.getElementById('unit-import-mode').style.display = mode==='import' ? 'block' : 'none';
+  document.getElementById('mode-gen').style.background = mode==='generate' ? '#1a1a1a' : '#f5f4f0';
+  document.getElementById('mode-gen').style.color = mode==='generate' ? '#fff' : '#888';
+  document.getElementById('mode-imp').style.background = mode==='import' ? '#1a1a1a' : '#f5f4f0';
+  document.getElementById('mode-imp').style.color = mode==='import' ? '#fff' : '#888';
+}
+
+// ── File reading utilities ────────────────────────────────────────────────────
+
+function dzOver(e){ e.preventDefault(); document.getElementById('dropzone').style.borderColor='#555'; }
+function dzLeave(e){ document.getElementById('dropzone').style.borderColor='#ccc'; }
+function dzDrop(e){ e.preventDefault(); dzLeave(e); if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0], 'standalone'); }
+function fileChosen(inp){ if(inp.files[0]) processFile(inp.files[0], 'standalone'); }
+
+function dzOver2(e){ e.preventDefault(); document.getElementById('dropzone2').style.borderColor='#555'; }
+function dzLeave2(e){ document.getElementById('dropzone2').style.borderColor='#ccc'; }
+function dzDrop2(e){ e.preventDefault(); dzLeave2(e); if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0], 'inline'); }
+function fileChosen2(inp){ if(inp.files[0]) processFile(inp.files[0], 'inline'); }
+
+async function processFile(file, context){
+  const isStandalone = context === 'standalone';
+  const spinEl = document.getElementById(isStandalone ? 'parse-spin' : 'parse2-spin');
+  const errEl  = document.getElementById(isStandalone ? 'parse-err'  : 'parse2-err');
+  const msgEl  = document.getElementById(isStandalone ? 'parse-msg'  : 'parse2-msg');
+  const prevEl = document.getElementById(isStandalone ? 'parsed-preview' : 'parsed2-preview');
+  const textEl = document.getElementById(isStandalone ? 'parsed-text'    : 'parsed2-text');
+  const labelEl= document.getElementById(isStandalone ? 'dz-label'       : 'dz2-label');
+
+  spinEl.style.display = 'flex';
+  errEl.textContent = '';
+  prevEl.style.display = 'none';
+  msgEl.textContent = 'Reading ' + file.name + '...';
+
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(!['docx','pdf'].includes(ext)){
+    spinEl.style.display='none';
+    errEl.textContent = 'Please upload a .docx or .pdf file.';
+    return;
+  }
+  if(file.size > 10 * 1024 * 1024){
+    spinEl.style.display='none';
+    errEl.textContent = 'File is too large. Please use a file under 10MB.';
+    return;
+  }
+
+  try {
+    let text = '';
+    if(ext === 'docx'){
+      msgEl.textContent = 'Extracting text from Word document...';
+      text = await readDocx(file);
+    } else {
+      msgEl.textContent = 'Extracting text from PDF...';
+      text = await readPdf(file);
+    }
+
+    text = text.trim();
+    if(text.length < 50){
+      throw new Error('Could not extract readable text from this file. Please check that it is not a scanned image.');
+    }
+
+    if(isStandalone){ importExtractedText = text; }
+    else { import2ExtractedText = text; }
+
+    labelEl.innerHTML = '✓ ' + file.name + ' — ' + text.length + ' characters extracted';
+    textEl.textContent = text.substring(0, 800) + (text.length > 800 ? '
+
+[... ' + (text.length - 800) + ' more characters ...]' : '');
+    prevEl.style.display = 'block';
+
+  } catch(e){
+    errEl.textContent = 'Error reading file: ' + e.message;
+  }
+  spinEl.style.display = 'none';
+}
+
+async function readDocx(file){
+  // Load mammoth.js from CDN
+  if(!window.mammoth){
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+  }
+  const arrayBuffer = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer });
+  return result.value;
+}
+
+async function readPdf(file){
+  // Load PDF.js from CDN
+  if(!window.pdfjsLib){
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let text = '';
+  for(let i = 1; i <= pdf.numPages; i++){
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(item => item.str).join(' ') + '
+';
+  }
+  return text;
+}
+
+function loadScript(src){
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Failed to load ' + src));
+    document.head.appendChild(s);
+  });
+}
+
+function clearImport(){ importExtractedText=''; document.getElementById('parsed-preview').style.display='none'; document.getElementById('import-analysis').style.display='none'; document.getElementById('dz-label').innerHTML='Click to choose a file, or drag and drop here<br><span style="font-size:12px;color:#aaa;margin-top:4px;display:block">.docx or .pdf · Max 10MB</span>'; document.getElementById('fileInput').value=''; }
+function clearImport2(){ import2ExtractedText=''; document.getElementById('parsed2-preview').style.display='none'; document.getElementById('import2-analysis').style.display='none'; document.getElementById('dz2-label').innerHTML='Click to choose a file, or drag and drop here<br><span style="font-size:12px;color:#aaa;margin-top:4px;display:block">.docx or .pdf · Max 10MB</span>'; document.getElementById('fileInput2').value=''; }
+
+// ── TEKS analysis of imported plan ───────────────────────────────────────────
+
+async function runAnalysis(extractedText, courseKey, teksEl, gapsEl, objEl, spinEl, errEl, analysisEl){
+  spinEl.style.display = 'flex';
+  errEl.textContent = '';
+  analysisEl.style.display = 'none';
+
+  const courseData = TEKS.courses[courseKey];
+  const strandList = TEKS.strands.map(s => `Strand ${s.id} (${s.name}): ${s.subsections.map(sub=>sub.code+' '+sub.title).join(', ')}`).join('\n');
+
+  const prompt = `You are an expert Texas ELA curriculum analyst. A teacher has uploaded their existing unit plan. Analyse it against the 7 Texas ELA TEKS strands for ${courseKey}.
+
+TEKS STRANDS (19 TAC ${courseData.code}):
+${strandList}
+
+TEACHER'S UNIT PLAN:
+${extractedText.substring(0, 2000)}${extractedText.length > 2000 ? '\n[... document continues ...]' : ''}
+
+Provide your analysis in EXACTLY this format:
+
+STRAND MAPPING:
+Strand 1 (Foundational language skills): [Present / Partially present / Not addressed] — [brief evidence from the plan]
+Strand 2 (Comprehension): [Present / Partially present / Not addressed] — [brief evidence]
+Strand 3 (Response): [Present / Partially present / Not addressed] — [brief evidence]
+Strand 4 (Multiple genres): [Present / Partially present / Not addressed] — [brief evidence]
+Strand 5 (Author's purpose and craft): [Present / Partially present / Not addressed] — [brief evidence]
+Strand 6 (Composition): [Present / Partially present / Not addressed] — [brief evidence]
+Strand 7 (Inquiry and research): [Present / Partially present / Not addressed] — [brief evidence]
+
+COVERAGE GAPS:
+[List any strands that are Not addressed or only Partially present, with a specific recommendation for how to address each gap in daily lessons. If no gaps, say "No significant gaps identified."]
+
+OBJECTIVES EXTRACTED:
+[List the learning objectives you can identify from the plan, numbered. If none are explicit, infer 3-4 from the content.]`;
+
+  try {
+    const raw = await callAPI(prompt);
+    const get = (a, b) => { const m = raw.match(new RegExp(a + ':[\\s\\S]*?(?=' + b + ':|$)', 'i')); return m ? m[0].replace(new RegExp(a + ':', 'i'), '').trim() : ''; };
+    teksEl.textContent = get('STRAND MAPPING', 'COVERAGE GAPS');
+    gapsEl.textContent = get('COVERAGE GAPS', 'OBJECTIVES EXTRACTED');
+    objEl.textContent  = get('OBJECTIVES EXTRACTED', 'ZZZZZ');
+    analysisEl.style.display = 'block';
+    return raw;
+  } catch(e){
+    errEl.textContent = 'Error analysing plan: ' + e.message + '. Please try again.';
+    return null;
+  } finally {
+    spinEl.style.display = 'none';
+  }
+}
+
+async function analyzeImport(){
+  if(!importExtractedText){ document.getElementById('parse-err').textContent = 'Please upload a file first.'; return; }
+  const raw = await runAnalysis(
+    importExtractedText, importCourse,
+    document.getElementById('import-teks'),
+    document.getElementById('import-gaps'),
+    document.getElementById('import-obj'),
+    document.getElementById('parse-spin'),
+    document.getElementById('parse-err'),
+    document.getElementById('import-analysis')
+  );
+  if(raw) importUnitData = { raw: importExtractedText, analysisRaw: raw, title: 'Imported unit plan', strands: [1,2,3,4,5,6,7], strandDetails: {} };
+}
+
+async function analyzeImport2(){
+  if(!import2ExtractedText){ document.getElementById('parse2-err').textContent = 'Please upload a file first.'; return; }
+  await runAnalysis(
+    import2ExtractedText, course,
+    document.getElementById('import2-teks'),
+    document.getElementById('import2-gaps'),
+    document.getElementById('import2-obj'),
+    document.getElementById('parse2-spin'),
+    document.getElementById('parse2-err'),
+    document.getElementById('import2-analysis')
+  );
+  // Store as unitData so lesson generation can use it
+  unitData = { raw: import2ExtractedText, title: selUnit ? selUnit.title : 'Imported unit', strands: [1,2,3,4,5,6,7], strandDetails: {}, imported: true };
+  if(!selUnit) selUnit = { num: 0, title: 'Imported unit', strands: [1,2,3,4,5,6,7], emph: [] };
+}
+
+function goToLessonsFromImport(){
+  if(!importUnitData){ alert('Please analyse the file first.'); return; }
+  // Set up state from import settings
+  course = importCourse;
+  days = importDays;
+  selUnit = { num: 0, title: 'Imported unit', strands: [1,2,3,4,5,6,7], emph: [] };
+  unitData = importUnitData;
+  document.getElementById('ldur').value = document.getElementById('idur').value;
+  document.getElementById('lwpu').value = document.getElementById('iwpu').value;
+  document.getElementById('s4tag').innerHTML = '<div class="tag">Imported unit plan · ' + importCourse + '</div>';
+  uls();
+  go(4);
+}
+
+function goToLessonsFromImport2(){
+  if(!unitData || !unitData.imported){ alert('Please analyse the file first.'); return; }
+  document.getElementById('ldur').value = document.getElementById('dur').value;
+  document.getElementById('lwpu').value = document.getElementById('wpu').value;
+  document.getElementById('s4tag').innerHTML = '<div class="tag">Imported unit plan · ' + course + '</div>';
+  uls();
+  go(4);
+}
 </script>
 </body>
 </html>
