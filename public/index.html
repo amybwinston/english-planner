@@ -3,1033 +3,1180 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Texas English Lesson Planner</title>
+<title>English Lesson Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+:root {
+  --ink: #1a1714;
+  --ink2: #4a4540;
+  --ink3: #8a857f;
+  --paper: #f7f4ef;
+  --paper2: #ede9e2;
+  --paper3: #e0dbd2;
+  --accent: #c17f3b;
+  --accent2: #8b4513;
+  --green: #2d6a4f;
+  --green-lt: #eaf4ef;
+  --amber: #b8860b;
+  --amber-lt: #fdf6e3;
+  --red: #8b2020;
+  --red-lt: #fdf0f0;
+  --blue: #1a3a5c;
+  --blue-lt: #eef3f9;
+  --border: #d4cec6;
+  --shadow: 0 2px 12px rgba(26,23,20,.08);
+  --shadow-lg: 0 8px 32px rgba(26,23,20,.14);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0eeea;color:#1a1a1a;font-size:15px;line-height:1.6}
-.wrap{max-width:1000px;margin:0 auto;padding:2rem 1.25rem 4rem}
-h1{font-size:22px;font-weight:700;margin-bottom:4px}
-.sub{font-size:14px;color:#666;margin-bottom:2rem}
-.stage-bar{display:flex;border:1px solid #ddd;border-radius:10px;overflow:hidden;margin-bottom:2rem;background:#e8e6e2}
-.s-step{flex:1;padding:10px 6px;text-align:center;font-size:12px;color:#888;border-right:1px solid #ddd}
-.s-step:last-child{border-right:none}
-.s-step.active{background:#fff;color:#1a1a1a;font-weight:700}
-.sn{display:block;font-size:10px;color:#aaa;margin-bottom:1px}
-.s-step.active .sn{color:#888}
-.card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem}
-.card-title{font-size:16px;font-weight:700;margin-bottom:1.25rem}
-label{display:block;font-size:13px;color:#555;margin-bottom:5px}
-input[type=text],input[type=number],textarea{width:100%;padding:9px 12px;border:1px solid #ccc;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;outline:none}
-textarea{resize:vertical;min-height:80px;line-height:1.5}
-.fr{margin-bottom:1.1rem}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.1rem}
-.tabs{display:flex;gap:6px;flex-wrap:wrap}
-.tab{padding:7px 16px;font-size:13px;border:1px solid #ccc;border-radius:8px;cursor:pointer;background:transparent;color:#666;font-family:inherit}
-.tab.sel{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:500}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;font-size:14px;font-weight:500;border:1px solid #ccc;border-radius:8px;background:transparent;color:#1a1a1a;cursor:pointer;font-family:inherit}
-.btn-dark{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:1.25rem}
-.sbar{font-size:13px;color:#666;background:#f5f4f0;border-radius:8px;padding:10px 14px;margin-bottom:1.1rem}
-.sbar:empty{display:none}
-.sec{display:none}.sec.vis{display:block}
-.spin-row{display:none;align-items:center;gap:10px;padding:1rem 0;font-size:14px;color:#666}
-.spin{width:18px;height:18px;border:2px solid #ddd;border-top-color:#555;border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
-@keyframes sp{to{transform:rotate(360deg)}}
-.err{color:#c0392b;font-size:13px;min-height:20px;padding:2px 0}
-.slbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#999;display:block;margin:1.25rem 0 8px}
-.slbl:first-child{margin-top:0}
-.ob{background:#f5f4f0;border-radius:8px;padding:1rem 1.25rem;margin-bottom:.75rem;font-size:14px;line-height:1.75;color:#1a1a1a;white-space:pre-wrap}
-.divider{height:1px;background:#eee;margin:1.25rem 0}
-.tag{display:inline-block;font-size:12px;background:#f5f4f0;border:1px solid #ddd;border-radius:6px;padding:4px 12px;color:#666;margin-bottom:12px}
-.vtog{display:flex;border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:1.5rem;width:fit-content}
-.vbtn{padding:8px 20px;font-size:13px;font-weight:500;border:none;background:#f5f4f0;color:#888;cursor:pointer;font-family:inherit;border-right:1px solid #ddd}
-.vbtn:last-child{border-right:none}
-.vbtn.active{background:#1a1a1a;color:#fff}
-.mwrap{overflow-x:auto;margin-bottom:1rem}
-.mx{border-collapse:collapse;width:100%;font-size:12px}
-.mx th{padding:8px 6px;text-align:center;border:1px solid #e0e0e0;background:#f5f4f0;font-weight:600;color:#555;white-space:nowrap}
-.mx th.unh{text-align:left;min-width:160px;padding-left:10px}
-.mx td{padding:5px;text-align:center;border:1px solid #e0e0e0;vertical-align:middle}
-.mx td.unn{text-align:left;padding-left:10px;font-weight:500;color:#1a1a1a;font-size:12px;white-space:nowrap}
-.cell{width:30px;height:30px;border-radius:6px;margin:auto;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
-.cell.planned{background:#27ae60;color:#fff}
-.cell.assigned{background:#f39c12;color:#fff}
-.cell.empty{background:#f0eeea;color:#ccc;cursor:default}
-.cleg{display:flex;gap:16px;font-size:12px;color:#666;margin-bottom:1rem;flex-wrap:wrap}
-.cleg span{display:flex;align-items:center;gap:6px}
-.cdot{width:14px;height:14px;border-radius:4px;flex-shrink:0}
-.spill{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem}
-.spbtn{padding:6px 14px;font-size:12px;border:1px solid #ccc;border-radius:20px;cursor:pointer;background:transparent;color:#666;font-family:inherit}
-.spbtn.sel{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.suc{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:1.1rem;margin-bottom:10px;border-left:4px solid #ddd}
-.suc.planned{border-left-color:#27ae60}
-.suc.assigned{border-left-color:#f39c12}
-.suc.unassigned{border-left-color:#ffcccc;background:#fffafa}
-.suc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px}
-.suc-title{font-size:14px;font-weight:700;color:#1a1a1a}
-.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;white-space:nowrap}
-.badge.planned{background:#eafaf1;color:#1e8449}
-.badge.assigned{background:#fef9e7;color:#b7770d}
-.badge.unassigned{background:#fff0f0;color:#c0392b}
-.suc-body{font-size:13px;line-height:1.6;color:#444;white-space:pre-wrap}
-.cbrow{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:#aaa}
-.cbt{flex:1;height:4px;background:#eee;border-radius:2px;overflow:hidden}
-.cbf{height:100%;background:#3498db;border-radius:2px}
-.uc{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:1.1rem;margin-bottom:10px}
-.uc.planned{border-left:4px solid #27ae60}
-.ut{font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px}
-.umeta{font-size:13px;color:#888}
-.ueq{font-size:13px;color:#555;font-style:italic;margin:5px 0}
-.pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.pill{font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid #ddd;color:#666;background:#f5f4f0}
-.pill.hi{background:#eafaf1;color:#1e8449;border-color:#a9dfbf;font-weight:500}
-.pnote{font-size:11px;color:#aaa;margin-top:4px}
-.sdot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
-.sdot.planned{background:#27ae60}
-.sdot.assigned{background:#f39c12}
-.sdot.empty{background:#ddd}
-.pt{border:1px solid #ddd;border-radius:10px;padding:1rem;cursor:pointer}
-.pt.sel{border-color:#1a1a1a}
-.ptt{font-size:14px;font-weight:700;color:#888;margin-bottom:3px}
-.pt.sel .ptt{color:#1a1a1a}
-.ptd{font-size:12px;color:#aaa;line-height:1.4}
-.dc{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:1.1rem;margin-bottom:10px}
-.dt{font-size:14px;font-weight:700;color:#555;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
-.df{margin-bottom:10px}
-.dfl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:2px}
-.dfv{font-size:13px;line-height:1.6;color:#1a1a1a}
-@media(max-width:600px){.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.6;min-height:100vh}
+h1,h2,h3,h4{font-family:'Playfair Display',serif;line-height:1.2}
+code,pre{font-family:'DM Mono',monospace}
+
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:260px;flex-shrink:0;background:var(--ink);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .25s}
+.sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo h1{font-size:18px;color:#fff;line-height:1.3}
+.sidebar-logo p{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:.04em}
+.sidebar-nav{flex:1;overflow-y:auto;padding:12px 0}
+.nav-section{padding:16px 20px 6px;font-size:10px;font-weight:600;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase;font-family:'DM Mono',monospace}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-item.active{color:#fff;background:rgba(255,255,255,.1);border-left-color:var(--accent)}
+.nav-item svg{flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.nav-sub{padding:6px 20px 6px 46px;font-size:12px;color:rgba(255,255,255,.45);cursor:pointer;transition:all .15s;border-radius:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-sub:hover{color:#fff}
+.nav-sub.active{color:var(--accent)}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.3)}
+
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--paper);border-bottom:1px solid var(--border);padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--ink)}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.content{padding:32px;flex:1}
+
+/* CARDS & PANELS */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-sm{padding:16px}
+.card-title{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:16px;color:var(--ink)}
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
+/* COURSE CARDS */
+.course-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.course-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+.course-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.course-card-name{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:4px}
+.course-card-meta{font-size:12px;color:var(--ink3)}
+.course-card-stats{display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.stat{text-align:center}
+.stat-n{font-family:'Playfair Display',serif;font-size:20px;color:var(--ink)}
+.stat-l{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
+
+/* UNIT CARDS */
+.unit-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;cursor:pointer;transition:all .15s;display:grid;grid-template-columns:40px 1fr auto;gap:16px;align-items:start}
+.unit-card:hover{box-shadow:var(--shadow);border-color:var(--paper3)}
+.unit-num{width:40px;height:40px;border-radius:8px;background:var(--paper2);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;color:var(--ink2);flex-shrink:0}
+.unit-title{font-weight:500;font-size:14px;margin-bottom:3px}
+.unit-eq{font-size:12px;color:var(--ink3);font-style:italic;line-height:1.4}
+.unit-strand-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.strand-pill{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--paper2);color:var(--ink3);font-family:'DM Mono',monospace}
+.strand-pill.emph{background:var(--amber-lt);color:var(--amber);font-weight:500}
+.unit-status{font-size:11px;padding:3px 10px;border-radius:20px;white-space:nowrap;font-weight:500}
+.unit-status.planned{background:var(--paper2);color:var(--ink3)}
+.unit-status.in-progress{background:var(--amber-lt);color:var(--amber)}
+.unit-status.complete{background:var(--green-lt);color:var(--green)}
+
+/* LESSON CARDS */
+.lesson-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);transition:all .15s}
+.lesson-card-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px}
+.lesson-card-header:hover{background:var(--paper)}
+.lesson-card-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink3);white-space:nowrap}
+.lesson-card-title{font-weight:500;font-size:13px;flex:1}
+.lesson-card-body{border-top:1px solid var(--border);padding:16px;display:none}
+.lesson-card.open .lesson-card-body{display:block}
+.lesson-card.open .lesson-chevron{transform:rotate(180deg)}
+.lesson-chevron{transition:transform .2s;flex-shrink:0;color:var(--ink3)}
+
+/* LESSON SECTIONS */
+.lesson-section{margin-bottom:14px}
+.lesson-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:6px}
+.section-label .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.section-dot-hook{background:#7b68ee}
+.section-dot-read{background:#20b2aa}
+.section-dot-discuss{background:#ff8c00}
+.section-dot-write{background:#3cb371}
+.section-dot-close{background:#cd853f}
+.section-dot-obj{background:var(--ink3)}
+.section-dot-strand{background:var(--accent)}
+.section-content{font-size:13px;line-height:1.65;color:var(--ink2);background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;min-height:36px;cursor:text;white-space:pre-wrap;word-break:break-word}
+.section-content:focus{outline:none;border-color:var(--accent);background:#fff}
+.section-content[contenteditable=true]:empty::before{content:attr(data-placeholder);color:var(--ink3);font-style:italic}
+.regen-btn{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.regen-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--amber-lt)}
+.regen-panel{display:none;margin-top:8px;padding:10px;background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-sm)}
+.regen-panel.open{display:block}
+.regen-input{width:100%;padding:7px 10px;font-size:12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;background:#fff;color:var(--ink);margin-bottom:8px;resize:none}
+.regen-input:focus{outline:none;border-color:var(--accent)}
+
+/* TEKS COVERAGE */
+.coverage-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.coverage-bar-label{font-size:12px;color:var(--ink2);width:140px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coverage-bar-track{flex:1;height:6px;background:var(--paper3);border-radius:3px;overflow:hidden}
+.coverage-bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.coverage-bar-pct{font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;width:32px;text-align:right}
+.gap-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 8px;border-radius:4px;font-family:'DM Mono',monospace}
+.gap-badge.staar{background:var(--red-lt);color:var(--red)}
+.gap-badge.ok{background:var(--green-lt);color:var(--green)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;font-size:13px;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid transparent;transition:all .15s;text-decoration:none;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn-primary:hover{background:var(--ink2)}
+.btn-secondary{background:#fff;color:var(--ink);border-color:var(--border)}
+.btn-secondary:hover{border-color:var(--ink2);background:var(--paper)}
+.btn-accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-accent:hover{background:var(--accent2)}
+.btn-ghost{background:transparent;color:var(--ink3);border-color:transparent}
+.btn-ghost:hover{background:var(--paper2);color:var(--ink)}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-xs{padding:4px 10px;font-size:11px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* FORMS */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px;letter-spacing:.02em}
+.input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--ink);transition:border .15s}
+.input:focus{outline:none;border-color:var(--accent)}
+.input-sm{padding:6px 10px;font-size:13px}
+select.input{cursor:pointer}
+.tab-group{display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;width:fit-content}
+.tab-btn{padding:7px 18px;font-size:13px;font-weight:500;border:none;background:var(--paper);color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;border-right:1px solid var(--border)}
+.tab-btn:last-child{border-right:none}
+.tab-btn.active{background:#fff;color:var(--ink)}
+
+/* WEEK VIEW */
+.week-grid{display:grid;gap:12px}
+.day-col{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.day-header{padding:10px 14px;background:var(--paper2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.day-name{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace}
+.day-lesson{font-size:12px;color:var(--ink2);padding:12px 14px;cursor:pointer;transition:background .15s}
+.day-lesson:hover{background:var(--paper)}
+
+/* SPIN & STATES */
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-row{display:flex;align-items:center;gap:10px;padding:12px 0;font-size:13px;color:var(--ink3)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--ink3)}
+.empty-state h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px;color:var(--ink2)}
+.empty-state p{font-size:13px;line-height:1.6;max-width:340px;margin:0 auto 20px}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.badge-green{background:var(--green-lt);color:var(--green)}
+.badge-amber{background:var(--amber-lt);color:var(--amber)}
+.badge-red{background:var(--red-lt);color:var(--red)}
+.badge-gray{background:var(--paper2);color:var(--ink3)}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.text-sm{font-size:13px}
+.text-xs{font-size:11px}
+.text-muted{color:var(--ink3)}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-header h2{font-family:'Playfair Display',serif;font-size:22px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:var(--paper2);color:var(--ink3);font-family:'DM Mono',monospace}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius);padding:28px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--ink);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;animation:toastIn .2s ease;pointer-events:auto}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* TEKS AUDIT PANEL */
+.teks-audit{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+.teks-audit-header{padding:12px 16px;background:var(--paper2);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.teks-row{padding:8px 16px;border-top:1px solid var(--border);display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:start;font-size:12px}
+.teks-row:hover{background:var(--paper)}
+.teks-code{font-family:'DM Mono',monospace;color:var(--ink3);font-size:11px;padding-top:2px}
+.teks-text{color:var(--ink2);line-height:1.5}
+.teks-status{font-size:10px;padding:2px 7px;border-radius:20px;white-space:nowrap;font-weight:500}
+.teks-status.covered{background:var(--green-lt);color:var(--green)}
+.teks-status.gap{background:var(--red-lt);color:var(--red)}
+.teks-status.staar{background:var(--amber-lt);color:var(--amber)}
+
+/* GENERATE PROGRESS */
+.gen-steps{padding:16px 0}
+.gen-step{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;color:var(--ink3);transition:color .2s}
+.gen-step.active{color:var(--ink)}
+.gen-step.done{color:var(--green)}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .2s}
+.gen-step.active .step-dot{background:var(--accent);box-shadow:0 0 0 3px var(--amber-lt)}
+.gen-step.done .step-dot{background:var(--green)}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .content{padding:16px}
+  .panel-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Texas English Lesson Planner</h1>
-  <p class="sub">Texas TEKS - 7 integrated strands - Backward Design - Coverage auditable</p>
+<div class="app">
 
-  <div class="stage-bar">
-    <div class="s-step active" id="s1"><span class="sn">Step 1</span>Setup</div>
-    <div class="s-step" id="s2"><span class="sn">Step 2</span>Annual map</div>
-    <div class="s-step" id="s3"><span class="sn">Step 3</span>Unit plan</div>
-    <div class="s-step" id="s4"><span class="sn">Step 4</span>Lessons</div>
-  </div>
-
-  <div class="sec vis" id="stage1">
-    <div class="card">
-      <div class="card-title">Course and schedule</div>
-      <div class="fr"><label>Course</label>
-        <div class="tabs" id="ctabs">
-          <button class="tab sel" onclick="sc(this,'English I')">English I</button>
-          <button class="tab" onclick="sc(this,'English II')">English II</button>
-          <button class="tab" onclick="sc(this,'English III')">English III</button>
-          <button class="tab" onclick="sc(this,'English IV')">English IV</button>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="fr"><label>Class duration (minutes)</label><input type="number" id="dur" value="50" min="30" max="120" oninput="us()"/></div>
-        <div class="fr"><label>Days per week</label>
-          <div class="tabs" id="dtabs">
-            <button class="tab" onclick="sd(this,3)">3</button>
-            <button class="tab sel" onclick="sd(this,4)">4</button>
-            <button class="tab" onclick="sd(this,5)">5</button>
-          </div>
-        </div>
-        <div class="fr"><label>Units per year</label><input type="number" id="upy" value="9" min="4" max="18" oninput="us()"/></div>
-        <div class="fr"><label>Weeks per unit</label><input type="number" id="wpu" value="3" min="1" max="10" oninput="us()"/></div>
-      </div>
-      <div class="fr"><label>Context (optional)</label><input type="text" id="ctx" placeholder="e.g. Title I school, honors section, 9th grade"/></div>
-      <div id="ss" class="sbar"></div>
-      <div class="btn-row">
-        <button class="btn btn-dark" onclick="goS2()">Build annual map</button>
-      </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <h1>English<br>Lesson Planner</h1>
+      <p>Texas TEKS - Backward Design</p>
     </div>
-  </div>
-
-  <div class="sec" id="stage2">
-    <div class="card">
-      <div class="card-title">Annual map and coverage audit</div>
-      <div id="s2spin" class="spin-row"><div class="spin"></div>Building annual map...</div>
-      <div id="s2err" class="err"></div>
-      <div id="s2out" style="display:none">
-        <div class="vtog">
-          <button class="vbtn active" id="vt-matrix" onclick="switchView('matrix')">Unit x Strand matrix</button>
-          <button class="vbtn" id="vt-strand" onclick="switchView('strand')">Strand detail view</button>
-          <button class="vbtn" id="vt-units" onclick="switchView('units')">Unit list</button>
-        </div>
-        <div id="view-matrix">
-          <div class="cleg">
-            <span><div class="cdot" style="background:#27ae60"></div>Planned - unit plan generated</span>
-            <span><div class="cdot" style="background:#f39c12"></div>Assigned - annual map only</span>
-            <span><div class="cdot" style="background:#f0eeea;border:1px solid #ddd"></div>Not assigned</span>
-          </div>
-          <div class="mwrap"><table class="mx" id="mtable"></table></div>
-          <p style="font-size:12px;color:#888;margin-bottom:1rem">Star = primary emphasis. Click any cell for detail.</p>
-        </div>
-        <div id="view-strand" style="display:none">
-          <p style="font-size:13px;color:#666;margin-bottom:1rem">Select a strand to see how it is addressed across all units.</p>
-          <div class="spill" id="strand-sel"></div>
-          <div id="strand-content"></div>
-        </div>
-        <div id="view-units" style="display:none"><div id="ulist"></div></div>
-        <div class="divider"></div>
-        <div class="btn-row">
-          <button class="btn" onclick="go(1)">Back to setup</button>
-          <button class="btn" onclick="copyMap()">Copy full map</button>
-        </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <div class="nav-section">Workspace</div>
+      <div class="nav-item active" id="nav-home" onclick="showView('home')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        My Courses
       </div>
+      <div class="nav-item" id="nav-teks" onclick="showView('teks')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        TEKS Coverage
+      </div>
+      <div class="nav-section" style="margin-top:8px">Courses</div>
+      <div id="sidebar-courses"></div>
+    </nav>
+    <div class="sidebar-footer">
+      <div>2025-2026 School Year</div>
+      <div style="margin-top:2px;color:rgba(255,255,255,.2)">19 TAC Ch.110 Subch.C</div>
     </div>
-  </div>
+  </aside>
 
-  <div class="sec" id="stage3">
-    <div class="card">
-      <div class="card-title">Unit plan</div>
-      <div id="utag"></div>
-      <div class="fr"><label>Text or theme (optional)</label><input type="text" id="utxt" placeholder="e.g. The Great Gatsby, identity and belonging, dystopia"/></div>
-      <div id="s3spin" class="spin-row"><div class="spin"></div>Generating unit plan...</div>
-      <div id="s3err" class="err"></div>
-      <div id="s3genrow" class="btn-row">
-        <button class="btn btn-dark" onclick="genUnit()">Generate unit plan</button>
-        <button class="btn" onclick="go(2)">Back to map</button>
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">My Courses</div>
+      <div class="topbar-actions">
+        <div id="topbar-extra"></div>
+        <button class="btn btn-primary btn-sm" id="topbar-action-btn" style="display:none"></button>
       </div>
-      <div id="s3out" style="display:none">
-        <span class="slbl">Big idea and essential questions</span><div class="ob" id="ubig"></div>
-        <span class="slbl">How the 7 TEKS strands integrate in this unit</span><div class="ob" id="uteks"></div>
-        <span class="slbl">Learning objectives</span><div class="ob" id="uobj"></div>
-        <span class="slbl">Summative assessment</span><div class="ob" id="usum"></div>
-        <span class="slbl">Formative checkpoints</span><div class="ob" id="uform"></div>
-        <div class="btn-row">
-          <button class="btn btn-dark" onclick="goToLessons()">Generate lessons</button>
-          <button class="btn" onclick="genUnit()">Regenerate</button>
-          <button class="btn" onclick="go(2)">Back to map</button>
-        </div>
-      </div>
+    </header>
+
+    <div class="content" id="main-content">
+      <div class="empty-state"><div class="spin"></div></div>
     </div>
-  </div>
+  </main>
+</div>
 
-  <div class="sec" id="stage4">
-    <div class="card">
-      <div id="s4tag"></div>
-      <div id="s4spin" class="spin-row"><div class="spin"></div><span id="s4msg">Generating lessons...</span></div>
-      <div id="s4err" class="err"></div>
-      <div id="s4out" style="display:none">
-        <div id="week-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem"></div>
-        <div id="s4body"></div>
-        <div class="btn-row" style="margin-top:1.5rem;border-top:1px solid #eee;padding-top:1.25rem">
-          <button class="btn btn-dark" onclick="copyL()">Copy all lessons</button>
-          <button class="btn" onclick="genL()">Regenerate</button>
-          <button class="btn" onclick="go(3)">Back to unit plan</button>
-          <button class="btn" onclick="startOver()">Start over</button>
-        </div>
-      </div>
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-new-course">
+  <div class="modal">
+    <div class="modal-title">Add a course</div>
+    <div class="field"><label>Course</label>
+      <select class="input" id="nc-name">
+        <option>English I</option><option>English II</option>
+        <option>English III</option><option>English IV</option>
+      </select>
+    </div>
+    <div class="field"><label>Section / Period (optional)</label>
+      <input class="input" id="nc-label" placeholder="e.g. Period 2 or Honors Block"></div>
+    <div class="field"><label>School year</label>
+      <input class="input" id="nc-year" value="2025-2026"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field"><label>Class duration (min)</label>
+        <input class="input" type="number" id="nc-dur" value="50" min="30" max="120"></div>
+      <div class="field"><label>Days per week</label>
+        <input class="input" type="number" id="nc-days" value="4" min="3" max="5"></div>
+      <div class="field"><label>Units per year</label>
+        <input class="input" type="number" id="nc-units" value="9" min="4" max="18"></div>
+      <div class="field"><label>Weeks per unit</label>
+        <input class="input" type="number" id="nc-weeks" value="3" min="1" max="10"></div>
+    </div>
+    <div class="field"><label>Context (optional)</label>
+      <input class="input" id="nc-ctx" placeholder="e.g. Title I school, inclusion classroom, honors"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-new-course')">Cancel</button>
+      <button class="btn btn-primary" onclick="createCourse()">Create course</button>
     </div>
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-generate">
+  <div class="modal">
+    <div class="modal-title" id="gen-modal-title">Generate annual map</div>
+    <p class="text-sm text-muted" id="gen-modal-desc">The AI will build your annual curriculum map using the complete TEKS for this course, ensuring all student expectations are planned across the year.</p>
+    <div class="gen-steps" id="gen-steps"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="gen-cancel-btn" onclick="closeModal('modal-generate')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-regen-section">
+  <div class="modal">
+    <div class="modal-title">Regenerate section</div>
+    <p class="text-sm text-muted" id="regen-section-name" style="margin-bottom:12px"></p>
+    <div class="field"><label>What would you like changed? (optional)</label>
+      <textarea class="input" id="regen-instruction" rows="3" placeholder="e.g. Make the hook more hands-on, the current writing task is too long, focus more on (c)(4)(F)..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-regen-section')">Cancel</button>
+      <button class="btn btn-accent" onclick="doRegenSection()">Regenerate</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
 <script>
-// Texas Essential Knowledge and Skills  -  English Language Arts and Reading
-// High School, Subchapter C  -  Adopted 2017, Effective 2020-2021
-// Source: 19 TAC Chapter 110, Subchapter C
-// Last revised: August 2020
-// Next expected revision: ~2030
-// TEA source: https://tea.texas.gov/sites/default/files/ch110c.pdf
+var SUPABASE_URL = 'https://hwtkpbfllloaptbyuoxt.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_VRpAqIQcOIyCc_-755oi0Q_HJbfHcuj';
 
-const TEKS = {
-
-  // -- SHARED ACROSS ALL FOUR COURSES ----------------------------------------
-  // The 7 strand names and their sub-section structure are identical
-  // across English I-IV. What changes is the depth, complexity, and
-  // course-specific content focus (American lit, British lit, etc.)
-
-  strands: [
-    {
-      id: 1,
-      name: 'Foundational language skills',
-      short: 'Foundational',
-      subsections: [
-        {
-          code: '(c)(1)',
-          title: 'Oral language',
-          domain: 'Listening, speaking, discussion, and thinking',
-          note: 'Progressive across courses  -  complexity of discourse increases each year'
-        },
-        {
-          code: '(c)(2)',
-          title: 'Vocabulary',
-          domain: 'Listening, speaking, reading, writing, and thinking',
-          note: 'Each course adds specific foreign phrases and focuses on increasingly nuanced meanings'
-        },
-        {
-          code: '(c)(3)',
-          title: 'Self-sustained reading',
-          domain: 'Listening, speaking, reading, writing, and thinking',
-          note: 'Identical across all courses: student self-selects text and reads independently for sustained period'
-        }
-      ],
-      coverage: 'Present in every unit  -  oral language, vocabulary, and independent reading are baseline ELA instruction',
-      staar: false
-    },
-    {
-      id: 2,
-      name: 'Comprehension',
-      short: 'Comprehension',
-      subsections: [
-        {
-          code: '(c)(4)',
-          title: 'Comprehension skills',
-          domain: 'Listening, speaking, reading, writing, and thinking using multiple texts',
-          expectations: [
-            '(A) Establish purpose for reading assigned and self-selected texts',
-            '(B) Generate questions about text before, during, and after reading',
-            '(C) Make and correct or confirm predictions using text features, genre, and structures',
-            '(D) Create mental images to deepen understanding',
-            '(E) Make connections to personal experiences, ideas in other texts, and society',
-            '(F) Make inferences and use evidence to support understanding',
-            '(G) Evaluate details read to determine/understand/analyze key ideas',
-            '(H) Synthesize information from multiple texts to create new understanding',
-            '(I) Monitor comprehension and make adjustments when understanding breaks down'
-          ],
-          note: 'ENG IV changes (G) to "analyze" key ideas; ENG III/IV add "outside sources" to (I)'
-        }
-      ],
-      coverage: 'Present in every unit  -  STAAR priority strand',
-      staar: true
-    },
-    {
-      id: 3,
-      name: 'Response',
-      short: 'Response',
-      subsections: [
-        {
-          code: '(c)(5)',
-          title: 'Response skills',
-          domain: 'Listening, speaking, reading, writing, and thinking using multiple texts',
-          expectations: [
-            '(A) Describe personal connections to a variety of sources, including self-selected texts',
-            '(B) Write responses demonstrating understanding/analysis of texts, comparing across genres',
-            '(C) Use text evidence and original commentary to support a response',
-            '(D) Paraphrase and summarize texts in ways that maintain meaning and logical order',
-            '(E) Interact with sources in meaningful ways: notetaking, annotating, freewriting, illustrating',
-            '(F) Respond using acquired content and academic vocabulary as appropriate',
-            '(G) Discuss and write about the explicit or implicit meanings of text',
-            '(H) Respond orally or in writing with appropriate register, vocabulary, tone, and voice',
-            '(I) Reflect on and adjust responses when valid evidence warrants',
-            "(J) Defend or challenge the authors' claims using relevant text evidence"
-          ],
-          note: 'ENG I: "comprehensive response"; ENG II: "interpretive response"; ENG III/IV: "analytic/evaluative response"'
-        }
-      ],
-      coverage: 'Present in every unit  -  STAAR priority strand',
-      staar: true
-    },
-    {
-      id: 4,
-      name: 'Multiple genres',
-      short: 'Multiple genres',
-      subsections: [
-        {
-          code: '(c)(6)',
-          title: 'Literary elements',
-          domain: 'Listening, speaking, reading, writing, and thinking using multiple texts',
-          expectations: [
-            '(A) Analyze how themes are developed through characterization and plot',
-            '(B) Analyze complex character development (foils, archetypes, motivations)',
-            '(C) Analyze plot structure  -  linear, non-linear, subplots, parallel plots',
-            '(D) Analyze how historical, social, and economic context of setting influences plot, character, and theme'
-          ],
-          note: 'ENG III/IV: moral dilemmas and their influence on plot and theme; ENG IV: critique and evaluate complex plot structures'
-        },
-        {
-          code: '(c)(7)',
-          title: 'Genre study',
-          domain: 'Listening, speaking, reading, writing, and thinking using multiple texts',
-          expectations: [
-            '(A) Read and respond to literature by period and region (American/British/world)',
-            '(B) Analyze poetry  -  structure, prosody, sound devices, graphic elements',
-            '(C) Analyze dramatic conventions  -  asides, soliloquies, dramatic irony, satire',
-            '(D) Analyze informational texts  -  thesis, evidence, organizational patterns',
-            '(E) Analyze argumentative texts  -  claim, appeals, counterarguments, concessions, rebuttals',
-            '(F) Analyze characteristics of multimodal and digital texts'
-          ],
-          note: 'Course-specific literature: ENG I (world), ENG II (world across periods), ENG III (American), ENG IV (British)'
-        }
-      ],
-      coverage: 'Must appear as primary emphasis in at least 5 units per year',
-      staar: true
-    },
-    {
-      id: 5,
-      name: "Author's purpose and craft",
-      short: 'Author craft',
-      subsections: [
-        {
-          code: '(c)(8)',
-          title: "Author's purpose and craft",
-          domain: 'Listening, speaking, reading, writing, and thinking using multiple texts',
-          expectations: [
-            "(A) Analyze the author's purpose, audience, and message within a text",
-            "(B) Analyze/evaluate use of text structure to achieve the author's purpose",
-            "(C) Evaluate the author's use of print and graphic features to achieve specific purposes",
-            "(D) Analyze/evaluate how the author's use of language informs and shapes the perception of readers",
-            '(E) Analyze/evaluate the use of literary devices (irony, oxymoron, motif, paradox, satire, allegory)',
-            "(F) Analyze/evaluate how the author's diction and syntax contribute to mood, voice, and tone",
-            '(G) Analyze/explain the purpose of rhetorical devices and the effect of logical fallacies'
-          ],
-          note: 'ENG I: "analyze"; ENG II: "analyze"; ENG III: "evaluate"; ENG IV: "critique and evaluate"  -  verb complexity increases each year'
-        }
-      ],
-      coverage: 'Must appear as primary emphasis in at least 5 units per year  -  STAAR priority strand',
-      staar: true
-    },
-    {
-      id: 6,
-      name: 'Composition',
-      short: 'Composition',
-      subsections: [
-        {
-          code: '(c)(9)',
-          title: 'Writing process',
-          domain: 'Listening, speaking, reading, writing, and thinking using multiple texts',
-          expectations: [
-            '(A) Plan a piece of writing  -  brainstorming, journaling, reading, discussing',
-            '(B) Develop drafts into focused, structured, coherent writing (timed and open-ended)',
-            '(C) Revise drafts for clarity, development, organization, style, diction, sentence effectiveness',
-            '(D) Edit drafts using standard English conventions (sentences, verb tense, pronoun agreement, capitalization, punctuation, spelling)',
-            '(E) Publish written work for appropriate audiences'
-          ],
-          note: 'ENG III/IV: "command of standard English conventions using a style guide"  -  more autonomous editing expected'
-        },
-        {
-          code: '(c)(10)',
-          title: 'Composition genres',
-          domain: 'Listening, speaking, reading, writing, and thinking using multiple texts',
-          expectations: [
-            '(A) Compose literary texts such as fiction and poetry using genre characteristics and craft',
-            '(B) Compose informational texts  -  explanatory essays, reports, personal essays',
-            '(C) Compose argumentative texts using genre characteristics and craft',
-            '(D) Compose correspondence in a professional or friendly structure',
-            '(E) Compose literary analysis using genre characteristics and craft [ENG III and IV only]',
-            '(F) Compose rhetorical analysis using genre characteristics and craft [ENG III and IV only]'
-          ],
-          note: 'ENG III and IV add (E) literary analysis and (F) rhetorical analysis as required composition types'
-        }
-      ],
-      coverage: 'Present in every unit  -  students write in every unit of ELA',
-      staar: false
-    },
-    {
-      id: 7,
-      name: 'Inquiry and research',
-      short: 'Inquiry',
-      subsections: [
-        {
-          code: '(c)(11)',
-          title: 'Inquiry and research',
-          domain: 'Listening, speaking, reading, writing, and thinking using multiple texts',
-          expectations: [
-            '(A) Develop questions for formal and informal inquiry',
-            '(B) Critique the research process at each step to implement changes',
-            '(C) Develop and revise a research plan',
-            '(D) Modify the major research question as necessary to refocus the research plan',
-            '(E) Locate relevant sources',
-            '(F) Synthesize information from a variety of sources',
-            '(G) Examine sources for credibility, bias, omission, and faulty reasoning',
-            '(H) Display academic citations and use source materials ethically to avoid plagiarism',
-            '(I) Use an appropriate mode of delivery  -  written, oral, or multimodal  -  to present results'
-          ],
-          note: 'Faulty reasoning examples vary by course: ENG I (ad hominem, loaded language, slippery slope); ENG II (incorrect premise, hasty generalization); ENG III (post hoc, circular reasoning, red herring); ENG IV (straw man, false dilemma, faulty analogies)'
-        }
-      ],
-      coverage: 'Must appear in at least 3 units per year  -  typically anchors research-focused units',
-      staar: false
-    }
-  ],
-
-  // -- COURSE-SPECIFIC FOCUS -------------------------------------------------
-  courses: {
-    'English I': {
-      code: 'S110.36',
-      gradeLevel: '9th grade',
-      literatureFocus: 'American, British, and world literature',
-      keyElements: [
-        'Character foils (c)(6)(B)',
-        'Non-linear plot structures  -  flashbacks, foreshadowing, subplots, parallel plots (c)(6)(C)',
-        'Setting influences theme (c)(6)(D)',
-        'Informational and argumentative text analysis introduced',
-        'Literary and informational composition',
-        'Faulty reasoning: ad hominem, loaded language, slippery slope (c)(11)(G)'
-      ],
-      compositionFocus: 'Literary, informational, and argumentative texts; correspondence',
-      responseLevel: 'Comprehensive response  -  demonstrate understanding',
-      craftVerb: 'Analyze'
-    },
-    'English II': {
-      code: 'S110.37',
-      gradeLevel: '10th grade',
-      literatureFocus: 'World literature across literary periods',
-      keyElements: [
-        'Archetypes and cultural/historical settings (c)(6)(B)',
-        'Isolated scenes and contribution to plot (c)(6)(C)',
-        'Comparative themes across cultures (c)(6)(A)',
-        'Effects of metrics and rhyme schemes in poetry (c)(7)(B)',
-        'Rhetorical devices: appeals, antithesis, parallelism, shifts (c)(8)(G)',
-        'Faulty reasoning: incorrect premise, hasty generalizations, either-or (c)(11)(G)'
-      ],
-      compositionFocus: 'Literary, informational, and argumentative texts; correspondence',
-      responseLevel: 'Interpretive response  -  make sense of texts',
-      craftVerb: 'Analyze'
-    },
-    'English III': {
-      code: 'S110.38',
-      gradeLevel: '11th grade',
-      literatureFocus: 'American literature across literary periods',
-      keyElements: [
-        'Relationships among thematic development, characterization, point of view, setting, plot (c)(6)(A)',
-        'Moral dilemmas and their influence on plot and theme (c)(6)(B)',
-        'Historical, social, and economic context of setting (c)(6)(D)',
-        'Paradox, satire, and allegory as literary devices (c)(8)(E)',
-        'Literary analysis and rhetorical analysis as required composition types (c)(10)(E)(F)',
-        'Faulty reasoning: post hoc-ad hoc, circular reasoning, red herring, assumptions (c)(11)(G)'
-      ],
-      compositionFocus: 'Literary, informational, argumentative, literary analysis, rhetorical analysis',
-      responseLevel: 'Analytic response  -  analyze texts',
-      craftVerb: 'Evaluate'
-    },
-    'English IV': {
-      code: 'S110.39',
-      gradeLevel: '12th grade',
-      literatureFocus: 'British literature across literary periods',
-      keyElements: [
-        'Critique and evaluate complex plot structures including subplots (c)(6)(C)',
-        'Evaluate historical, social, and economic context of setting (c)(6)(D)',
-        'Elements of classical speeches  -  introduction, transitions, body, conclusion, art of persuasion (c)(1)(C)',
-        'Paradox, satire, and allegory evaluated for effectiveness (c)(8)(E)',
-        'Evaluate diction and syntax for overall text effectiveness (c)(8)(F)',
-        'Faulty reasoning: straw man, false dilemma, faulty analogies, non-sequitur (c)(11)(G)'
-      ],
-      compositionFocus: 'Literary, informational, argumentative, literary analysis, rhetorical analysis',
-      responseLevel: 'Evaluative response  -  evaluate and critique texts',
-      craftVerb: 'Critique and evaluate'
-    }
-  },
-
-  // -- METADATA --------------------------------------------------------------
-  meta: {
-    chapter: '19 TAC Chapter 110, Subchapter C',
-    adopted: 'November 12, 2017',
-    effectiveDate: '2020-2021 school year',
-    lastAmended: 'August 1, 2019 (44 TexReg 3835)',
-    source: 'https://tea.texas.gov/sites/default/files/ch110c.pdf',
-    nextReview: 'Approximately 2027-2030 (TEKS are reviewed approximately every 10 years)',
-    note: 'All seven strands are intended to be integrated for instructional purposes and are recursive in nature. Each strand is of equal value, may be presented in any order, and should be integrated throughout the year.'
-  }
+// ── APP STATE ─────────────────────────────────────────────────────────────────
+var state = {
+  view: 'home',
+  courses: [],
+  activeCourse: null,
+  activeUnit: null,
+  activeLesson: null,
+  units: {},
+  lessons: {},
+  teksData: {}
 };
 
-
-var STRANDS = TEKS.strands;
-var course = 'English I';
-var days = 4;
-var lpDays = 4;
-var planType = 'unit';
-var selUnit = null;
-var unitData = null;
-var mapRaw = null;
-var annualUnits = [];
-var plannedUnits = {};
-var currentView = 'matrix';
-
-function sc(b,c){course=c;document.querySelectorAll('#ctabs .tab').forEach(function(t){t.classList.remove('sel')});b.classList.add('sel');us()}
-function sd(b,n){days=n;document.querySelectorAll('#dtabs .tab').forEach(function(t){t.classList.remove('sel')});b.classList.add('sel');us()}
-function sld(b,n){lpDays=n;document.querySelectorAll('#ldtabs .tab').forEach(function(t){t.classList.remove('sel')});b.classList.add('sel');uls()}
-function sp(c,t){planType=t;document.querySelectorAll('.pt').forEach(function(p){p.classList.remove('sel')});c.classList.add('sel');document.getElementById('lwrow').style.display=t==='daily'?'none':'block';document.getElementById('ldrow').style.display=t==='daily'?'none':'block';uls()}
-
-function us(){
-  var d=+document.getElementById('dur').value||50;
-  var u=+document.getElementById('upy').value||9;
-  var w=+document.getElementById('wpu').value||3;
-  var tot=u*w*days;
-  var hrs=Math.round(tot*d/60);
-  document.getElementById('ss').textContent=u+' units x '+w+' weeks x '+days+' days = '+tot+' lessons ('+hrs+' hrs)';
+// ── SUPABASE CLIENT ───────────────────────────────────────────────────────────
+function sbUrl(path){ return SUPABASE_URL + '/rest/v1/' + path; }
+function sbHeaders(extra){
+  return Object.assign({
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  }, extra||{});
 }
-function uls(){
-  var d=+document.getElementById('ldur').value||50;
-  var w=+document.getElementById('lwpu').value||3;
-  var el=document.getElementById('ls');
-  if(planType==='daily') el.textContent='One '+d+'-min lesson, fully detailed';
-  else if(planType==='unit') el.textContent=w+' weeks x '+lpDays+' days = '+(w*lpDays)+' lessons at '+d+' min each';
-  else el.textContent='Full-year scope across all units';
-}
-us();uls();
-
-function go(n){
-  document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('vis')});
-  var el=document.getElementById('stage'+n);
-  if(el) el.classList.add('vis');
-  document.querySelectorAll('.s-step').forEach(function(s,i){s.classList.toggle('active',i+1===n)});
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function callAPI(prompt){
-  return fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})})
-    .then(function(r){
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.json();
-    })
-    .then(function(d){
-      if(d.error) throw new Error(d.error);
-      return d.text;
+function sb(method, path, body, extra){
+  return fetch(sbUrl(path), {
+    method: method,
+    headers: sbHeaders(extra),
+    body: body ? JSON.stringify(body) : undefined
+  }).then(function(r){
+    if(r.status === 204) return [];
+    return r.json().then(function(d){
+      if(!r.ok) throw new Error((d.message||d.error||'Supabase error')+' ['+r.status+']');
+      return d;
     });
+  });
+}
+var db = {
+  get: function(table, query){ return sb('GET', table+(query?'?'+query:''), null); },
+  post: function(table, body){ return sb('POST', table, body); },
+  patch: function(table, query, body){ return sb('PATCH', table+'?'+query, body, {'Prefer':'return=representation'}); },
+  delete: function(table, query){ return sb('DELETE', table+'?'+query, null); }
+};
+
+// ── AI API ────────────────────────────────────────────────────────────────────
+function callAI(prompt){
+  return fetch('/api/generate', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({prompt: prompt})
+  }).then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.error) throw new Error(d.error);
+    return d.text;
+  });
 }
 
-function goS2(){
-  var u=+document.getElementById('upy').value||9;
-  var w=+document.getElementById('wpu').value||3;
-  var ctx=document.getElementById('ctx').value.trim();
-  var cdata=TEKS.courses[course];
-  go(2);
-  document.getElementById('s2spin').style.display='flex';
-  document.getElementById('s2out').style.display='none';
-  document.getElementById('s2err').textContent='';
+// ── TEKS DATA ─────────────────────────────────────────────────────────────────
+// Full TEKS stored in JS — exact TEA wording, never altered
+var TEKS_ALL = [
+  // STRAND 1 - Foundational language skills
+  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(1)',subsection_title:'Oral language',expectation_code:'(c)(1)(A)',expectation_text:'listen actively to interpret a message by summarizing, asking questions, and making comments',staar_tested:false,course:'ALL'},
+  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(1)',subsection_title:'Oral language',expectation_code:'(c)(1)(B)',expectation_text:'follow and give complex oral instructions to perform specific tasks, answer questions, solve problems, and complete processes',staar_tested:false,course:'ALL'},
+  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(1)',subsection_title:'Oral language',expectation_code:'(c)(1)(C)',expectation_text:'give a formal presentation that incorporates a clear thesis or controlling idea, evidence from primary and secondary sources, and controlled organizational structure',staar_tested:false,course:'ALL'},
+  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(1)',subsection_title:'Oral language',expectation_code:'(c)(1)(D)',expectation_text:'engage in meaningful discourse that includes following rules for discussion such as listening actively, speaking purposefully, building on others\' ideas, clarifying, synthesizing, and making connections',staar_tested:false,course:'ALL'},
+  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(2)',subsection_title:'Vocabulary',expectation_code:'(c)(2)(A)',expectation_text:'use print or digital resources to determine the meaning, syllabication, pronunciation, word origin, and part of speech',staar_tested:false,course:'ALL'},
+  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(2)',subsection_title:'Vocabulary',expectation_code:'(c)(2)(B)',expectation_text:'analyze context to draw conclusions about the nuanced meanings of words',staar_tested:false,course:'ALL'},
+  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(2)',subsection_title:'Vocabulary',expectation_code:'(c)(2)(C)',expectation_text:'determine the meaning of foreign words or phrases used frequently in English such as in medias res or status quo and the etymology of these words or phrases',staar_tested:false,course:'ALL'},
+  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(2)',subsection_title:'Vocabulary',expectation_code:'(c)(2)(D)',expectation_text:'analyze the effect of figures of speech such as oxymoron, paradox, and irony on the meaning of the text',staar_tested:false,course:'ALL'},
+  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(3)',subsection_title:'Self-sustained reading',expectation_code:'(c)(3)(A)',expectation_text:'self-select text and read independently for a sustained period of time',staar_tested:false,course:'ALL'},
+  // STRAND 2 - Comprehension
+  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(A)',expectation_text:'establish a purpose for reading assigned and self-selected texts',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(B)',expectation_text:'generate questions about text before, during, and after reading to deepen understanding and gain information',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(C)',expectation_text:'make and correct or confirm predictions using text features, characteristics of genre, and structures',staar_tested:false,course:'ALL'},
+  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(D)',expectation_text:'create mental images or make use of text features such as print styles and graphics to better understand and remember information',staar_tested:false,course:'ALL'},
+  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(E)',expectation_text:'make connections to personal experiences, ideas in other texts, and society',staar_tested:false,course:'ALL'},
+  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(F)',expectation_text:'make inferences and use evidence to support understanding',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(G)',expectation_text:'evaluate details read to determine key ideas',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(H)',expectation_text:'synthesize information from two or more texts to create new understanding',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(I)',expectation_text:'monitor comprehension and make adjustments such as re-reading, using background knowledge, checking for visual cues, and asking questions when understanding breaks down',staar_tested:false,course:'ALL'},
+  // STRAND 3 - Response
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(A)',expectation_text:'describe personal connections to a variety of sources, including self-selected texts',staar_tested:false,course:'ALL'},
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(B)',expectation_text:'write responses that demonstrate understanding of texts, including comparing sources within and across genres',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(C)',expectation_text:'use text evidence and original commentary to support an interpretive response',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(D)',expectation_text:'paraphrase and summarize texts in ways that maintain meaning and logical order',staar_tested:false,course:'ALL'},
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(E)',expectation_text:'interact with sources in meaningful ways such as notetaking, annotating, freewriting, or illustrating',staar_tested:false,course:'ALL'},
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(F)',expectation_text:'respond using newly acquired vocabulary as appropriate',staar_tested:false,course:'ALL'},
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(G)',expectation_text:'discuss and write about the explicit or implicit meanings of text',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(H)',expectation_text:'respond orally or in writing with appropriate register and with attention to audience, purpose, and context',staar_tested:false,course:'ALL'},
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(I)',expectation_text:'reflect on and adjust responses when valid evidence warrants',staar_tested:false,course:'ALL'},
+  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(J)',expectation_text:'defend or challenge the authors\' claims using relevant text evidence',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  // STRAND 4 - Multiple genres
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(6)',subsection_title:'Literary elements',expectation_code:'(c)(6)(A)',expectation_text:'analyze how themes are developed through characterization and plot in a variety of literary texts',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(6)',subsection_title:'Literary elements',expectation_code:'(c)(6)(B)',expectation_text:'analyze how the characters\' internal and external responses to situations reveal their character and how this affects plot and theme',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(6)',subsection_title:'Literary elements',expectation_code:'(c)(6)(C)',expectation_text:'analyze the function of linear and nonlinear plot structures such as foreshadowing, flashbacks, and subplots',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(6)',subsection_title:'Literary elements',expectation_code:'(c)(6)(D)',expectation_text:'analyze the influence of the historical, social, and economic context of setting on the plot, characters, and theme',staar_tested:false,course:'ALL'},
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(A)',expectation_text:'read and respond to American, British, and world literature across literary periods',staar_tested:false,course:'ALL'},
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(B)',expectation_text:'analyze the effects of metrics, rhyme schemes, and other conventions in poetry',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(C)',expectation_text:'analyze the function of dramatic conventions such as asides, monologues, and the use of a chorus',staar_tested:false,course:'ALL'},
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(D)',expectation_text:'analyze characteristics and structural elements of informational texts such as thesis or controlling idea, facts and details, inferences and conclusions, and organizational patterns',staar_tested:true,staar_category:'Informational Text Analysis',course:'ALL'},
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(E)',expectation_text:'analyze characteristics and structural elements of argumentative texts such as the relationship between the controlling idea and supporting evidence and the use of logical, emotional, or ethical appeals',staar_tested:true,staar_category:'Informational Text Analysis',course:'ALL'},
+  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(F)',expectation_text:'analyze characteristics of multimodal and digital texts',staar_tested:false,course:'ALL'},
+  // STRAND 5 - Author's purpose and craft
+  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(A)',expectation_text:"analyze the author's purpose, audience, and message within a text",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(B)',expectation_text:"analyze the use of text structure to achieve the author's purpose",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(C)',expectation_text:"evaluate the use of print and graphic features in informational texts such as headings, photographs, charts, and sidebars to inform or persuade",staar_tested:false,course:'ALL'},
+  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(D)',expectation_text:"analyze how the author's use of language informs and shapes the perception of readers",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(E)',expectation_text:"analyze the use of literary devices such as irony, sarcasm, and motif and how these affect the meaning of a text",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(F)',expectation_text:"analyze the author's diction and its effect on the tone of a text",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
+  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(G)',expectation_text:"analyze the purpose of rhetorical devices such as analogy, rhetorical question, and antithesis and the effect of logical fallacies such as loaded language and either/or fallacy on the quality of an argument",staar_tested:true,staar_category:'Informational Text Analysis',course:'ALL'},
+  // STRAND 6 - Composition
+  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(A)',expectation_text:'plan a first draft by selecting a genre for a particular topic, purpose, and audience using a range of strategies such as brainstorming, freewriting, and mapping',staar_tested:false,course:'ALL'},
+  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(B)',expectation_text:'develop drafts into a focused, structured, and coherent piece of writing in timed and open-ended situations by organizing with purpose and logic',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
+  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(C)',expectation_text:'revise drafts to improve clarity, development, organization, style, diction, and sentence effectiveness',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
+  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(D)',expectation_text:'edit drafts using standard English conventions, including complete sentences; agreement; consistent, appropriate use of verb tenses; correct mechanics, capitalization, and punctuation; and correct spelling',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
+  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(E)',expectation_text:'publish written work for appropriate audiences',staar_tested:false,course:'ALL'},
+  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(10)',subsection_title:'Composition genres',expectation_code:'(c)(10)(A)',expectation_text:'compose literary texts such as fiction, poetry, and personal narratives using genre characteristics and craft',staar_tested:false,course:'ALL'},
+  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(10)',subsection_title:'Composition genres',expectation_code:'(c)(10)(B)',expectation_text:'compose informational texts such as explanatory essays, reports, and personal essays using genre characteristics and craft',staar_tested:false,course:'ALL'},
+  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(10)',subsection_title:'Composition genres',expectation_code:'(c)(10)(C)',expectation_text:'compose argumentative texts, including opinion essays and persuasive essays, using genre characteristics and craft',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
+  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(10)',subsection_title:'Composition genres',expectation_code:'(c)(10)(D)',expectation_text:'compose correspondence in a professional or friendly structure',staar_tested:false,course:'ALL'},
+  // STRAND 7 - Inquiry and research
+  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(A)',expectation_text:'develop questions for formal and informal inquiry',staar_tested:false,course:'ALL'},
+  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(B)',expectation_text:'critique the research process at each step to implement changes as needs occur and are identified',staar_tested:false,course:'ALL'},
+  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(C)',expectation_text:'develop and revise a plan',staar_tested:false,course:'ALL'},
+  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(D)',expectation_text:'modify the major research question as necessary to refocus the research plan',staar_tested:false,course:'ALL'},
+  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(E)',expectation_text:'locate relevant sources',staar_tested:false,course:'ALL'},
+  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(F)',expectation_text:'synthesize information from a variety of sources',staar_tested:false,course:'ALL'},
+  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(G)',expectation_text:'examine sources for credibility and bias, including omission',staar_tested:false,course:'ALL'},
+  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(H)',expectation_text:'display academic citations, including for quoted, paraphrased, and summarized information, and use source material ethically to avoid plagiarism',staar_tested:false,course:'ALL'},
+  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(I)',expectation_text:'use an appropriate mode of delivery, whether written, oral, or multimodal, to present results',staar_tested:false,course:'ALL'}
+];
 
-  var strandLines=TEKS.strands.map(function(s){
-    return 'Strand '+s.id+' ('+s.name+'): '+s.subsections.map(function(sub){return sub.code+' '+sub.title}).join(', ');
-  }).join('\n');
+function getTeksForCourse(course){
+  return TEKS_ALL.filter(function(t){ return t.course === course || t.course === 'ALL'; });
+}
 
-  var prompt='Create an annual curriculum map for '+course+' ('+cdata.literatureFocus+').\n'
-    +'Schedule: '+u+' units, '+w+' weeks/unit, '+days+' days/week.'+(ctx?' Context: '+ctx:'')+'\n\n'
-    +'THE 7 TEKS STRANDS:\n'+strandLines+'\n\n'
-    +'COVERAGE RULES:\n'
-    +'- Strands 1,2,3,6: present in EVERY unit\n'
-    +'- Strands 4,5: primary emphasis in at least 5 units\n'
-    +'- Strand 7: primary emphasis in at least 3 units\n'
-    +'- List all 7 strands in every unit Strands field\n'
-    +'- Units increase in complexity across the year\n\n'
-    +'For each unit output EXACTLY:\n'
+function getTeksText(course){
+  var teks = getTeksForCourse(course);
+  var byStrand = {};
+  teks.forEach(function(t){
+    if(!byStrand[t.strand_id]) byStrand[t.strand_id] = {name:t.strand_name, items:[]};
+    byStrand[t.strand_id].items.push(t);
+  });
+  var lines = [];
+  Object.keys(byStrand).sort().forEach(function(sid){
+    var s = byStrand[sid];
+    lines.push('STRAND ' + sid + ': ' + s.name.toUpperCase());
+    s.items.forEach(function(t){
+      lines.push('  ' + t.expectation_code + ' ' + t.expectation_text + (t.staar_tested?' [STAAR: '+t.staar_category+']':''));
+    });
+  });
+  return lines.join('\n');
+}
+
+// ── ROUTING ───────────────────────────────────────────────────────────────────
+function showView(view, params){
+  state.view = view;
+  params = params || {};
+
+  document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active')});
+  var navEl = document.getElementById('nav-' + view);
+  if(navEl) navEl.classList.add('active');
+
+  var btn = document.getElementById('topbar-action-btn');
+  btn.style.display = 'none';
+  document.getElementById('topbar-extra').innerHTML = '';
+
+  if(view === 'home') renderHome();
+  else if(view === 'teks') renderTeksView();
+  else if(view === 'course') renderCourseView(params.courseId);
+  else if(view === 'unit') renderUnitView(params.unitId);
+  else if(view === 'lesson') renderLessonView(params.lessonId);
+}
+
+// ── HOME VIEW ─────────────────────────────────────────────────────────────────
+function renderHome(){
+  document.getElementById('topbar-title').textContent = 'My Courses';
+  var btn = document.getElementById('topbar-action-btn');
+  btn.textContent = '+ Add course';
+  btn.style.display = '';
+  btn.onclick = function(){ openModal('modal-new-course'); };
+
+  var content = document.getElementById('main-content');
+  content.innerHTML = '<div class="spin-row"><div class="spin"></div> Loading courses...</div>';
+
+  db.get('courses', 'order=created_at.asc').then(function(courses){
+    state.courses = courses;
+    renderSidebarCourses();
+    if(courses.length === 0){
+      content.innerHTML = '<div class="empty-state"><h3>No courses yet</h3><p>Add your first course to get started. You can add multiple courses and sections.</p><button class="btn btn-primary" onclick="openModal(\'modal-new-course\')">+ Add your first course</button></div>';
+      return;
+    }
+    var html = '<div class="panel-grid">';
+    courses.forEach(function(c){
+      html += '<div class="course-card" onclick="showView(\'course\',{courseId:\''+c.id+'\'})">';
+      html += '<div class="course-card-name">'+c.name+'</div>';
+      html += '<div class="course-card-meta">'+(c.section_label||'')+(c.school_year?' &middot; '+c.school_year:'')+'</div>';
+      html += '<div class="course-card-stats">';
+      html += '<div class="stat"><div class="stat-n">'+c.units_per_year+'</div><div class="stat-l">Units</div></div>';
+      html += '<div class="stat"><div class="stat-n">'+(c.units_per_year*c.weeks_per_unit*c.days_per_week)+'</div><div class="stat-l">Lessons</div></div>';
+      html += '<div class="stat"><div class="stat-n">'+c.class_duration+'</div><div class="stat-l">Min/class</div></div>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+    content.innerHTML = html;
+  }).catch(function(e){ content.innerHTML = '<div class="empty-state"><p style="color:var(--red)">Error loading courses: '+e.message+'</p></div>'; });
+}
+
+function renderSidebarCourses(){
+  var el = document.getElementById('sidebar-courses');
+  el.innerHTML = state.courses.map(function(c){
+    return '<div class="nav-sub" onclick="showView(\'course\',{courseId:\''+c.id+'\'})">'+(c.name+(c.section_label?' ('+c.section_label+')':''))+'</div>';
+  }).join('');
+}
+
+// ── COURSE VIEW ───────────────────────────────────────────────────────────────
+function renderCourseView(courseId){
+  var course = state.courses.find(function(c){return c.id === courseId;});
+  if(!course) return showView('home');
+  state.activeCourse = course;
+
+  document.getElementById('topbar-title').textContent = course.name + (course.section_label ? ' - ' + course.section_label : '');
+  var btn = document.getElementById('topbar-action-btn');
+  btn.textContent = 'Generate annual map';
+  btn.style.display = '';
+  btn.onclick = function(){ generateAnnualMap(course); };
+
+  var content = document.getElementById('main-content');
+  content.innerHTML = '<div class="spin-row"><div class="spin"></div> Loading units...</div>';
+
+  db.get('units', 'course_id=eq.'+courseId+'&order=num.asc').then(function(units){
+    state.units[courseId] = units;
+    if(units.length === 0){
+      content.innerHTML = '<div class="empty-state"><h3>No units yet</h3><p>Generate your annual map to create units for this course. The AI will use the complete TEKS to plan coverage across the year.</p><button class="btn btn-primary" onclick="generateAnnualMap(state.activeCourse)">Generate annual map</button></div>';
+      return;
+    }
+    renderUnitList(units, course, content);
+  });
+}
+
+function renderUnitList(units, course, content){
+  var html = '<div class="section-header"><h2>'+units.length+' units &mdash; '+course.name+'</h2>';
+  html += '<div class="btn-row"><button class="btn btn-secondary btn-sm" onclick="showView(\'teks\')">View TEKS coverage</button><button class="btn btn-secondary btn-sm" onclick="generateAnnualMap(state.activeCourse)">Regenerate map</button></div></div>';
+
+  html += '<div style="display:flex;flex-direction:column;gap:10px">';
+  units.forEach(function(u){
+    var emph = u.emph_strands || [];
+    var strands = u.strands || [1,2,3,4,5,6,7];
+    var strandPills = strands.map(function(s){
+      return '<span class="strand-pill'+(emph.includes(s)?' emph':'')+'">S'+s+'</span>';
+    }).join('');
+    var statusCls = u.status === 'complete' ? 'complete' : u.status === 'in_progress' ? 'in-progress' : 'planned';
+    var statusTxt = u.status === 'complete' ? 'Complete' : u.status === 'in_progress' ? 'In progress' : 'Planned';
+    html += '<div class="unit-card" onclick="showView(\'unit\',{unitId:\''+u.id+'\'})">';
+    html += '<div class="unit-num">'+u.num+'</div>';
+    html += '<div><div class="unit-title">'+u.title+'</div>';
+    if(u.essential_question) html += '<div class="unit-eq">'+u.essential_question+'</div>';
+    html += '<div class="unit-strand-pills">'+strandPills+'</div></div>';
+    html += '<span class="unit-status '+statusCls+'">'+statusTxt+'</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+  content.innerHTML = html;
+}
+
+// ── UNIT VIEW ─────────────────────────────────────────────────────────────────
+function renderUnitView(unitId){
+  var content = document.getElementById('main-content');
+  content.innerHTML = '<div class="spin-row"><div class="spin"></div> Loading unit...</div>';
+
+  db.get('units', 'id=eq.'+unitId).then(function(rows){
+    var unit = rows[0];
+    if(!unit) return showView('home');
+    state.activeUnit = unit;
+
+    var course = state.activeCourse || state.courses.find(function(c){return c.id===unit.course_id;});
+    document.getElementById('topbar-title').textContent = 'Unit '+unit.num+' - '+unit.title;
+    var btn = document.getElementById('topbar-action-btn');
+    btn.textContent = 'Generate lessons';
+    btn.style.display = '';
+    btn.onclick = function(){ generateLessons(unit, course); };
+
+    return db.get('lessons', 'unit_id=eq.'+unitId+'&order=num.asc').then(function(lessons){
+      state.lessons[unitId] = lessons;
+      renderUnitDetail(unit, lessons, course, content);
+    });
+  });
+}
+
+function renderUnitDetail(unit, lessons, course, content){
+  var html = '<button class="btn btn-ghost btn-sm" onclick="showView(\'course\',{courseId:\''+unit.course_id+'\'})" style="margin-bottom:16px">&larr; Back to course</button>';
+
+  html += '<div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">';
+  html += '<div><div style="font-size:11px;font-weight:600;letter-spacing:.07em;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Essential question</div>';
+  html += '<div style="font-size:15px;font-style:italic;color:var(--ink2);line-height:1.5">'+(unit.essential_question||'Not set')+'</div></div>';
+  html += '<div><div style="font-size:11px;font-weight:600;letter-spacing:.07em;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Summative assessment</div>';
+  html += '<div style="font-size:14px;color:var(--ink2)">'+(unit.summative_assessment||'Not set')+'</div></div>';
+  if(unit.big_idea){ html += '<div style="grid-column:1/-1"><div style="font-size:11px;font-weight:600;letter-spacing:.07em;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Big idea</div>';
+  html += '<div style="font-size:14px;color:var(--ink2);line-height:1.6">'+unit.big_idea+'</div></div>'; }
+  html += '</div></div>';
+
+  if(lessons.length === 0){
+    html += '<div class="empty-state"><h3>No lessons yet</h3><p>Generate lessons for this unit. The AI will plan each class day addressing the assigned TEKS.</p><button class="btn btn-primary" onclick="generateLessons(state.activeUnit, state.activeCourse)">Generate lessons</button></div>';
+  } else {
+    html += '<div class="section-header" style="margin-top:8px"><h2>'+lessons.length+' lessons</h2>';
+    html += '<div class="btn-row">';
+    var weeks = Array.from(new Set(lessons.map(function(l){return l.week_num}))).sort();
+    weeks.forEach(function(w){
+      html += '<button class="btn btn-secondary btn-sm week-filter-btn" data-week="'+w+'" onclick="filterWeek('+w+',this)">Week '+w+'</button>';
+    });
+    html += '<button class="btn btn-secondary btn-sm week-filter-btn active" data-week="0" onclick="filterWeek(0,this)">All weeks</button>';
+    html += '</div></div>';
+    html += '<div id="lessons-list">';
+    html += renderLessonCards(lessons);
+    html += '</div>';
+  }
+  content.innerHTML = html;
+}
+
+function filterWeek(week, btn){
+  document.querySelectorAll('.week-filter-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  var cards = document.querySelectorAll('[data-week-card]');
+  cards.forEach(function(c){
+    c.style.display = (week === 0 || parseInt(c.dataset.weekCard) === week) ? '' : 'none';
+  });
+}
+
+function renderLessonCards(lessons){
+  var html = '';
+  var byWeek = {};
+  lessons.forEach(function(l){
+    if(!byWeek[l.week_num]) byWeek[l.week_num] = [];
+    byWeek[l.week_num].push(l);
+  });
+  Object.keys(byWeek).sort().forEach(function(w){
+    html += '<div style="margin-bottom:6px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);font-family:DM Mono,monospace;margin-top:16px">Week '+w+'</div>';
+    byWeek[w].forEach(function(l){
+      html += '<div class="lesson-card" data-week-card="'+l.week_num+'" data-lesson-id="'+l.id+'" style="margin-bottom:8px">';
+      html += '<div class="lesson-card-header" onclick="toggleLesson(\''+l.id+'\')">';
+      html += '<span class="lesson-card-num">Lesson '+l.num+'</span>';
+      html += '<span class="lesson-card-title">'+(l.title||'Untitled lesson')+'</span>';
+      html += '<span class="badge '+(l.status==='approved'?'badge-green':l.status==='edited'?'badge-amber':'badge-gray')+'">'+( l.status||'generated')+'</span>';
+      html += '<svg class="lesson-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
+      html += '</div>';
+      html += '<div class="lesson-card-body">';
+      html += renderLessonBody(l);
+      html += '</div></div>';
+    });
+  });
+  return html;
+}
+
+function renderLessonBody(lesson){
+  var sections = [
+    {key:'objective', label:'Objective', dotClass:'section-dot-obj'},
+    {key:'strands_today', label:'TEKS strands today', dotClass:'section-dot-strand'},
+    {key:'hook', label:'Hook', dotClass:'section-dot-hook', timing:'opening'},
+    {key:'read_analyze', label:'Read & analyze', dotClass:'section-dot-read'},
+    {key:'discuss', label:'Discuss', dotClass:'section-dot-discuss'},
+    {key:'write_practice', label:'Write & practice', dotClass:'section-dot-write'},
+    {key:'close', label:'Close / exit ticket', dotClass:'section-dot-close'},
+    {key:'support', label:'Support & scaffolding', dotClass:'section-dot-obj'},
+    {key:'materials', label:'Materials', dotClass:'section-dot-obj'},
+    {key:'teacher_notes', label:'Teacher notes', dotClass:'section-dot-obj'}
+  ];
+  var html = '';
+  sections.forEach(function(s){
+    var val = lesson[s.key];
+    if(s.key === 'strands_today' && Array.isArray(val)) val = val.map(function(n){return 'Strand '+n;}).join(', ');
+    if(!val) return;
+    html += '<div class="lesson-section">';
+    html += '<div class="lesson-section-header">';
+    html += '<div class="section-label"><div class="dot '+s.dotClass+'"></div>'+s.label+'</div>';
+    if(s.key !== 'teacher_notes' && s.key !== 'strands_today'){
+      html += '<button class="regen-btn" onclick="openRegenModal(\''+lesson.id+'\',\''+s.key+'\',\''+s.label+'\')">&#8635; Regenerate</button>';
+    }
+    html += '</div>';
+    html += '<div class="section-content" contenteditable="true" data-lesson-id="'+lesson.id+'" data-field="'+s.key+'" onblur="saveField(this)" data-placeholder="Click to add '+s.label.toLowerCase()+'">'+escHtml(String(val))+'</div>';
+    html += '</div>';
+  });
+  html += '<div class="btn-row" style="margin-top:16px">';
+  html += '<button class="btn btn-sm btn-secondary" onclick="markApproved(\''+lesson.id+'\')">Mark approved</button>';
+  html += '<button class="btn btn-sm btn-ghost" onclick="deleteLesson(\''+lesson.id+'\')">Delete lesson</button>';
+  html += '</div>';
+  return html;
+}
+
+function toggleLesson(id){
+  var card = document.querySelector('[data-lesson-id="'+id+'"].lesson-card');
+  if(card) card.classList.toggle('open');
+}
+
+function saveField(el){
+  var lessonId = el.dataset.lessonId;
+  var field = el.dataset.field;
+  var value = el.innerText.trim();
+  var patch = {};
+  patch[field] = value;
+  patch['status'] = 'edited';
+  db.patch('lessons', 'id=eq.'+lessonId, patch).then(function(){
+    toast('Saved', 'success');
+    var card = document.querySelector('[data-lesson-id="'+lessonId+'"].lesson-card .badge');
+    if(card){card.className='badge badge-amber';card.textContent='edited';}
+  }).catch(function(e){ toast('Save failed: '+e.message, 'error'); });
+}
+
+function markApproved(lessonId){
+  db.patch('lessons', 'id=eq.'+lessonId, {status:'approved'}).then(function(){
+    toast('Marked approved','success');
+    var el = document.querySelector('[data-lesson-id="'+lessonId+'"].lesson-card .badge');
+    if(el){el.className='badge badge-green';el.textContent='approved';}
+  });
+}
+
+function deleteLesson(lessonId){
+  if(!confirm('Delete this lesson?')) return;
+  db.delete('lessons', 'id=eq.'+lessonId).then(function(){
+    var card = document.querySelector('[data-lesson-id="'+lessonId+'"].lesson-card');
+    if(card) card.remove();
+    toast('Lesson deleted');
+  });
+}
+
+// ── SECTION REGENERATION ─────────────────────────────────────────────────────
+var regenState = {lessonId:null, field:null, label:null};
+function openRegenModal(lessonId, field, label){
+  regenState = {lessonId:lessonId, field:field, label:label};
+  document.getElementById('regen-section-name').textContent = 'Regenerating: ' + label;
+  document.getElementById('regen-instruction').value = '';
+  openModal('modal-regen-section');
+}
+
+function doRegenSection(){
+  var instruction = document.getElementById('regen-instruction').value.trim();
+  var lessonId = regenState.lessonId;
+  var field = regenState.field;
+  closeModal('modal-regen-section');
+
+  var lessons = Object.values(state.lessons).reduce(function(a,b){return a.concat(b)},[]);
+  var lesson = lessons.find(function(l){return l.id===lessonId;});
+  if(!lesson) return;
+
+  var unit = state.activeUnit;
+  var course = state.activeCourse;
+  var teksText = getTeksText(course ? course.name : 'English I');
+
+  var fieldLabels = {hook:'Hook (opening activity)',read_analyze:'Read & Analyze segment',discuss:'Discussion segment',write_practice:'Write & Practice segment',close:'Close/exit ticket',objective:'Lesson objective',support:'Support & scaffolding',materials:'Materials list'};
+
+  var prompt = 'You are regenerating one section of a daily lesson plan.\n\n'
+    + 'Course: ' + (course?course.name:'') + '\n'
+    + 'Unit: ' + (unit?unit.num+' - '+unit.title:'') + '\n'
+    + 'Lesson: ' + lesson.num + ' - ' + (lesson.title||'') + '\n'
+    + 'Section to regenerate: ' + (fieldLabels[field]||field) + '\n\n'
+    + 'Current content:\n' + (lesson[field]||'(empty)') + '\n\n'
+    + (instruction ? 'Teacher instruction: ' + instruction + '\n\n' : '')
+    + 'Relevant TEKS (exact TEA wording):\n' + teksText.substring(0, 1500) + '\n\n'
+    + 'Write ONLY the new content for the ' + (fieldLabels[field]||field) + ' section. '
+    + 'Do not include section labels or headings. Write 2-4 sentences of specific, actionable content. '
+    + 'Reference specific TEKS expectation codes where relevant.';
+
+  var el = document.querySelector('[data-lesson-id="'+lessonId+'"][data-field="'+field+'"]');
+  if(el){ el.textContent = 'Regenerating...'; el.style.color='var(--ink3)'; }
+
+  callAI(prompt).then(function(text){
+    text = text.trim();
+    if(el){ el.textContent = text; el.style.color=''; }
+    var patch = {status:'edited'};
+    patch[field] = text;
+    db.patch('lessons', 'id=eq.'+lessonId, patch).then(function(){toast('Section regenerated','success');});
+  }).catch(function(e){
+    if(el){ el.textContent = lesson[field]||''; el.style.color=''; }
+    toast('Error: '+e.message,'error');
+  });
+}
+
+// ── GENERATE ANNUAL MAP ───────────────────────────────────────────────────────
+function generateAnnualMap(course){
+  var steps = [
+    {id:'s1', label:'Reading TEKS expectations for '+course.name},
+    {id:'s2', label:'Building annual curriculum map'},
+    {id:'s3', label:'Parsing units and strand assignments'},
+    {id:'s4', label:'Saving to your course'}
+  ];
+  openGenerateModal('Generate annual map', 'Building a full-year plan using exact TEKS wording. STAAR expectations will be prioritized.', steps);
+  setGenStep('s1', 'active');
+
+  var teksText = getTeksText(course.name);
+  var staarExpectations = TEKS_ALL.filter(function(t){return t.staar_tested;}).map(function(t){return t.expectation_code+': '+t.expectation_text;}).join('\n');
+
+  setTimeout(function(){ setGenStep('s1','done'); setGenStep('s2','active');
+
+  var prompt = 'You are a Texas ELA curriculum specialist building an annual curriculum map for '+course.name+'.\n\n'
+    +'COMPLETE TEKS (19 TAC Chapter 110, Subchapter C - exact TEA wording, do not alter):\n'
+    +teksText+'\n\n'
+    +'STAAR-TESTED EXPECTATIONS (must appear multiple times across the year):\n'
+    +staarExpectations+'\n\n'
+    +'Schedule: '+course.units_per_year+' units, '+course.weeks_per_unit+' weeks/unit, '+course.days_per_week+' days/week, '+course.class_duration+' min/class\n'
+    +(course.context?'Context: '+course.context+'\n':'')+'\n'
+    +'REQUIREMENTS:\n'
+    +'- Every TEKS expectation must be addressed at least once across the year\n'
+    +'- STAAR-tested expectations must appear as primary focus in multiple units\n'
+    +'- All 7 strands must appear in every unit\n'
+    +'- Units increase in complexity across the year\n'
+    +'- Emphasis strands are the 2-3 that are the PRIMARY instructional focus of that unit\n\n'
+    +'For each unit output EXACTLY this format with no deviations:\n'
     +'UNIT [N]\n'
     +'Title: [thematic title]\n'
-    +'Text: [suggested text or genre]\n'
-    +'Question: [one essential question]\n'
+    +'Text: [suggested texts or genre]\n'
+    +'Question: [essential question]\n'
     +'Strands: 1,2,3,4,5,6,7\n'
-    +'Emphasis: [2-3 strand numbers that are primary focus]\n'
-    +'Summative: [assessment type]\n'
+    +'Emphasis: [2-3 strand numbers]\n'
+    +'Summative: [assessment description]\n'
+    +'BigIdea: [2-sentence big idea]\n'
     +'Weeks: Week 1: [focus] | Week 2: [focus] | Week 3: [focus]';
 
-  callAPI(prompt).then(function(raw){
-    mapRaw=raw;
-    annualUnits=parseUnits(raw);
-    renderAllViews();
-    document.getElementById('s2out').style.display='block';
+  callAI(prompt).then(function(raw){
+    setGenStep('s2','done'); setGenStep('s3','active');
+
+    var units = parseMapUnits(raw);
+    setGenStep('s3','done'); setGenStep('s4','active');
+
+    var existing = db.delete('units', 'course_id=eq.'+course.id);
+    return existing.then(function(){
+      var saves = units.map(function(u){
+        return db.post('units', {
+          course_id: course.id,
+          num: u.num,
+          title: u.title,
+          essential_question: u.question,
+          suggested_text: u.text,
+          summative_assessment: u.summative,
+          big_idea: u.bigIdea,
+          weeks_breakdown: u.weeks,
+          strands: u.strands,
+          emph_strands: u.emph,
+          map_raw: raw,
+          status: 'planned'
+        });
+      });
+      return Promise.all(saves);
+    });
+  }).then(function(){
+    setGenStep('s4','done');
+    setTimeout(function(){
+      closeModal('modal-generate');
+      showView('course', {courseId: course.id});
+      toast('Annual map created - '+course.units_per_year+' units planned','success');
+    }, 800);
   }).catch(function(e){
-    document.getElementById('s2err').textContent='Error: '+e.message+'. Please try again.';
-  }).finally(function(){
-    document.getElementById('s2spin').style.display='none';
+    closeModal('modal-generate');
+    toast('Error: '+e.message,'error');
   });
+  }, 600);
 }
 
-function parseUnits(text){
-  var units=[];
-  var cur=null;
+function parseMapUnits(text){
+  var units = [];
+  var cur = null;
   text.split('\n').forEach(function(line){
-    var t=line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
-    if(/^UNIT\s+\d+/i.test(t)){
-      if(cur) units.push(finalize(cur));
-      var m=t.match(/\d+/);
-      cur={num:m?+m[0]:units.length+1,raw:''};
+    var clean = line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
+    if(/^UNIT\s+\d+/i.test(clean)){
+      if(cur) units.push(finalizeUnit(cur));
+      var m = clean.match(/\d+/);
+      cur = {num: m?+m[0]:units.length+1, raw:''};
     } else if(cur){
-      cur.raw+=line.replace(/\*+/g,'')+'\n';
+      cur.raw += line + '\n';
     }
   });
-  if(cur) units.push(finalize(cur));
+  if(cur) units.push(finalizeUnit(cur));
   return units;
 }
 
-function finalize(cur){
-  var r=cur.raw.replace(/\*+/g,'');
-  function get(k){var m=r.match(new RegExp(k+'[:\\s]+([^\\n]+)','im'));return m?m[1].trim().replace(/^[:\\s]+/,''):'';};
-  var strStr=get('Strands');
-  var emStr=get('Emphasis');
+function finalizeUnit(cur){
+  var r = cur.raw.replace(/\*+/g,'');
+  function get(k){ var m=r.match(new RegExp(k+'[:\\s]+([^\\n]+)','im')); return m?m[1].trim().replace(/^[:\\s]+/,''):''; }
+  var strStr = get('Strands');
+  var emStr = get('Emphasis');
   return {
-    num:cur.num, raw:r,
-    title:get('Title')||'Unit '+cur.num,
-    text:get('Text'), question:get('Question'),
-    strands:(strStr.match(/\d+/g)||[1,2,3,4,5,6,7]).map(Number),
-    emph:(emStr.match(/\d+/g)||[]).map(Number),
-    summative:get('Summative'), weeks:get('Weeks')
+    num: cur.num,
+    title: get('Title') || 'Unit '+cur.num,
+    text: get('Text'),
+    question: get('Question'),
+    strands: (strStr.match(/\d+/g)||[1,2,3,4,5,6,7]).map(Number),
+    emph: (emStr.match(/\d+/g)||[]).map(Number),
+    summative: get('Summative'),
+    bigIdea: get('BigIdea'),
+    weeks: get('Weeks')
   };
 }
 
-function renderAllViews(){renderMatrix();renderUnitList();buildStrandPills();}
-
-function renderMatrix(){
-  var tbl=document.getElementById('mtable');
-  var hdr='<tr><th class="unh">Unit</th>';
-  STRANDS.forEach(function(s){hdr+='<th>'+s.id+'<br><span style="font-weight:400;font-size:10px">'+s.short+'</span></th>';});
-  hdr+='</tr>';
-  var rows='';
-  annualUnits.forEach(function(u){
-    var isPlanned=!!plannedUnits[u.num];
-    rows+='<tr>';
-    rows+='<td class="unn"><span class="sdot '+(isPlanned?'planned':'assigned')+'"></span>'+u.num+'. '+u.title+'</td>';
-    STRANDS.forEach(function(s){
-      var isEmph=u.emph.includes(s.id);
-      var hasPD=isPlanned&&plannedUnits[u.num].sd&&plannedUnits[u.num].sd[s.id];
-      var assigned=u.strands.includes(s.id);
-      var cls=assigned?(hasPD?'planned':'assigned'):'empty';
-      var lbl=hasPD?'OK':(isEmph?'*':'');
-      rows+='<td><div class="cell '+cls+'" onclick="cellClick('+u.num+','+s.id+')">'+lbl+'</div></td>';
-    });
-    rows+='</tr>';
-  });
-  tbl.innerHTML=hdr+rows;
-}
-
-function cellClick(un,sid){
-  var unit=annualUnits.find(function(u){return u.num===un;});
-  var strand=STRANDS.find(function(s){return s.id===sid;});
-  var pd=plannedUnits[un];
-  if(!unit||!strand) return;
-  var msg='Unit '+un+' - '+unit.title+'\nStrand '+sid+': '+strand.name+'\n\n';
-  if(pd&&pd.sd&&pd.sd[sid]) msg+=pd.sd[sid];
-  else if(unit.strands.includes(sid)) msg+=(unit.emph.includes(sid)?'PRIMARY EMPHASIS in this unit.\n\n':'This strand is addressed in this unit.\n\n')+'Generate the unit plan to see specific details.';
-  else msg+='Not assigned to this unit.';
-  alert(msg);
-}
-
-function buildStrandPills(){
-  var sel=document.getElementById('strand-sel');
-  sel.innerHTML='';
-  STRANDS.forEach(function(s){
-    var btn=document.createElement('button');
-    btn.className='spbtn';
-    btn.textContent=s.id+': '+s.name;
-    btn.onclick=function(){showStrand(s.id,btn);};
-    sel.appendChild(btn);
-  });
-}
-
-function showStrand(sid,btn){
-  document.querySelectorAll('.spbtn').forEach(function(b){b.classList.remove('sel')});
-  btn.classList.add('sel');
-  var strand=STRANDS.find(function(s){return s.id===sid;});
-  var assignedUnits=annualUnits.filter(function(u){return u.strands.includes(sid);});
-  var emphUnits=annualUnits.filter(function(u){return u.emph.includes(sid);});
-  var plannedCount=annualUnits.filter(function(u){return plannedUnits[u.num]&&plannedUnits[u.num].sd&&plannedUnits[u.num].sd[sid];}).length;
-  var numU=annualUnits.length;
-  var targets={1:'all',2:'all',3:'all',4:5,5:5,6:'all',7:3};
-  var target=targets[sid]==='all'?numU:targets[sid];
-  var pct=Math.min(100,Math.round(assignedUnits.length/target*100));
-  var pcolor=pct>=100?'#27ae60':pct>=60?'#f39c12':'#c0392b';
-
-  var html='<div style="background:#f5f4f0;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem">';
-  html+='<div style="font-size:16px;font-weight:700;margin-bottom:4px">Strand '+sid+': '+strand.name+'</div>';
-  html+='<div style="font-size:13px;color:#666;margin-bottom:8px">'+strand.subsections.map(function(s){return s.code+' '+s.title;}).join(' - ')+'</div>';
-  html+='<div style="display:flex;gap:20px;flex-wrap:wrap;font-size:13px">';
-  html+='<span>Assigned in: <strong style="color:'+pcolor+'">'+assignedUnits.length+'/'+numU+' units</strong></span>';
-  html+='<span>Primary emphasis: <strong>'+emphUnits.length+' units</strong></span>';
-  html+='<span>Fully planned: <strong style="color:#27ae60">'+plannedCount+' units</strong></span>';
-  html+='<span>Target: <strong>'+(target===numU?'all '+numU:target+'+')+'</strong></span>';
-  html+='</div>';
-  if(assignedUnits.length<target) html+='<div style="color:#c0392b;font-size:13px;margin-top:8px;font-weight:500">Coverage gap: this strand needs '+(target-assignedUnits.length)+' more unit(s) to meet the annual target.</div>';
-  html+='</div>';
-
-  annualUnits.forEach(function(u,idx){
-    var assigned=u.strands.includes(sid);
-    var isEmph=u.emph.includes(sid);
-    var pd=plannedUnits[u.num];
-    var detail=pd&&pd.sd&&pd.sd[sid];
-    var status=detail?'planned':assigned?'assigned':'unassigned';
-    var badgeText=detail?'Planned':isEmph?'Primary emphasis':assigned?'Assigned':'Not assigned';
-    var complexity=Math.round((idx+1)/annualUnits.length*100);
-    html+='<div class="suc '+status+'">';
-    html+='<div class="suc-hdr"><div class="suc-title">Unit '+u.num+' - '+u.title+'</div><span class="badge '+status+'">'+badgeText+'</span></div>';
-    if(detail) html+='<div class="suc-body">'+esc(detail)+'</div>';
-    else if(assigned) html+='<div class="suc-body" style="color:#888;font-style:italic">Generate the unit plan to see specific objectives and activities.'+(u.summative?'\n\nPlanned summative: '+esc(u.summative):'')+'</div>';
-    else html+='<div class="suc-body" style="color:#bbb;font-style:italic">Not addressed in this unit.</div>';
-    if(assigned) html+='<div class="cbrow"><span>Complexity:</span><div class="cbt"><div class="cbf" style="width:'+complexity+'%"></div></div><span>Unit '+u.num+'/'+annualUnits.length+'</span></div>';
-    html+='</div>';
-  });
-  document.getElementById('strand-content').innerHTML=html;
-}
-
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-function renderUnitList(){
-  var list=document.getElementById('ulist');
-  list.innerHTML='';
-  annualUnits.forEach(function(u){
-    var isPlanned=!!plannedUnits[u.num];
-    var pills=STRANDS.map(function(s){
-      return '<span class="pill'+(u.emph.includes(s.id)?' hi':'')+'">'+s.id+':'+s.short+'</span>';
-    }).join('');
-    var card=document.createElement('div');
-    card.className='uc'+(isPlanned?' planned':'');
-    card.innerHTML='<div class="ut"><span class="sdot '+(isPlanned?'planned':'assigned')+'"></span>Unit '+u.num+' - '+u.title+'</div>'
-      +(u.question?'<div class="ueq">'+u.question+'</div>':'')
-      +(u.text?'<div class="umeta">Texts: '+u.text+'</div>':'')
-      +(u.summative?'<div class="umeta">Summative: '+u.summative+'</div>':'')
-      +(u.weeks?'<div class="umeta" style="margin-top:3px">'+u.weeks+'</div>':'')
-      +'<div class="pills">'+pills+'</div>'
-      +'<div class="pnote">All 7 TEKS strands present - Green = primary emphasis - '+(isPlanned?'Unit plan generated':'Plan not yet generated')+'</div>'
-      +'<button class="btn" style="font-size:12px;padding:6px 14px;margin-top:10px" onclick="pickUnit('+u.num+')">Plan this unit</button>';
-    list.appendChild(card);
-  });
-}
-
-function switchView(v){
-  currentView=v;
-  ['matrix','strand','units'].forEach(function(n){
-    document.getElementById('view-'+n).style.display=n===v?'block':'none';
-    document.getElementById('vt-'+n).classList.toggle('active',n===v);
-  });
-}
-
-function pickUnit(num){
-  selUnit=annualUnits.find(function(u){return u.num===num;});
-  if(!selUnit) return;
-  document.getElementById('utag').innerHTML='<div class="tag">Unit '+num+' - '+selUnit.title+' - '+course+'</div>';
-  document.getElementById('s3out').style.display='none';
-  document.getElementById('s3genrow').style.display='flex';
-  go(3);
-}
-
-function genUnit(){
-  if(!selUnit) return;
-  document.getElementById('s3genrow').style.display='none';
-  document.getElementById('s3spin').style.display='flex';
-  document.getElementById('s3out').style.display='none';
-  document.getElementById('s3err').textContent='';
-  var hint=document.getElementById('utxt').value.trim();
-  var cdata=TEKS.courses[course];
-  var emphNames=selUnit.emph.map(function(n){var s=STRANDS.find(function(x){return x.id===n;});return 'Strand '+n+' ('+(s?s.name:'?')+')'}).join(', ');
-  var strandList=STRANDS.map(function(s){return 'Strand '+s.id+' ('+s.name+'): '+s.subsections.map(function(sub){return sub.code+' '+sub.title;}).join(', ')}).join('\n');
-
-  var prompt='Backward Design unit plan for '+course+'. Unit '+selUnit.num+': "'+selUnit.title+'".'+(hint?' Text/theme: '+hint+'.':'')+'\n'
-    +'Response level: '+cdata.responseLevel+'\n'
-    +'Primary emphasis strands: '+emphNames+'\n\n'
-    +'TEKS STRANDS:\n'+strandList+'\n\n'
-    +'For each strand describe specifically how it is addressed. A teacher will audit this.\n\n'
-    +'Format EXACTLY:\n\n'
-    +'BIG IDEA:\n[2-sentence big idea. Then 3 open-ended essential questions.]\n\n'
-    +'STRAND INTEGRATION:\n'
-    +'Strand 1 (Foundational language skills): [how oral language, vocabulary, and reading appear]\n'
-    +'Strand 2 (Comprehension): [specific comprehension strategies taught]\n'
-    +'Strand 3 (Response): [how students respond to texts]\n'
-    +'Strand 4 (Multiple genres): [which genres and literary elements are studied]\n'
-    +'Strand 5 (Authors purpose and craft): [which craft elements are analyzed]\n'
-    +'Strand 6 (Composition): [what students write and how writing process is scaffolded]\n'
-    +'Strand 7 (Inquiry and research): [how inquiry is embedded]\n\n'
-    +'OBJECTIVES:\n[5 SMART objectives. Each cites a strand number.]\n\n'
-    +'SUMMATIVE:\n[Authentic task requiring reading, writing, and speaking.]\n\n'
-    +'FORMATIVE:\n[4 checkpoints labeled with strand numbers.]';
-
-  callAPI(prompt).then(function(raw){
-    function get(a,b){var m=raw.match(new RegExp(a+':[\\s\\S]*?(?='+b+':|$)','i'));return m?m[0].replace(new RegExp(a+':','i'),'').trim():'';}
-    document.getElementById('ubig').textContent=get('BIG IDEA','STRAND INTEGRATION');
-    document.getElementById('uteks').textContent=get('STRAND INTEGRATION','OBJECTIVES');
-    document.getElementById('uobj').textContent=get('OBJECTIVES','SUMMATIVE');
-    document.getElementById('usum').textContent=get('SUMMATIVE','FORMATIVE');
-    document.getElementById('uform').textContent=get('FORMATIVE','ZZZZZ');
-
-    var sd={};
-    var teksSection=get('STRAND INTEGRATION','OBJECTIVES');
-    STRANDS.forEach(function(s){
-      var rx=new RegExp('Strand\\s*'+s.id+'\\s*\\([^)]+\\):\\s*([\\s\\S]*?)(?=Strand\\s*\\d|$)','i');
-      var m=teksSection.match(rx);
-      if(m&&m[1].trim()) sd[s.id]=m[1].trim();
-    });
-    unitData={raw:raw,title:selUnit.title,strands:selUnit.strands,sd:sd};
-    plannedUnits[selUnit.num]={raw:raw,sd:sd};
-    document.getElementById('s3out').style.display='block';
-    renderMatrix();
-    renderUnitList();
-  }).catch(function(e){
-    document.getElementById('s3err').textContent='Error: '+e.message+'. Please try again.';
-    document.getElementById('s3genrow').style.display='flex';
-  }).finally(function(){
-    document.getElementById('s3spin').style.display='none';
-  });
-}
-
-function goToLessons(){
-  if(!unitData) return;
-  var dur=+document.getElementById('dur').value||50;
-  var w=+document.getElementById('wpu').value||3;
-  var d=days;
-  document.getElementById('s4tag').innerHTML='<div class="tag">Unit '+selUnit.num+' - '+selUnit.title+' - '+course+'</div>';
-  go(4);
-  genL(dur, w, d);
-}
-
-function genL(dur, w, d){
-  if(!unitData) return;
-  dur = dur || +document.getElementById('dur').value || 50;
-  w = w || +document.getElementById('wpu').value || 3;
-  d = d || days;
-  var tot=w*d;
-  var sNames=selUnit.strands.map(function(n){var s=STRANDS.find(function(x){return x.id===n;});return n+'('+(s?s.short:'?')+')';}).join(', ');
-  document.getElementById('s4spin').style.display='flex';
-  document.getElementById('s4out').style.display='none';
-  document.getElementById('s4err').textContent='';
-  document.getElementById('s4msg').textContent='Generating '+tot+' lessons for '+w+' weeks...';
-
-  var nl='\n';
-  var base='Course: '+course+'. Unit '+selUnit.num+'. Title: '+selUnit.title+'. Strands: '+sNames+'.'+nl+'Unit summary: '+unitData.raw.substring(0,350)+nl+nl;
-  var h=Math.round;
-  var prompt=base
-    +'Create '+tot+' lesson plans ('+w+' weeks x '+d+' days, '+dur+' min each). Label every segment with TEKS strand numbers.'+nl+nl
-    +'WEEK [N]'+nl
-    +'LESSON [N]: [title]'+nl
-    +'Strands today: [numbers]'+nl
-    +'Obj: [objective]'+nl
-    +'Hook('+h(dur*.1)+'min): [entry task - Strand 2]'+nl
-    +'Read('+h(dur*.25)+'min): [text and modeling - Strands 2,5]'+nl
-    +'Discuss('+h(dur*.2)+'min): [structured discussion - Strands 1,3]'+nl
-    +'Write('+h(dur*.35)+'min): [writing task - Strands 6,3]'+nl
-    +'Close('+h(dur*.1)+'min): [exit ticket - Strand 3]'+nl+nl
-    +'After all lessons include:'+nl
-    +'DISCUSSION QUESTIONS:'+nl
-    +'[5 Socratic questions each labeled with strand]'+nl
-    +'RUBRIC:'+nl
-    +'Reading/Analysis (S2,S5): 4:... | 3:... | 2:... | 1:...'+nl
-    +'Writing/Response (S3,S6): 4:... | 3:... | 2:... | 1:...'+nl
-    +'Speaking/Discussion (S1,S3): 4:... | 3:... | 2:... | 1:...';
-
-  callAPI(prompt).then(function(raw){
-    renderLessons(raw, w, d);
-    document.getElementById('s4out').style.display='block';
-  }).catch(function(e){
-    document.getElementById('s4err').textContent='Error: '+e.message+'. Please try again.';
-  }).finally(function(){
-    document.getElementById('s4spin').style.display='none';
-  });
-}
-
-
-function renderLessons(text, numWeeks, daysPerWeek){
-  var body=document.getElementById('s4body');
-  var tabsEl=document.getElementById('week-tabs');
-  tabsEl.innerHTML='';
-  body.innerHTML='';
-
-  var weekBlocks=[];
-  var curWeek=null;
-  var curLesson=null;
-
-  // Field aliases - match any of these prefixes (AI varies its labels)
-  var FIELDS=[
-    {key:'Strands', aliases:['Strands today','Strands','TEKS strands']},
-    {key:'Objective', aliases:['Obj','Objective','Learning objective','SWBAT']},
-    {key:'Hook', aliases:['Hook','Do Now','Warm up','Warm-up','Entry','Bell ringer','Opening']},
-    {key:'Read', aliases:['Read','Reading','Close read','Text','Read/Analyze','Analyze','Mini lesson','Direct instruction']},
-    {key:'Discuss', aliases:['Discuss','Discussion','Socratic','Talk','Speaking']},
-    {key:'Write', aliases:['Write','Writing','Practice','Work time','Independent practice','Written response']},
-    {key:'Close', aliases:['Close','Closure','Exit','Exit ticket','Wrap up','Closing']},
-    {key:'Support', aliases:['Support','Scaffold','ELL','Differentiation']},
-    {key:'Materials', aliases:['Materials','Resources','Texts']}
+// ── GENERATE LESSONS ─────────────────────────────────────────────────────────
+function generateLessons(unit, course){
+  var steps = [
+    {id:'l1', label:'Analyzing TEKS coverage gaps'},
+    {id:'l2', label:'Building lesson sequence'},
+    {id:'l3', label:'Writing detailed lesson plans'},
+    {id:'l4', label:'Saving lessons'}
   ];
+  openGenerateModal('Generate lessons', 'Unit '+unit.num+' - '+unit.title+'. Generating '+course.weeks_per_unit*course.days_per_week+' lesson plans with full TEKS integration.', steps);
+  setGenStep('l1','active');
 
-  text.split(/\r?\n/).forEach(function(line){
-    var raw=line.trim();
-    var clean=raw.replace(/^#+\s*/,'').replace(/\*+/g,'').replace(/^-+\s*/,'');
+  var teksText = getTeksText(course.name);
+  var emphStrands = (unit.emph_strands||[]).map(function(sid){
+    var items = TEKS_ALL.filter(function(t){return t.strand_id===sid;});
+    return 'Strand '+sid+' ('+( items[0]?items[0].strand_name:'')+'):\n'+items.map(function(t){return '  '+t.expectation_code+' '+t.expectation_text;}).join('\n');
+  }).join('\n\n');
 
-    if(/^WEEK[\s]+\d+/i.test(clean)){
-      var m=clean.match(/\d+/);
-      curWeek=m?+m[0]:weekBlocks.length+1;
-      weekBlocks.push({num:curWeek,lessons:[]});
-      curLesson=null;
-    } else if(/^LESSON[\s]+\d+/i.test(clean)){
-      var m=clean.match(/LESSON[\s]+(\d+)[:\s-]+(.+)/i);
-      curLesson={num:m?+m[1]:0,title:m&&m[2]?m[2].trim():'',fields:{}};
-      if(!curLesson.title){var t=clean.replace(/^LESSON[\s]+\d+[:\s-]*/i,'');if(t)curLesson.title=t;}
-      if(weekBlocks.length===0) weekBlocks.push({num:1,lessons:[]});
-      weekBlocks[weekBlocks.length-1].lessons.push(curLesson);
-    } else if(curLesson && clean.length>0){
-      var matched=false;
-      for(var fi=0;fi<FIELDS.length;fi++){
-        var field=FIELDS[fi];
-        for(var ai=0;ai<field.aliases.length;ai++){
-          var alias=field.aliases[ai];
-          // Match "Label:" or "Label(anything):" at start of line
-          var rx=new RegExp('^'+alias+'(\\s*\\([^)]*\\))?\\s*[:\\-]+\\s*(.+)','i');
-          var m=clean.match(rx);
-          if(m && m[2]){
-            curLesson.fields[field.key]=(curLesson.fields[field.key]?curLesson.fields[field.key]+' ':'') + m[2].trim();
-            matched=true;
-            break;
-          }
-        }
-        if(matched) break;
+  setTimeout(function(){ setGenStep('l1','done'); setGenStep('l2','active');
+
+  var dur = course.class_duration;
+  var tot = course.weeks_per_unit * course.days_per_week;
+  var nl = '\n';
+
+  var prompt = 'You are writing detailed daily lesson plans for a Texas ELA unit.'
+    +nl+'Course: '+course.name
+    +nl+'Unit '+unit.num+': "'+unit.title+'"'
+    +nl+'Essential question: '+(unit.essential_question||'')
+    +nl+'Big idea: '+(unit.big_idea||'')
+    +nl+'Summative: '+(unit.summative_assessment||'')
+    +nl+'Class duration: '+dur+' minutes'
+    +nl+'Total lessons: '+tot+' ('+course.weeks_per_unit+' weeks x '+course.days_per_week+' days)'
+    +nl+nl+'COMPLETE TEKS FOR THIS COURSE (exact TEA wording - cite these codes in lessons):'
+    +nl+teksText
+    +nl+nl+'PRIMARY EMPHASIS STRANDS FOR THIS UNIT:'
+    +nl+emphStrands
+    +nl+nl+'REQUIREMENTS:'
+    +nl+'- Every lesson must reference specific TEKS expectation codes e.g. (c)(4)(F)'
+    +nl+'- STAAR-tested expectations must be explicitly addressed multiple times'
+    +nl+'- Include all 4 elements every day: reading, writing, speaking, listening'
+    +nl+'- Complexity increases within each week and across the unit'
+    +nl+'- Each segment must include what students DO, not just what is taught'
+    +nl+nl+'For each lesson output EXACTLY:'
+    +nl+'WEEK [N]'
+    +nl+'LESSON [N]: [title]'
+    +nl+'TEKS: [list expectation codes addressed today, e.g. (c)(4)(F), (c)(5)(C)]'
+    +nl+'OBJ: [specific objective referencing TEKS codes]'
+    +nl+'HOOK('+Math.round(dur*.1)+'min): [specific entry activity]'
+    +nl+'READ('+Math.round(dur*.25)+'min): [reading task with TEKS code]'
+    +nl+'DISCUSS('+Math.round(dur*.2)+'min): [discussion task with TEKS code]'
+    +nl+'WRITE('+Math.round(dur*.35)+'min): [writing task with TEKS code]'
+    +nl+'CLOSE('+Math.round(dur*.1)+'min): [exit ticket]'
+    +nl+'SUPPORT: [specific scaffolds for struggling students]'
+    +nl+'MATERIALS: [texts, handouts, resources needed]';
+
+  callAI(prompt).then(function(raw){
+    setGenStep('l2','done'); setGenStep('l3','active');
+    var lessons = parseLessons(raw, course.weeks_per_unit, course.days_per_week);
+    setGenStep('l3','done'); setGenStep('l4','active');
+
+    return db.delete('lessons','unit_id=eq.'+unit.id).then(function(){
+      var saves = lessons.map(function(l){
+        return db.post('lessons',{
+          unit_id: unit.id,
+          num: l.num,
+          week_num: l.week,
+          title: l.title,
+          strands_today: l.teks ? extractStrandNums(l.teks) : unit.emph_strands||[1,2,3,4,5,6,7],
+          objective: l.obj,
+          hook: l.hook,
+          read_analyze: l.read,
+          discuss: l.discuss,
+          write_practice: l.write,
+          close: l.close,
+          support: l.support,
+          materials: l.materials,
+          status: 'generated'
+        });
+      });
+      return Promise.all(saves);
+    });
+  }).then(function(){
+    setGenStep('l4','done');
+    db.patch('units','id=eq.'+unit.id,{status:'in_progress'});
+    setTimeout(function(){
+      closeModal('modal-generate');
+      showView('unit',{unitId:unit.id});
+      toast('Generated '+course.weeks_per_unit*course.days_per_week+' lessons','success');
+    },800);
+  }).catch(function(e){
+    closeModal('modal-generate');
+    toast('Error: '+e.message,'error');
+  });
+  },600);
+}
+
+function extractStrandNums(teksStr){
+  if(!teksStr) return [];
+  var codes = teksStr.match(/\(c\)\(\d+\)/g)||[];
+  var strandMap = {1:1,2:1,3:1,4:2,5:3,6:4,7:4,8:5,9:6,10:6,11:7};
+  var strands = [];
+  codes.forEach(function(c){ var n=+c.match(/\d+/)[0]; if(strandMap[n]&&!strands.includes(strandMap[n]))strands.push(strandMap[n]); });
+  return strands;
+}
+
+function parseLessons(text, numWeeks, daysPerWeek){
+  var lessons = [];
+  var curWeek = 1;
+  var curLesson = null;
+  var lessonNum = 0;
+
+  text.split('\n').forEach(function(line){
+    var clean = line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
+    if(/^WEEK\s+\d+/i.test(clean)){
+      var m = clean.match(/\d+/);
+      curWeek = m ? +m[0] : curWeek+1;
+    } else if(/^LESSON\s+\d+/i.test(clean)){
+      if(curLesson) lessons.push(curLesson);
+      lessonNum++;
+      var m = clean.match(/LESSON\s+\d+[:\s-]+(.+)/i);
+      curLesson = {num:lessonNum, week:curWeek, title:m?m[1].trim():'', teks:'', obj:'', hook:'', read:'', discuss:'', write:'', close:'', support:'', materials:''};
+    } else if(curLesson){
+      var fields = [
+        {key:'teks', rx:/^TEKS[:\s]+(.+)/i},
+        {key:'obj', rx:/^OBJ[^:]*:\s*(.+)/i},
+        {key:'hook', rx:/^HOOK[^:]*:\s*(.+)/i},
+        {key:'read', rx:/^READ[^:]*:\s*(.+)/i},
+        {key:'discuss', rx:/^DISCUSS[^:]*:\s*(.+)/i},
+        {key:'write', rx:/^WRITE[^:]*:\s*(.+)/i},
+        {key:'close', rx:/^CLOSE[^:]*:\s*(.+)/i},
+        {key:'support', rx:/^SUPPORT[^:]*:\s*(.+)/i},
+        {key:'materials', rx:/^MATERIALS[^:]*:\s*(.+)/i}
+      ];
+      for(var i=0;i<fields.length;i++){
+        var m = clean.match(fields[i].rx);
+        if(m){ curLesson[fields[i].key] = (curLesson[fields[i].key]?(curLesson[fields[i].key]+' '):'') + m[1].trim(); break; }
       }
     }
   });
+  if(curLesson) lessons.push(curLesson);
+  return lessons;
+}
 
-  var dqM=text.match(/DISCUSSION QUESTIONS[^:]*:([\s\S]*?)(?=RUBRIC|$)/i);
-  var rbM=text.match(/RUBRIC[^:]*:([\s\S]*?)$/i);
-
-  if(weekBlocks.length===0){
-    body.innerHTML='<div class="ob">'+text.replace(/</g,'&lt;')+'</div>';
+// ── TEKS VIEW ─────────────────────────────────────────────────────────────────
+function renderTeksView(){
+  document.getElementById('topbar-title').textContent = 'TEKS Coverage';
+  var content = document.getElementById('main-content');
+  if(!state.activeCourse){
+    content.innerHTML = '<div class="empty-state"><h3>Select a course first</h3><p>Go to a course to see its TEKS coverage.</p></div>';
     return;
   }
-
-  weekBlocks.forEach(function(wb,wi){
-    var tab=document.createElement('button');
-    tab.className='tab'+(wi===0?' sel':'');
-    tab.textContent='Week '+wb.num;
-    (function(idx){tab.onclick=function(){
-      document.querySelectorAll('#week-tabs .tab').forEach(function(t){t.classList.remove('sel')});
-      tab.classList.add('sel');
-      document.querySelectorAll('.wblock').forEach(function(b,i){b.style.display=i===idx?'block':'none'});
-    };})(wi);
-    tabsEl.appendChild(tab);
-
-    var wdiv=document.createElement('div');
-    wdiv.className='wblock';
-    wdiv.style.display=wi===0?'block':'none';
-
-    if(wb.lessons.length===0){
-      wdiv.innerHTML='<div class="ob" style="color:#888">No lessons parsed for this week.</div>';
-    } else {
-      wb.lessons.forEach(function(ls){
-        var card=document.createElement('div');
-        card.className='dc';
-        card.style.marginBottom='12px';
-        var html='<div class="dt">Lesson '+ls.num+(ls.title?' - '+ls.title:'')+'</div>';
-        var order=['Strands','Objective','Hook','Read','Discuss','Write','Close','Materials','Support'];
-        var labels={Strands:'Strands today',Objective:'Objective',Hook:'Hook',Read:'Read / Analyze',Discuss:'Discuss',Write:'Write / Practice',Close:'Close',Materials:'Materials',Support:'Support'};
-        var hasContent=false;
-        order.forEach(function(k){
-          if(ls.fields[k]){
-            html+='<div class="df"><div class="dfl">'+labels[k]+'</div><div class="dfv">'+ls.fields[k]+'</div></div>';
-            hasContent=true;
-          }
-        });
-        if(!hasContent){
-          html+='<div style="font-size:13px;color:#aaa;padding:4px 0">Lesson content not parsed - try regenerating</div>';
-        }
-        card.innerHTML=html;
-        wdiv.appendChild(card);
-      });
-    }
-    body.appendChild(wdiv);
+  var course = state.activeCourse;
+  var teks = getTeksForCourse(course.name);
+  var byStrand = {};
+  teks.forEach(function(t){
+    if(!byStrand[t.strand_id]) byStrand[t.strand_id]={name:t.strand_name,items:[],staar:0};
+    byStrand[t.strand_id].items.push(t);
+    if(t.staar_tested) byStrand[t.strand_id].staar++;
   });
 
-  if(dqM){
-    var d=document.createElement('div');
-    d.style.marginTop='1.5rem';
-    d.innerHTML='<span class="slbl">Discussion questions</span><div class="ob">'+dqM[1].trim().replace(/</g,'&lt;')+'</div>';
-    body.appendChild(d);
-  }
-  if(rbM){
-    var r=document.createElement('div');
-    r.style.marginTop='1rem';
-    r.innerHTML='<span class="slbl">Assessment rubric</span><div class="ob">'+rbM[1].trim().replace(/</g,'&lt;')+'</div>';
-    body.appendChild(r);
+  var html = '<h2 style="font-family:Playfair Display,serif;font-size:22px;margin-bottom:4px">TEKS Coverage &mdash; '+course.name+'</h2>';
+  html += '<p class="text-sm text-muted" style="margin-bottom:24px">All student expectations from 19 TAC Chapter 110, Subchapter C. Exact TEA wording.</p>';
+
+  Object.keys(byStrand).sort().forEach(function(sid){
+    var s = byStrand[sid];
+    html += '<div class="teks-audit" style="margin-bottom:16px">';
+    html += '<div class="teks-audit-header" onclick="this.parentElement.classList.toggle(\'open\')">';
+    html += '<div><strong>Strand '+sid+': '+s.name+'</strong><span class="text-muted text-xs" style="margin-left:10px">'+s.items.length+' expectations</span>';
+    if(s.staar>0) html += '<span class="badge badge-amber" style="margin-left:8px">'+s.staar+' STAAR</span>';
+    html += '</div><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>';
+    s.items.forEach(function(t){
+      html += '<div class="teks-row">';
+      html += '<div class="teks-code">'+t.expectation_code+'</div>';
+      html += '<div class="teks-text">'+t.expectation_text+'</div>';
+      html += '<div>';
+      if(t.staar_tested) html += '<span class="teks-status staar">STAAR: '+t.staar_category+'</span>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+  });
+  content.innerHTML = html;
+}
+
+// ── COURSE CREATION ───────────────────────────────────────────────────────────
+function createCourse(){
+  var data = {
+    name: document.getElementById('nc-name').value,
+    section_label: document.getElementById('nc-label').value.trim() || null,
+    school_year: document.getElementById('nc-year').value.trim() || '2025-2026',
+    class_duration: +document.getElementById('nc-dur').value || 50,
+    days_per_week: +document.getElementById('nc-days').value || 4,
+    units_per_year: +document.getElementById('nc-units').value || 9,
+    weeks_per_unit: +document.getElementById('nc-weeks').value || 3,
+    context: document.getElementById('nc-ctx').value.trim() || null
+  };
+  db.post('courses', data).then(function(rows){
+    closeModal('modal-new-course');
+    state.courses.push(rows[0]);
+    renderSidebarCourses();
+    toast('Course created','success');
+    showView('course',{courseId:rows[0].id});
+  }).catch(function(e){ toast('Error: '+e.message,'error'); });
+}
+
+// ── MODAL & TOAST HELPERS ─────────────────────────────────────────────────────
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+function openGenerateModal(title, desc, steps){
+  document.getElementById('gen-modal-title').textContent = title;
+  document.getElementById('gen-modal-desc').textContent = desc;
+  document.getElementById('gen-cancel-btn').textContent = 'Close';
+  var stepsEl = document.getElementById('gen-steps');
+  stepsEl.innerHTML = steps.map(function(s){
+    return '<div class="gen-step" id="gstep-'+s.id+'"><div class="step-dot"></div>'+s.label+'</div>';
+  }).join('');
+  openModal('modal-generate');
+}
+
+function setGenStep(id, state){
+  var el = document.getElementById('gstep-'+id);
+  if(!el) return;
+  el.className = 'gen-step '+(state==='active'?'active':state==='done'?'done':'');
+  if(state==='active'){
+    var dot = el.querySelector('.step-dot');
+    if(dot){ dot.innerHTML=''; }
+    var spinEl = document.createElement('div');
+    spinEl.className='spin';
+    spinEl.style.width='8px';spinEl.style.height='8px';spinEl.style.borderWidth='1.5px';
+    el.replaceChild(spinEl, el.querySelector('.spin, .step-dot'));
   }
 }
 
+function toast(msg, type){
+  var c = document.getElementById('toasts');
+  var el = document.createElement('div');
+  el.className = 'toast'+(type?' '+type:'');
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 3000);
+}
 
-function copyMap(){navigator.clipboard.writeText(mapRaw||'').then(function(){alert('Copied!')}).catch(function(){alert('Please select and copy manually.')});}
-function copyL(){var t=document.getElementById('s4body');navigator.clipboard.writeText(t?t.innerText:'').then(function(){alert('Copied!')}).catch(function(){alert('Select and copy manually.')});}
-function startOver(){unitData=null;selUnit=null;mapRaw=null;annualUnits=[];plannedUnits={};document.getElementById('s4card').style.display='none';go(1);}
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  showView('home');
+});
 </script>
 </body>
 </html>
