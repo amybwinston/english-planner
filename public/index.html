@@ -1089,6 +1089,7 @@ function renderLessonBody(l){
   var html = '';
   template.forEach(function(sec){
     var val = l[sec.key] || '';
+    if(typeof val === 'string') val = val.replace(/^undefined/,'').trim();
     if(!val && (sec.key==='support'||sec.key==='materials'||sec.key==='teacher_notes')) return;
     html+='<div class="lesson-section">';
     html+='<div class="lesson-section-header">';
@@ -1097,7 +1098,7 @@ function renderLessonBody(l){
       html+='<button class="regen-btn" onclick="openRegen(\''+l.id+'\',\''+sec.key+'\',\''+sec.label+'\')">&#8635; Regenerate</button>';
     }
     html+='</div>';
-    html+='<div class="section-content" contenteditable="true" data-lid="'+l.id+'" data-field="'+sec.key+'" onblur="saveField(this)" data-placeholder="'+sec.placeholder+'">'+esc(val)+'</div>';
+    html+='<div class="section-content" contenteditable="true" data-lid="'+l.id+'" data-field="'+sec.key+'" onblur="saveField(this)" data-placeholder="'+(sec.placeholder||sec.label)+'">'+esc(val)+'</div>';
     html+='</div>';
   });
   html+='<div class="btn-row" style="margin-top:12px">';
