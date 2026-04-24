@@ -335,6 +335,91 @@ select.input{cursor:pointer}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-import">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title">Import an existing plan</div>
+    <p class="text-sm text-muted" style="margin-bottom:20px">Upload a file or paste your plan below. The AI will read it, identify whether it is a unit plan or daily lesson, map it to the 7 TEKS strands, flag any coverage gaps, and add it to your dashboard in the standard format.</p>
+
+    <!-- Input method tabs -->
+    <div style="display:flex;border-bottom:2px solid var(--border);margin-bottom:20px">
+      <div class="auth-tab active" id="imp-tab-file" onclick="switchImportTab(\'file\')">Upload file</div>
+      <div class="auth-tab" id="imp-tab-paste" onclick="switchImportTab(\'paste\')">Paste text</div>
+    </div>
+
+    <!-- File upload -->
+    <div id="imp-file-panel">
+      <div id="imp-dropzone" style="border:2px dashed var(--border);border-radius:var(--radius);padding:32px;text-align:center;cursor:pointer;transition:border .2s;background:var(--paper)" onclick="document.getElementById(\'imp-file-input\').click()" ondragover="impDragOver(event)" ondragleave="impDragLeave(event)" ondrop="impDrop(event)">
+        <div style="font-size:32px;margin-bottom:8px">&#128196;</div>
+        <div id="imp-drop-label" style="font-size:14px;color:var(--ink3)">Click to choose a file, or drag and drop here</div>
+        <div style="font-size:12px;color:var(--ink3);margin-top:4px">.docx, .pdf, or .txt</div>
+        <input type="file" id="imp-file-input" accept=".docx,.pdf,.txt" style="display:none" onchange="impFileChosen(this)">
+      </div>
+    </div>
+
+    <!-- Paste text -->
+    <div id="imp-paste-panel" style="display:none">
+      <div class="field">
+        <label>Paste your lesson or unit plan here</label>
+        <textarea class="input" id="imp-paste-text" rows="10" placeholder="Paste the full text of your lesson plan or unit plan..."></textarea>
+      </div>
+    </div>
+
+    <!-- Extracted preview -->
+    <div id="imp-preview" style="display:none;margin-top:16px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;font-family:DM Mono,monospace">Extracted text preview</div>
+      <div id="imp-preview-text" style="font-size:12px;color:var(--ink2);background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;max-height:120px;overflow-y:auto;white-space:pre-wrap;line-height:1.5"></div>
+    </div>
+
+    <div id="imp-err" style="font-size:13px;color:var(--red);min-height:18px;margin-top:8px"></div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal(\'modal-import\')">Cancel</button>
+      <button class="btn btn-primary" id="imp-analyze-btn" onclick="runImportAnalysis()" disabled style="opacity:.5">Analyze plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import destination modal -->
+<div class="modal-overlay" id="modal-import-dest">
+  <div class="modal">
+    <div class="modal-title">Where should this go?</div>
+    <div id="imp-analysis-summary" style="background:var(--paper);border-radius:var(--radius-sm);padding:14px;margin-bottom:20px;font-size:13px;line-height:1.6;color:var(--ink2)"></div>
+    <div class="field">
+      <label>Add as</label>
+      <select class="input" id="imp-dest-type">
+        <option value="new-unit">A new unit in this course</option>
+        <option value="replace-unit">Replace an existing unit</option>
+        <option value="lessons-only">Lessons only (add to existing unit)</option>
+      </select>
+    </div>
+    <div class="field" id="imp-dest-unit-row" style="display:none">
+      <label>Which unit?</label>
+      <select class="input" id="imp-dest-unit"></select>
+    </div>
+    <div id="imp-dest-spin" class="spin-row" style="display:none"><div class="spin"></div> Saving to your dashboard...</div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal(\'modal-import-dest\')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmImport()">Add to dashboard</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- LESSON TEMPLATE EDITOR -->
+<div class="modal-overlay" id="modal-template">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-title" id="tmpl-modal-title">Lesson template</div>
+    <p class="text-sm text-muted" style="margin-bottom:16px" id="tmpl-modal-desc">Customize the sections that appear in lessons. Drag to reorder (coming soon). Changes apply to all future lessons for this course.</p>
+    <div id="tmpl-sections" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+    <button class="btn btn-ghost btn-sm" onclick="addTemplateSection()">+ Add section</button>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-template')">Cancel</button>
+      <button class="btn btn-secondary" onclick="resetTemplate()" style="margin-right:auto">Reset to default</button>
+      <button class="btn btn-primary" onclick="saveTemplate()">Save template</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-container" id="toasts"></div>
 
 <script>
@@ -442,6 +527,27 @@ function db(){
 }
 
 // ── TEKS DATA (exact TEA wording, never altered) ───────────────────────────
+var DEFAULT_LESSON_TEMPLATE = [
+  {key:'warmup',          label:'Warm-up / Hook',         placeholder:'Opening activity to activate prior knowledge or hook engagement',       dot:'#7b68ee'},
+  {key:'objective',       label:'Objective',               placeholder:'What students will know and be able to do today, with TEKS codes',      dot:'#888'},
+  {key:'instructional_input', label:'Instructional Input', placeholder:'Direct teaching, modeling, or close reading — I do',                   dot:'#20b2aa'},
+  {key:'guided_practice', label:'Guided Practice',         placeholder:'Collaborative work, discussion, annotation — We do',                   dot:'#ff8c00'},
+  {key:'independent_practice',label:'Independent Practice',placeholder:'Individual writing, application, or assessment — You do',              dot:'#3cb371'},
+  {key:'close',           label:'Close / Exit Ticket',     placeholder:'Exit ticket or closing reflection',                                    dot:'#cd853f'},
+  {key:'support',         label:'Support & Scaffolding',   placeholder:'Accommodations, scaffolds, extensions',                                dot:'#aaa'},
+  {key:'materials',       label:'Materials',               placeholder:'Texts, handouts, technology',                                          dot:'#aaa'},
+  {key:'teacher_notes',   label:'Teacher Notes',           placeholder:'Private notes — not shared with students',                             dot:'#bbb'}
+];
+
+function getLessonTemplate(lesson){
+  // lesson-level override > course-level template > default
+  if(lesson && lesson.custom_template) return lesson.custom_template;
+  var course = state.activeCourse;
+  if(course && course.lesson_template) return course.lesson_template;
+  return DEFAULT_LESSON_TEMPLATE;
+}
+
+
 var TEKS_ALL = [
   {sid:1,sn:'Foundational language skills',code:'(c)(1)(A)',text:'listen actively to interpret a message by summarizing, asking questions, and making comments',staar:false},
   {sid:1,sn:'Foundational language skills',code:'(c)(1)(B)',text:'follow and give complex oral instructions to perform specific tasks, answer questions, solve problems, and complete processes',staar:false},
@@ -597,6 +703,7 @@ function renderUnitList(units, course, c){
   var html='<div class="section-header"><h2>'+units.length+' units</h2>';
   html+='<div class="btn-row">';
   html+='<button class="btn btn-secondary btn-sm" onclick="showView(\'teks\')">TEKS reference</button>';
+  html+='<button class="btn btn-secondary btn-sm" onclick="openImportModal()">Import plan</button>';
   html+='<button class="btn btn-secondary btn-sm" onclick="generateAnnualMap(state.activeCourse)">Regenerate all</button>';
   html+='</div></div>';
   html+='<div style="display:flex;flex-direction:column;gap:10px" id="unit-list">';
@@ -642,6 +749,7 @@ function renderUnitView(unitId){
     var unit=r.data;
     var course=state.activeCourse;
     setTopbar('Unit '+unit.num+' - '+unit.title,'Generate lessons',function(){saveAllUnitFields(unit, course);});
+    document.getElementById('topbar-extra').innerHTML='<button class="btn btn-secondary btn-sm" onclick="openCourseTemplateEditor()" style="margin-right:4px">Edit lesson template</button>';
     return supa.from('lessons').select('*').eq('unit_id',unitId).order('num',{ascending:true}).then(function(lr){
       state.lessons[unitId]=lr.data||[];
       renderUnitDetail(unit,lr.data||[],course,c);
@@ -896,35 +1004,29 @@ function renderLessonCards(lessons){
 }
 
 function renderLessonBody(l){
-  var secs=[
-    {k:'objective',lb:'Objective',dot:'#888'},
-    {k:'hook',lb:'Hook',dot:'#7b68ee'},
-    {k:'read_analyze',lb:'Read & Analyze',dot:'#20b2aa'},
-    {k:'discuss',lb:'Discuss',dot:'#ff8c00'},
-    {k:'write_practice',lb:'Write & Practice',dot:'#3cb371'},
-    {k:'close',lb:'Close / Exit ticket',dot:'#cd853f'},
-    {k:'support',lb:'Support & Scaffolding',dot:'#888'},
-    {k:'materials',lb:'Materials',dot:'#888'},
-    {k:'teacher_notes',lb:'Teacher notes',dot:'#888'}
-  ];
-  var html='';
-  secs.forEach(function(s){
-    var val=l[s.k];
-    if(!val) return;
+  var template = getLessonTemplate(l);
+  var html = '';
+  template.forEach(function(sec){
+    var val = l[sec.key] || '';
+    if(!val && (sec.key==='support'||sec.key==='materials'||sec.key==='teacher_notes')) return;
     html+='<div class="lesson-section">';
     html+='<div class="lesson-section-header">';
-    html+='<div class="section-label"><div class="sdot" style="background:'+s.dot+'"></div>'+s.lb+'</div>';
-    if(s.k!=='teacher_notes') html+='<button class="regen-btn" onclick="openRegen(\''+l.id+'\',\''+s.k+'\',\''+s.lb+'\')">&#8635; Regenerate</button>';
+    html+='<div class="section-label"><div class="sdot" style="background:'+sec.dot+'"></div>'+sec.label+'</div>';
+    if(sec.key!=='teacher_notes'){
+      html+='<button class="regen-btn" onclick="openRegen(\''+l.id+'\',\''+sec.key+'\',\''+sec.label+'\')">&#8635; Regenerate</button>';
+    }
     html+='</div>';
-    html+='<div class="section-content" contenteditable="true" data-lid="'+l.id+'" data-field="'+s.k+'" onblur="saveField(this)" data-placeholder="'+s.lb+' — click to edit">'+esc(String(val))+'</div>';
+    html+='<div class="section-content" contenteditable="true" data-lid="'+l.id+'" data-field="'+sec.key+'" onblur="saveField(this)" data-placeholder="'+sec.placeholder+'">'+esc(val)+'</div>';
     html+='</div>';
   });
   html+='<div class="btn-row" style="margin-top:12px">';
   html+='<button class="btn btn-sm btn-secondary" onclick="markApproved(\''+l.id+'\')">Mark approved</button>';
-  html+='<button class="btn btn-sm btn-ghost" onclick="delLesson(\''+l.id+'\')">Delete</button>';
+  html+='<button class="btn btn-sm btn-ghost" onclick="openLessonTemplateEditor(\''+l.id+'\')">Customize sections</button>';
+  html+='<button class="btn btn-sm btn-ghost" style="color:var(--red)" onclick="delLesson(\''+l.id+'\')">Delete</button>';
   html+='</div>';
   return html;
 }
+
 
 function toggleLesson(id){
   document.querySelector('[data-lid="'+id+'"].lesson-card').classList.toggle('open');
@@ -1170,8 +1272,12 @@ function generateLessons(unit, course){
               unit_id:unit.id,
               num:l.num, week_num:l.week, title:l.title,
               strands_today:l.teks?extractStrands(l.teks):unit.emph_strands||[1,2,3,4,5,6,7],
-              objective:l.obj, hook:l.hook, read_analyze:l.read,
-              discuss:l.discuss, write_practice:l.write, close:l.close,
+              objective:l.objective||l.obj,
+              warmup:l.warmup||l.hook,
+              instructional_input:l.instructional_input||l.read,
+              guided_practice:l.guided_practice||l.discuss,
+              independent_practice:l.independent_practice||l.write,
+              close:l.close,
               support:l.support, materials:l.materials, status:'generated'
             };
           });
@@ -1217,18 +1323,23 @@ function parseLessons(text){
     } else if(cur){
       var flds=[
         {k:'teks',rx:/^TEKS[:\s]+(.+)/i},
-        {k:'obj',rx:/^OBJ[^:]*:\s*(.+)/i},
-        {k:'hook',rx:/^HOOK[^:]*:\s*(.+)/i},
-        {k:'read',rx:/^READ[^:]*:\s*(.+)/i},
-        {k:'discuss',rx:/^DISCUSS[^:]*:\s*(.+)/i},
-        {k:'write',rx:/^WRITE[^:]*:\s*(.+)/i},
-        {k:'close',rx:/^CLOSE[^:]*:\s*(.+)/i},
+        {k:'objective',rx:/^OBJ(ECTIVE)?[^:]*:\s*(.+)/i, gi:2},
+        {k:'warmup',rx:/^(WARM.?UP|HOOK|BELL.?RINGER|DO.?NOW|ENTRY)[^:]*:\s*(.+)/i, gi:2},
+        {k:'instructional_input',rx:/^(INSTRUCTIONAL.?INPUT|DIRECT|MINI.?LESSON|I.?DO|READ|MODEL)[^:]*:\s*(.+)/i, gi:2},
+        {k:'guided_practice',rx:/^(GUIDED.?PRACTICE|WE.?DO|DISCUSS|COLLABORATIVE)[^:]*:\s*(.+)/i, gi:2},
+        {k:'independent_practice',rx:/^(INDEPENDENT.?PRACTICE|YOU.?DO|WRITE|WRITING|PRACTICE)[^:]*:\s*(.+)/i, gi:2},
+        {k:'close',rx:/^(CLOSE|CLOSING|EXIT)[^:]*:\s*(.+)/i, gi:2},
         {k:'support',rx:/^SUPPORT[^:]*:\s*(.+)/i},
         {k:'materials',rx:/^MATERIALS[^:]*:\s*(.+)/i}
       ];
       for(var i=0;i<flds.length;i++){
         var m=clean.match(flds[i].rx);
-        if(m){cur[flds[i].k]+=(cur[flds[i].k]?' ':'')+m[1].trim();break;}
+        if(m){
+          var gi=flds[i].gi||1;
+          var val=m[gi]?m[gi].trim():'';
+          if(val) cur[flds[i].k]+=(cur[flds[i].k]?' ':'')+val;
+          break;
+        }
       }
     }
   });
@@ -1324,6 +1435,405 @@ function toast(msg,type){
   setTimeout(function(){el.remove();},3000);
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// ── IMPORT FEATURE ────────────────────────────────────────────────────────────
+var importState = { text: '', analysisResult: null };
+
+function openImportModal(){
+  importState = { text: '', analysisResult: null };
+  document.getElementById('imp-drop-label').textContent = 'Click to choose a file, or drag and drop here';
+  document.getElementById('imp-dropzone').style.borderColor = 'var(--border)';
+  document.getElementById('imp-preview').style.display = 'none';
+  document.getElementById('imp-paste-text').value = '';
+  document.getElementById('imp-err').textContent = '';
+  document.getElementById('imp-analyze-btn').disabled = true;
+  document.getElementById('imp-analyze-btn').style.opacity = '.5';
+  switchImportTab('file');
+  openModal('modal-import');
+}
+
+function switchImportTab(tab){
+  document.getElementById('imp-tab-file').classList.toggle('active', tab==='file');
+  document.getElementById('imp-tab-paste').classList.toggle('active', tab==='paste');
+  document.getElementById('imp-file-panel').style.display = tab==='file' ? '' : 'none';
+  document.getElementById('imp-paste-panel').style.display = tab==='paste' ? '' : 'none';
+  if(tab==='paste'){
+    // Watch paste textarea for input
+    document.getElementById('imp-paste-text').oninput = function(){
+      var val = this.value.trim();
+      importState.text = val;
+      var btn = document.getElementById('imp-analyze-btn');
+      btn.disabled = val.length < 20;
+      btn.style.opacity = val.length < 20 ? '.5' : '1';
+    };
+  }
+}
+
+function impDragOver(e){ e.preventDefault(); document.getElementById('imp-dropzone').style.borderColor='var(--accent)'; }
+function impDragLeave(e){ document.getElementById('imp-dropzone').style.borderColor='var(--border)'; }
+function impDrop(e){
+  e.preventDefault();
+  impDragLeave(e);
+  if(e.dataTransfer.files[0]) processImportFile(e.dataTransfer.files[0]);
+}
+function impFileChosen(inp){ if(inp.files[0]) processImportFile(inp.files[0]); }
+
+async function processImportFile(file){
+  var err = document.getElementById('imp-err');
+  err.textContent = '';
+  var ext = file.name.split('.').pop().toLowerCase();
+  if(!['docx','pdf','txt'].includes(ext)){
+    err.textContent = 'Please upload a .docx, .pdf, or .txt file.';
+    return;
+  }
+  if(file.size > 10*1024*1024){
+    err.textContent = 'File too large. Please use a file under 10MB.';
+    return;
+  }
+  document.getElementById('imp-drop-label').textContent = 'Reading ' + file.name + '...';
+  try {
+    var text = '';
+    if(ext === 'txt'){
+      text = await file.text();
+    } else if(ext === 'docx'){
+      text = await readDocxFile(file);
+    } else if(ext === 'pdf'){
+      text = await readPdfFile(file);
+    }
+    text = text.trim();
+    if(text.length < 30){ err.textContent = 'Could not extract readable text. Try a .txt file instead.'; return; }
+    importState.text = text;
+    document.getElementById('imp-drop-label').textContent = file.name + ' — ' + text.length + ' characters extracted';
+    document.getElementById('imp-preview-text').textContent = text.substring(0, 600) + (text.length > 600 ? '...' : '');
+    document.getElementById('imp-preview').style.display = '';
+    var btn = document.getElementById('imp-analyze-btn');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  } catch(e) {
+    err.textContent = 'Error reading file: ' + e.message;
+    document.getElementById('imp-drop-label').textContent = 'Click to choose a file, or drag and drop here';
+  }
+}
+
+function readDocxFile(file){
+  return loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js').then(function(){
+    return file.arrayBuffer();
+  }).then(function(buf){
+    return mammoth.extractRawText({arrayBuffer: buf});
+  }).then(function(r){ return r.value; });
+}
+
+function readPdfFile(file){
+  return loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js').then(function(){
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    return file.arrayBuffer();
+  }).then(function(buf){
+    return pdfjsLib.getDocument({data: buf}).promise;
+  }).then(function(pdf){
+    var pages = [];
+    for(var i=1;i<=pdf.numPages;i++) pages.push(i);
+    return Promise.all(pages.map(function(n){ return pdf.getPage(n).then(function(p){ return p.getTextContent(); }).then(function(c){ return c.items.map(function(i){return i.str;}).join(' '); }); }));
+  }).then(function(pages){ return pages.join(' '); });
+}
+
+function loadScript(src){
+  return new Promise(function(resolve, reject){
+    if(document.querySelector('script[src="'+src+'"]')){ resolve(); return; }
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = function(){ reject(new Error('Failed to load ' + src)); };
+    document.head.appendChild(s);
+  });
+}
+
+function runImportAnalysis(){
+  var text = importState.text || document.getElementById('imp-paste-text').value.trim();
+  if(!text){ document.getElementById('imp-err').textContent = 'Please provide a plan first.'; return; }
+  importState.text = text;
+
+  var course = state.activeCourse;
+  var teksText = getTeksText();
+  var nl = '\n';
+
+  var btn = document.getElementById('imp-analyze-btn');
+  btn.textContent = 'Analysing...';
+  btn.disabled = true;
+  document.getElementById('imp-err').textContent = '';
+
+  var prompt = 'You are a Texas ELA curriculum specialist. A teacher has uploaded an existing lesson plan or unit plan.'+nl
+    +'Course: '+(course?course.name:'English I')+nl+nl
+    +'TEACHER\'S PLAN:'+nl
+    +text.substring(0, 3000)+(text.length>3000 ? nl+'[document continues...]' : '')+nl+nl
+    +'COMPLETE TEKS (19 TAC Ch.110, Subch.C - exact TEA wording):'+nl
+    +teksText+nl+nl
+    +'Analyze this plan and output EXACTLY this format:'+nl
+    +'TYPE: [Unit plan / Daily lesson plan]'+nl
+    +'TITLE: [title or best inferred title]'+nl
+    +'SUMMARY: [2-3 sentence summary of what this plan covers]'+nl
+    +'TEKS ADDRESSED: [list expectation codes found, e.g. (c)(4)(F), (c)(5)(C)]'+nl
+    +'TEKS GAPS: [STAAR-tested expectations NOT addressed - list codes and brief note]'+nl
+    +'ESSENTIAL QUESTION: [extract or infer]'+nl
+    +'SUMMATIVE: [extract or infer the main assessment]'+nl
+    +'BIG IDEA: [extract or infer a 2-sentence big idea]'+nl
+    +'OBJECTIVE: [main learning objective]'+nl
+    +'HOOK: [opening activity if present, or suggest one]'+nl
+    +'READ: [reading/analysis segment if present]'+nl
+    +'DISCUSS: [discussion segment if present]'+nl
+    +'WRITE: [writing task if present]'+nl
+    +'CLOSE: [closing/exit ticket if present]'+nl
+    +'SUPPORT: [scaffolding or differentiation notes if present]'+nl
+    +'MATERIALS: [materials or texts mentioned]';
+
+  fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error) throw new Error(d.error);
+      importState.analysisResult = d.text;
+      closeModal('modal-import');
+      openImportDestModal(d.text);
+    }).catch(function(e){
+      document.getElementById('imp-err').textContent = 'Error: ' + e.message;
+    }).finally(function(){
+      btn.textContent = 'Analyze plan';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    });
+}
+
+function getImportField(raw, key){
+  var m = raw.match(new RegExp(key+':\s*([^\n]+)', 'i'));
+  return m ? m[1].trim() : '';
+}
+function getImportMultiline(raw, key, nextKey){
+  var m = raw.match(new RegExp(key+':\s*([\s\S]*?)(?='+nextKey+':|$)', 'i'));
+  return m ? m[1].trim() : '';
+}
+
+function openImportDestModal(analysis){
+  var type = getImportField(analysis, 'TYPE');
+  var title = getImportField(analysis, 'TITLE');
+  var summary = getImportField(analysis, 'SUMMARY');
+  var teksAddressed = getImportField(analysis, 'TEKS ADDRESSED');
+  var teksGaps = getImportMultiline(analysis, 'TEKS GAPS', 'ESSENTIAL QUESTION');
+
+  var summaryHtml = '<strong>' + (title||'Imported plan') + '</strong>';
+  summaryHtml += '<br><span style="font-size:11px;color:var(--ink3)">' + type + '</span>';
+  summaryHtml += '<br><br>' + (summary||'');
+  if(teksAddressed) summaryHtml += '<br><br><strong>TEKS addressed:</strong> ' + teksAddressed;
+  if(teksGaps && teksGaps !== 'None') summaryHtml += '<br><span style="color:var(--red)"><strong>Gaps (STAAR):</strong> ' + teksGaps + '</span>';
+
+  document.getElementById('imp-analysis-summary').innerHTML = summaryHtml;
+
+  // Populate unit selector for replace/lessons-only options
+  var units = state.units[state.activeCourse ? state.activeCourse.id : ''] || [];
+  var sel = document.getElementById('imp-dest-unit');
+  sel.innerHTML = units.map(function(u){
+    return '<option value="'+u.id+'">Unit '+u.num+' - '+u.title+'</option>';
+  }).join('');
+
+  // Show/hide unit selector based on dest type
+  document.getElementById('imp-dest-type').onchange = function(){
+    var show = this.value === 'replace-unit' || this.value === 'lessons-only';
+    document.getElementById('imp-dest-unit-row').style.display = show ? '' : 'none';
+  };
+
+  openModal('modal-import-dest');
+}
+
+function confirmImport(){
+  var analysis = importState.analysisResult;
+  var destType = document.getElementById('imp-dest-type').value;
+  var course = state.activeCourse;
+  if(!course || !analysis) return;
+
+  var spin = document.getElementById('imp-dest-spin');
+  spin.style.display = 'flex';
+
+  var title = getImportField(analysis, 'TITLE') || 'Imported plan';
+  var eq = getImportField(analysis, 'ESSENTIAL QUESTION');
+  var summative = getImportField(analysis, 'SUMMATIVE');
+  var bigIdea = getImportField(analysis, 'BIG IDEA');
+  var obj = getImportField(analysis, 'OBJECTIVE');
+  var hook = getImportField(analysis, 'HOOK');
+  var read = getImportField(analysis, 'READ');
+  var discuss = getImportField(analysis, 'DISCUSS');
+  var write = getImportField(analysis, 'WRITE');
+  var close = getImportField(analysis, 'CLOSE');
+  var support = getImportField(analysis, 'SUPPORT');
+  var materials = getImportField(analysis, 'MATERIALS');
+  var units = state.units[course.id] || [];
+
+  if(destType === 'new-unit'){
+    var nextNum = units.length + 1;
+    supa.from('units').insert({
+      course_id: course.id,
+      num: nextNum,
+      title: title,
+      essential_question: eq,
+      summative_assessment: summative,
+      big_idea: bigIdea,
+      strands: [1,2,3,4,5,6,7],
+      emph_strands: [],
+      status: 'in_progress'
+    }).select().then(function(r){
+      if(r.error) throw new Error(r.error.message);
+      var newUnit = r.data[0];
+      units.push(newUnit);
+      state.units[course.id] = units;
+      // Also save as a lesson if single lesson
+      var type = getImportField(analysis, 'TYPE').toLowerCase();
+      if(type.includes('daily') || type.includes('lesson')){
+        return supa.from('lessons').insert({
+          unit_id: newUnit.id,
+          num: 1, week_num: 1,
+          title: title,
+          objective: obj, hook: hook,
+          read_analyze: read, discuss: discuss,
+          write_practice: write, close: close,
+          support: support, materials: materials,
+          status: 'generated'
+        });
+      }
+    }).then(function(){
+      spin.style.display = 'none';
+      closeModal('modal-import-dest');
+      showView('course', {id: course.id});
+      toast('Plan imported as Unit ' + (units.length), 'success');
+    }).catch(function(e){
+      spin.style.display = 'none';
+      toast('Error: ' + e.message, 'error');
+    });
+
+  } else if(destType === 'replace-unit'){
+    var uid = document.getElementById('imp-dest-unit').value;
+    supa.from('units').update({
+      title: title,
+      essential_question: eq,
+      summative_assessment: summative,
+      big_idea: bigIdea,
+      status: 'in_progress'
+    }).eq('id', uid).then(function(r){
+      if(r.error) throw new Error(r.error.message);
+      spin.style.display = 'none';
+      closeModal('modal-import-dest');
+      showView('course', {id: course.id});
+      toast('Unit updated from imported plan', 'success');
+    }).catch(function(e){
+      spin.style.display = 'none';
+      toast('Error: ' + e.message, 'error');
+    });
+
+  } else if(destType === 'lessons-only'){
+    var uid2 = document.getElementById('imp-dest-unit').value;
+    supa.from('lessons').select('num').eq('unit_id', uid2).order('num', {ascending:false}).limit(1).then(function(r){
+      var nextLessonNum = r.data && r.data.length ? r.data[0].num + 1 : 1;
+      return supa.from('lessons').insert({
+        unit_id: uid2,
+        num: nextLessonNum, week_num: 1,
+        title: title,
+        objective: obj, hook: hook,
+        read_analyze: read, discuss: discuss,
+        write_practice: write, close: close,
+        support: support, materials: materials,
+        status: 'generated'
+      });
+    }).then(function(){
+      spin.style.display = 'none';
+      closeModal('modal-import-dest');
+      var unit = units.find(function(u){return u.id===uid2;});
+      if(unit) showView('unit', {id: uid2});
+      toast('Lesson imported successfully', 'success');
+    }).catch(function(e){
+      spin.style.display = 'none';
+      toast('Error: ' + e.message, 'error');
+    });
+  }
+}
+
+
+// ── LESSON TEMPLATE MANAGEMENT ───────────────────────────────────────────────
+var templateCtx = {scope: 'course', lessonId: null};
+var workingTemplate = [];
+
+function openCourseTemplateEditor(){
+  templateCtx = {scope: 'course', lessonId: null};
+  var course = state.activeCourse;
+  workingTemplate = JSON.parse(JSON.stringify(
+    (course && course.lesson_template) ? course.lesson_template : DEFAULT_LESSON_TEMPLATE
+  ));
+  document.getElementById('tmpl-modal-title').textContent = 'Course lesson template';
+  document.getElementById('tmpl-modal-desc').textContent = 'These sections will appear in all lessons for ' + (course ? course.name : 'this course') + '. Changes apply to newly generated lessons.';
+  renderTemplateEditor();
+  openModal('modal-template');
+}
+
+function openLessonTemplateEditor(lessonId){
+  templateCtx = {scope: 'lesson', lessonId: lessonId};
+  var allLessons = Object.values(state.lessons).reduce(function(a,b){return a.concat(b);}, []);
+  var lesson = allLessons.find(function(l){return l.id===lessonId;});
+  workingTemplate = JSON.parse(JSON.stringify(
+    (lesson && lesson.custom_template) ? lesson.custom_template : getLessonTemplate(lesson)
+  ));
+  document.getElementById('tmpl-modal-title').textContent = 'Customize this lesson';
+  document.getElementById('tmpl-modal-desc').textContent = 'Adjust sections for this lesson only. Other lessons are not affected.';
+  renderTemplateEditor();
+  openModal('modal-template');
+}
+
+function renderTemplateEditor(){
+  var container = document.getElementById('tmpl-sections');
+  container.innerHTML = workingTemplate.map(function(sec, i){
+    return '<div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:center;background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px">'
+      +'<input class="input input-sm" value="'+esc(sec.label)+'" placeholder="Section name" onchange="workingTemplate['+i+'].label=this.value" style="font-size:13px">'
+      +'<input class="input input-sm" value="'+esc(sec.placeholder||'')+'" placeholder="Placeholder hint" onchange="workingTemplate['+i+'].placeholder=this.value" style="font-size:12px">'
+      +'<input type="color" value="'+(sec.dot||'#888888')+'" onchange="workingTemplate['+i+'].dot=this.value" title="Section color" style="width:32px;height:32px;border:1px solid var(--border);border-radius:4px;padding:2px;cursor:pointer">'
+      +'<button class="btn btn-ghost btn-xs" style="color:var(--red);padding:4px 8px" onclick="removeTemplateSection('+i+')">Remove</button>'
+      +'</div>';
+  }).join('');
+}
+
+function addTemplateSection(){
+  workingTemplate.push({key:'custom_'+Date.now(), label:'New section', placeholder:'', dot:'#888'});
+  renderTemplateEditor();
+}
+
+function removeTemplateSection(i){
+  workingTemplate.splice(i, 1);
+  renderTemplateEditor();
+}
+
+function resetTemplate(){
+  workingTemplate = JSON.parse(JSON.stringify(DEFAULT_LESSON_TEMPLATE));
+  renderTemplateEditor();
+}
+
+function saveTemplate(){
+  if(templateCtx.scope === 'course'){
+    var course = state.activeCourse;
+    if(!course) return;
+    supa.from('courses').update({lesson_template: workingTemplate}).eq('id', course.id).then(function(r){
+      if(r.error){toast('Error: '+r.error.message,'error');return;}
+      course.lesson_template = workingTemplate;
+      closeModal('modal-template');
+      toast('Template saved — applies to all future lessons','success');
+    });
+  } else {
+    var lessonId = templateCtx.lessonId;
+    supa.from('lessons').update({custom_template: workingTemplate}).eq('id', lessonId).then(function(r){
+      if(r.error){toast('Error: '+r.error.message,'error');return;}
+      var allLessons = Object.values(state.lessons).reduce(function(a,b){return a.concat(b);}, []);
+      var lesson = allLessons.find(function(l){return l.id===lessonId;});
+      if(lesson) lesson.custom_template = workingTemplate;
+      // Re-render this lesson card body
+      var body = document.querySelector('[data-lid="'+lessonId+'"].lesson-card .lesson-card-body');
+      if(body && lesson) body.innerHTML = renderLessonBody(lesson);
+      closeModal('modal-template');
+      toast('Lesson sections updated','success');
+    });
+  }
+}
+
+
 </script>
 </body>
 </html>
