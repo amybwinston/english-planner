@@ -595,24 +595,43 @@ function renderCourseView(courseId){
 
 function renderUnitList(units, course, c){
   var html='<div class="section-header"><h2>'+units.length+' units</h2>';
-  html+='<div class="btn-row"><button class="btn btn-secondary btn-sm" onclick="showView(\'teks\')">TEKS reference</button><button class="btn btn-secondary btn-sm" onclick="generateAnnualMap(state.activeCourse)">Regenerate map</button></div></div>';
-  html+='<div style="display:flex;flex-direction:column;gap:10px">';
-  units.forEach(function(u){
-    var emph=u.emph_strands||[];
-    var strands=u.strands||[1,2,3,4,5,6,7];
-    var pills=strands.map(function(s){return '<span class="strand-pill'+(emph.includes(s)?' emph':'')+'">S'+s+'</span>';}).join('');
-    var sc=u.status==='complete'?'complete':u.status==='in_progress'?'in-progress':'planned';
-    var st=u.status==='complete'?'Complete':u.status==='in_progress'?'In progress':'Planned';
-    html+='<div class="unit-card" onclick="showView(\'unit\',{id:\''+u.id+'\'})">';
-    html+='<div class="unit-num">'+u.num+'</div>';
-    html+='<div><div class="unit-title">'+u.title+'</div>';
-    if(u.essential_question) html+='<div class="unit-eq">'+u.essential_question+'</div>';
-    html+='<div class="unit-strand-pills">'+pills+'</div></div>';
-    html+='<span class="unit-status '+sc+'">'+st+'</span></div>';
-  });
+  html+='<div class="btn-row">';
+  html+='<button class="btn btn-secondary btn-sm" onclick="showView(\'teks\')">TEKS reference</button>';
+  html+='<button class="btn btn-secondary btn-sm" onclick="generateAnnualMap(state.activeCourse)">Regenerate all</button>';
+  html+='</div></div>';
+  html+='<div style="display:flex;flex-direction:column;gap:10px" id="unit-list">';
+  units.forEach(function(u){ html+=renderUnitCard(u); });
   html+='</div>';
+  html+='<div style="margin-top:12px"><button class="btn btn-secondary btn-sm" onclick="addBlankUnit()">+ Add unit</button></div>';
   c.innerHTML=html;
 }
+
+function renderUnitCard(u){
+  var emph=u.emph_strands||[];
+  var strands=u.strands||[1,2,3,4,5,6,7];
+  var pills=strands.map(function(s){
+    return '<span class="strand-pill'+(emph.includes(s)?' emph':'')+'">S'+s+'</span>';
+  }).join('');
+  var sc=u.status==='complete'?'complete':u.status==='in_progress'?'in-progress':'planned';
+  var st=u.status==='complete'?'Complete':u.status==='in_progress'?'In progress':'Planned';
+  var uid=u.id;
+  var html='<div class="unit-card" id="ucard-'+uid+'" style="cursor:default;grid-template-columns:40px 1fr auto">';
+  html+='<div class="unit-num" style="cursor:pointer" onclick="goUnit(\''+uid+'\')">'+u.num+'</div>';
+  html+='<div style="cursor:pointer" onclick="goUnit(\''+uid+'\')">';
+  html+='<div class="unit-title">'+u.title+'</div>';
+  if(u.essential_question) html+='<div class="unit-eq">'+u.essential_question+'</div>';
+  html+='<div class="unit-strand-pills">'+pills+'</div></div>';
+  html+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">';
+  html+='<span class="unit-status '+sc+'">'+st+'</span>';
+  html+='<div class="btn-row" style="margin-top:4px">';
+  html+='<button class="btn btn-xs btn-secondary" onclick="regenOneUnit(\''+uid+'\',event)">&#8635; Regen</button>';
+  html+='<button class="btn btn-xs btn-ghost" style="color:var(--red)" onclick="deleteUnit(\''+uid+'\',event)">Delete</button>';
+  html+='</div></div></div>';
+  return html;
+}
+
+function goUnit(id){ showView('unit',{id:id}); }
+
 
 function renderUnitView(unitId){
   var c = document.getElementById('main-content');
@@ -622,7 +641,7 @@ function renderUnitView(unitId){
     state.activeUnit=r.data;
     var unit=r.data;
     var course=state.activeCourse;
-    setTopbar('Unit '+unit.num+' - '+unit.title,'Generate lessons',function(){generateLessons(unit,course);});
+    setTopbar('Unit '+unit.num+' - '+unit.title,'Generate lessons',function(){saveAllUnitFields(unit, course);});
     return supa.from('lessons').select('*').eq('unit_id',unitId).order('num',{ascending:true}).then(function(lr){
       state.lessons[unitId]=lr.data||[];
       renderUnitDetail(unit,lr.data||[],course,c);
@@ -632,13 +651,30 @@ function renderUnitView(unitId){
 
 function renderUnitDetail(unit, lessons, course, c){
   var html='<button class="btn btn-ghost btn-sm" onclick="showView(\'course\',{id:\''+unit.course_id+'\'})" style="margin-bottom:16px">&larr; Back to course</button>';
-  html+='<div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">';
-  html+='<div><div class="text-xs text-muted" style="font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Essential question</div><div style="font-size:15px;font-style:italic;color:var(--ink2);line-height:1.5">'+(unit.essential_question||'Not set')+'</div></div>';
-  html+='<div><div class="text-xs text-muted" style="font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Summative assessment</div><div style="font-size:14px;color:var(--ink2)">'+(unit.summative_assessment||'Not set')+'</div></div>';
-  if(unit.big_idea) html+='<div style="grid-column:1/-1"><div class="text-xs text-muted" style="font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Big idea</div><div style="font-size:14px;color:var(--ink2);line-height:1.6">'+unit.big_idea+'</div></div>';
-  html+='</div></div>';
+  html+='<div class="card">';
+
+  // Unit meta fields — all editable + regeneratable
+  var unitFields=[
+    {k:'essential_question', lb:'Essential question', placeholder:'The guiding question for this unit', italic:true},
+    {k:'summative_assessment', lb:'Summative assessment', placeholder:'How students will demonstrate mastery'},
+    {k:'big_idea', lb:'Big idea', placeholder:'The 2-sentence conceptual frame for this unit'}
+  ];
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:4px">';
+  unitFields.forEach(function(f, i){
+    var val=unit[f.k]||'';
+    var span=i===2?'grid-column:1/-1':'';
+    html+='<div style="'+span+'">';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+    html+='<div class="text-xs text-muted" style="font-weight:600;letter-spacing:.07em;text-transform:uppercase">'+f.lb+'</div>';
+    html+='<button class="regen-btn" onclick="regenUnitField(\''+unit.id+'\',\''+f.k+'\',\''+f.lb+'\')">&#8635; Regenerate</button>';
+    html+='</div>';
+    html+='<div class="section-content" contenteditable="true" data-uid="'+unit.id+'" data-field="'+f.k+'" onblur="saveUnitField(this)" data-placeholder="'+f.placeholder+'" style="'+(f.italic?'font-style:italic;':'')+'min-height:48px">'+esc(val)+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+  html+='</div>';
   if(!lessons.length){
-    html+='<div class="empty-state"><h3>No lessons yet</h3><p>Generate lessons for this unit. The AI will create detailed daily plans citing specific TEKS expectation codes.</p><button class="btn btn-primary" onclick="generateLessons(state.activeUnit,state.activeCourse)">Generate lessons</button></div>';
+    html+='<div class="empty-state"><h3>No lessons yet</h3><p>Generate lessons for this unit. The AI will create detailed daily plans citing specific TEKS expectation codes.</p><button class="btn btn-primary" onclick="saveAllUnitFields(state.activeUnit,state.activeCourse)">Generate lessons</button></div>';
   } else {
     html+='<div class="section-header" style="margin-top:8px"><h2>'+lessons.length+' lessons</h2>';
     html+='<div class="btn-row">';
@@ -650,6 +686,184 @@ function renderUnitDetail(unit, lessons, course, c){
   }
   c.innerHTML=html;
 }
+
+function saveUnitField(el){
+  var uid=el.dataset.uid, field=el.dataset.field, val=el.innerText.trim();
+  var patch={};patch[field]=val;
+  supa.from('units').update(patch).eq('id',uid).then(function(r){
+    if(r.error){toast('Save failed: '+r.error.message,'error');return;}
+    if(state.activeUnit&&state.activeUnit.id===uid) state.activeUnit[field]=val;
+    toast('Saved','success');
+  });
+}
+
+function regenOneUnit(unitId, event){
+  event.stopPropagation();
+  var course = state.activeCourse;
+  if(!course) return;
+  var units = state.units[course.id] || [];
+  var unit = units.find(function(u){return u.id===unitId;});
+  if(!unit) return;
+
+  var card = document.getElementById('ucard-'+unitId);
+  if(card) card.style.opacity='0.5';
+
+  var teksText = getTeksText();
+  var existingTitles = units.filter(function(u){return u.id!==unitId;}).map(function(u){return u.num+'. '+u.title;}).join(', ');
+  var nl = '\n';
+
+  var prompt = 'Regenerate ONE unit in an annual English ELA map.'+nl
+    +'Course: '+course.name+nl
+    +'Unit number: '+unit.num+nl
+    +'Other units already planned (do not duplicate these themes): '+existingTitles+nl+nl
+    +'COMPLETE TEKS (exact TEA wording):'+nl+teksText+nl+nl
+    +'Create a fresh unit that covers different TEKS than the other units. Output EXACTLY:'+nl
+    +'Title: [thematic title]'+nl
+    +'Text: [suggested texts or genre]'+nl
+    +'Question: [essential question]'+nl
+    +'Strands: 1,2,3,4,5,6,7'+nl
+    +'Emphasis: [2-3 strand numbers]'+nl
+    +'Summative: [assessment description]'+nl
+    +'BigIdea: [2-sentence big idea]'+nl
+    +'Weeks: Week 1: [focus] | Week 2: [focus] | Week 3: [focus]';
+
+  fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error) throw new Error(d.error);
+      var parsed = finUnit({num:unit.num, raw:d.text});
+      var patch = {
+        title: parsed.title,
+        essential_question: parsed.question,
+        suggested_text: parsed.text,
+        summative_assessment: parsed.summative,
+        big_idea: parsed.bigIdea,
+        weeks_breakdown: parsed.weeks,
+        strands: parsed.strands,
+        emph_strands: parsed.emph,
+        status: 'planned'
+      };
+      return supa.from('units').update(patch).eq('id',unitId).select().then(function(r){
+        if(r.error) throw new Error(r.error.message);
+        // Update local state and re-render card
+        var idx = units.findIndex(function(u){return u.id===unitId;});
+        if(idx>=0){ Object.assign(units[idx], patch); }
+        var card = document.getElementById('ucard-'+unitId);
+        if(card){ card.outerHTML = renderUnitCard(units[idx]); }
+        toast('Unit '+unit.num+' regenerated','success');
+      });
+    }).catch(function(e){
+      if(card) card.style.opacity='1';
+      toast('Error: '+e.message,'error');
+    });
+}
+
+function deleteUnit(unitId, event){
+  event.stopPropagation();
+  if(!confirm('Delete this unit and all its lessons?')) return;
+  supa.from('units').delete().eq('id',unitId).then(function(r){
+    if(r.error){toast('Error: '+r.error.message,'error');return;}
+    var course = state.activeCourse;
+    if(course) state.units[course.id]=(state.units[course.id]||[]).filter(function(u){return u.id!==unitId;});
+    var card = document.getElementById('ucard-'+unitId);
+    if(card) card.remove();
+    // Update unit count in header
+    var h2 = document.querySelector('.section-header h2');
+    var remaining = document.querySelectorAll('[id^="ucard-"]').length;
+    if(h2) h2.textContent = remaining + ' units';
+    toast('Unit deleted');
+  });
+}
+
+function addBlankUnit(){
+  var course = state.activeCourse;
+  if(!course) return;
+  var units = state.units[course.id] || [];
+  var nextNum = units.length + 1;
+  var data = {
+    course_id: course.id,
+    num: nextNum,
+    title: 'Unit '+nextNum,
+    strands: [1,2,3,4,5,6,7],
+    emph_strands: [],
+    status: 'planned'
+  };
+  supa.from('units').insert(data).select().then(function(r){
+    if(r.error){toast('Error: '+r.error.message,'error');return;}
+    var newUnit = r.data[0];
+    units.push(newUnit);
+    var list = document.getElementById('unit-list');
+    if(list){ list.insertAdjacentHTML('beforeend', renderUnitCard(newUnit)); }
+    var h2 = document.querySelector('.section-header h2');
+    if(h2) h2.textContent = units.length + ' units';
+    toast('Unit added — click Regen to generate content','success');
+  });
+}
+
+
+function saveAllUnitFields(unit, course){
+  // Force-save any unsaved edits in the unit fields before generating
+  var fields=['essential_question','summative_assessment','big_idea'];
+  var patch={};
+  var hasChanges=false;
+  fields.forEach(function(f){
+    var el=document.querySelector('[data-uid="'+unit.id+'"][data-field="'+f+'"]');
+    if(el){
+      var val=el.innerText.trim();
+      if(val !== (unit[f]||'')){
+        patch[f]=val;
+        unit[f]=val; // update local state immediately
+        hasChanges=true;
+      }
+    }
+  });
+  if(hasChanges){
+    supa.from('units').update(patch).eq('id',unit.id).then(function(r){
+      if(r.error){ toast('Could not save unit fields: '+r.error.message,'error'); return; }
+      toast('Unit fields saved','success');
+      generateLessons(unit, course);
+    });
+  } else {
+    generateLessons(unit, course);
+  }
+}
+
+
+function regenUnitField(uid, field, label){
+  var unit=state.activeUnit;
+  var course=state.activeCourse;
+  if(!unit||!course) return;
+  var fieldDesc={
+    essential_question:'an open-ended essential question that will drive student inquiry for the whole unit. It should connect reading, writing, and speaking and have no single right answer.',
+    summative_assessment:'a summative assessment task that authentically measures student mastery. It should integrate reading, writing, and speaking and reference specific TEKS expectations.',
+    big_idea:'a 2-sentence big idea that frames the conceptual understanding students should develop. It should be transferable beyond this specific unit.'
+  };
+  var prompt='Generate '+fieldDesc[field]+'\n\n'
+    +'Course: '+course.name+'\n'
+    +'Unit '+unit.num+': "'+unit.title+'"\n'
+    +'Current essential question: '+(unit.essential_question||'none')+'\n'
+    +'Current summative: '+(unit.summative_assessment||'none')+'\n'
+    +'Emphasis strands: '+(unit.emph_strands||[]).join(', ')+'\n\n'
+    +'TEKS context:\n'+getTeksText().substring(0,800)+'\n\n'
+    +'Write ONLY the '+label+' text. No labels, no preamble.';
+  var el=document.querySelector('[data-uid="'+uid+'"][data-field="'+field+'"]');
+  if(el){el.textContent='Regenerating...';el.style.color='var(--ink3)';}
+  fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error) throw new Error(d.error);
+      var text=d.text.trim();
+      if(el){el.textContent=text;el.style.color='';}
+      var patch={};patch[field]=text;
+      supa.from('units').update(patch).eq('id',uid);
+      if(state.activeUnit&&state.activeUnit.id===uid) state.activeUnit[field]=text;
+      toast(label+' regenerated','success');
+    }).catch(function(e){
+      if(el){el.textContent=unit[field]||'';el.style.color='';}
+      toast('Error: '+e.message,'error');
+    });
+}
+
 
 function filterWeek(w,btn){
   document.querySelectorAll('.wf').forEach(function(b){b.classList.remove('active')});
