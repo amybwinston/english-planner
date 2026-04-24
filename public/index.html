@@ -286,27 +286,104 @@ select.input{cursor:pointer}
 
 <!-- MODALS -->
 <div class="modal-overlay" id="modal-new-course">
-  <div class="modal">
-    <div class="modal-title">Add a course</div>
-    <div class="field"><label>Course</label>
-      <select class="input" id="nc-name">
-        <option>English I</option><option>English II</option>
-        <option>English III</option><option>English IV</option>
-      </select>
+  <div class="modal" style="max-width:560px">
+
+    <!-- Step indicator -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:24px">
+      <div id="nc-step-ind-1" style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink)">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</div>
+        Calendar
+      </div>
+      <div style="flex:1;height:1px;background:var(--border);margin:0 12px"></div>
+      <div id="nc-step-ind-2" style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink3)">
+        <div id="nc-step2-dot" style="width:24px;height:24px;border-radius:50%;background:var(--border);color:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</div>
+        Schedule
+      </div>
     </div>
-    <div class="field"><label>Section / Period (optional)</label><input class="input" id="nc-label" placeholder="e.g. Period 2 or Honors Block"></div>
-    <div class="field"><label>School year</label><input class="input" id="nc-year" value="2025-2026"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="field"><label>Class duration (min)</label><input class="input" type="number" id="nc-dur" value="50"></div>
-      <div class="field"><label>Days per week</label><input class="input" type="number" id="nc-days" value="4"></div>
-      <div class="field"><label>Units per year</label><input class="input" type="number" id="nc-units" value="9"></div>
-      <div class="field"><label>Weeks per unit</label><input class="input" type="number" id="nc-weeks" value="3"></div>
+
+    <!-- STEP 1: Calendar -->
+    <div id="nc-step1">
+      <div class="modal-title" style="margin-bottom:4px">Set up your calendar</div>
+      <p class="text-sm text-muted" style="margin-bottom:20px">Optional but recommended. Upload your district calendar so the app can schedule units around breaks, holidays, and STAAR dates.</p>
+
+      <div class="field"><label>Course</label>
+        <select class="input" id="nc-name">
+          <option>English I</option><option>English II</option>
+          <option>English III</option><option>English IV</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>First day of school</label><input class="input" type="date" id="nc-first-day" value="2025-08-19"></div>
+        <div class="field"><label>Last day of school</label><input class="input" type="date" id="nc-last-day" value="2026-05-28"></div>
+      </div>
+
+      <div class="field"><label>STAAR EOC sitting your students take</label>
+        <select class="input" id="nc-staar">
+          <option value="april">April (primary sitting — most common)</option>
+          <option value="december">December (first sitting)</option>
+          <option value="june">June (third sitting)</option>
+        </select>
+      </div>
+
+      <div class="field"><label>Upload district calendar (optional)</label>
+        <div id="nc-cal-drop" style="border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;background:var(--paper);transition:border .2s" onclick="document.getElementById('nc-cal-file').click()" ondragover="ncCalDragOver(event)" ondragleave="ncCalDragLeave(event)" ondrop="ncCalDrop(event)">
+          <div id="nc-cal-label" style="font-size:13px;color:var(--ink3)">Click to upload your district calendar PDF, or drag and drop here</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:3px">.pdf, .docx, or .txt — the AI will extract no-school days automatically</div>
+          <input type="file" id="nc-cal-file" accept=".pdf,.docx,.txt" style="display:none" onchange="ncCalFileChosen(this)">
+        </div>
+      </div>
+
+      <div id="nc-cal-spin" class="spin-row" style="display:none"><div class="spin"></div><span id="nc-cal-spin-msg">Reading calendar...</span></div>
+      <div id="nc-cal-result" style="display:none;background:var(--green-lt);border:1px solid #a9dfbf;border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--green);margin-bottom:12px"></div>
+      <div id="nc-no-school-manual" style="display:none">
+        <div class="field"><label>Or add no-school dates manually</label>
+          <textarea class="input" id="nc-no-school-text" rows="3" placeholder="e.g. Nov 24-28 (Fall Break), Dec 22-Jan 2 (Winter Break), Mar 16-20 (Spring Break)"></textarea>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="toggleManualDates()" id="nc-manual-toggle">+ Add no-school dates manually instead</button>
+
+      <div id="nc-cal-summary" style="display:none;margin-top:16px;padding:14px;background:var(--paper2);border-radius:var(--radius-sm)">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:8px;font-family:DM Mono,monospace">Calendar summary</div>
+        <div id="nc-cal-summary-text" style="font-size:13px;color:var(--ink2);line-height:1.7"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-new-course')">Cancel</button>
+        <button class="btn btn-ghost" onclick="ncGoStep2(true)">Skip calendar</button>
+        <button class="btn btn-primary" onclick="ncGoStep2(false)">Next: Schedule &rarr;</button>
+      </div>
     </div>
-    <div class="field"><label>Context (optional)</label><input class="input" id="nc-ctx" placeholder="e.g. Title I school, inclusion classroom"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-new-course')">Cancel</button>
-      <button class="btn btn-primary" onclick="createCourse()">Create course</button>
+
+    <!-- STEP 2: Schedule -->
+    <div id="nc-step2" style="display:none">
+      <div class="modal-title" style="margin-bottom:4px">Set up your schedule</div>
+      <div id="nc-schedule-hint" style="font-size:13px;color:var(--ink3);margin-bottom:20px;background:var(--paper2);padding:10px 14px;border-radius:var(--radius-sm);display:none"></div>
+
+      <div class="field"><label>Section / Period (optional)</label><input class="input" id="nc-label" placeholder="e.g. Period 2 or Honors Block"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Class duration (min)</label><input class="input" type="number" id="nc-dur" value="50"></div>
+        <div class="field"><label>Days per week</label><input class="input" type="number" id="nc-days" value="4" onchange="ncUpdateHint()"></div>
+        <div class="field">
+          <label>Units per year</label>
+          <input class="input" type="number" id="nc-units" value="9" onchange="ncUpdateHint()">
+          <div id="nc-units-hint" style="font-size:11px;color:var(--ink3);margin-top:3px"></div>
+        </div>
+        <div class="field">
+          <label>Weeks per unit</label>
+          <input class="input" type="number" id="nc-weeks" value="3" onchange="ncUpdateHint()">
+          <div id="nc-weeks-hint" style="font-size:11px;color:var(--ink3);margin-top:3px"></div>
+        </div>
+      </div>
+      <div class="field"><label>Context (optional)</label><input class="input" id="nc-ctx" placeholder="e.g. Title I school, inclusion classroom, honors"></div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-new-course')">Cancel</button>
+        <button class="btn btn-ghost" onclick="ncGoStep1()"><- Back</button>
+        <button class="btn btn-primary" onclick="createCourse()">Create course</button>
+      </div>
     </div>
+
   </div>
 </div>
 
@@ -1131,7 +1208,12 @@ function generateAnnualMap(course){
       +'STAAR-TESTED EXPECTATIONS (must appear multiple times across units - these are highest priority):'+nl
       +staarList+nl+nl
       +'Schedule: '+course.units_per_year+' units, '+course.weeks_per_unit+' weeks/unit, '+course.days_per_week+' days/week, '+course.class_duration+' min/class'+nl
-      +(course.context?'Context: '+course.context+nl:'')+nl
+      +(course.context?'Context: '+course.context+nl:'')
+    +(course.first_day?'School year: '+course.first_day+' to '+course.last_day+nl:'')
+    +(course.instructional_days?'Instructional days: '+course.instructional_days+nl:'')
+    +(course.staar_sitting?'STAAR EOC sitting: '+course.staar_sitting+(course.staar_sitting==='april'?' (April 7-14, 2026)':course.staar_sitting==='december'?' (December 2-9, 2025)':' (June 16-22, 2026)')+nl:'')
+    +(course.staar_sitting?'CRITICAL: Units planned before the STAAR sitting must front-load STAAR-tested expectations. Build explicit STAAR review into the unit immediately before the sitting date.'+nl:'')
+    +nl
       +'REQUIREMENTS:'+nl
       +'- Every TEKS expectation code must be planned at least once across the year'+nl
       +'- STAAR-tested expectations must appear as primary focus in multiple units'+nl
@@ -1378,16 +1460,30 @@ function renderTeksView(){
 // ── COURSE CREATION ───────────────────────────────────────────────────────────
 function createCourse(){
   if(!currentUser){toast('Not signed in','error');return;}
+  var firstDay = document.getElementById('nc-first-day').value;
+  var lastDay = document.getElementById('nc-last-day').value;
+  var staarSitting = document.getElementById('nc-staar').value;
+  // Determine STAAR dates from sitting
+  var staarDates = staarSitting==='april' ? ['2026-04-07','2026-04-14']
+    : staarSitting==='december' ? ['2025-12-02','2025-12-09']
+    : ['2026-06-16','2026-06-22'];
   var data={
     user_id:currentUser.id,
     name:document.getElementById('nc-name').value,
     section_label:document.getElementById('nc-label').value.trim()||null,
-    school_year:document.getElementById('nc-year').value.trim()||'2025-2026',
+    school_year:firstDay ? firstDay.substring(0,4)+'-'+(+firstDay.substring(0,4)+1) : '2025-2026',
     class_duration:+document.getElementById('nc-dur').value||50,
     days_per_week:+document.getElementById('nc-days').value||4,
     units_per_year:+document.getElementById('nc-units').value||9,
     weeks_per_unit:+document.getElementById('nc-weeks').value||3,
-    context:document.getElementById('nc-ctx').value.trim()||null
+    context:document.getElementById('nc-ctx').value.trim()||null,
+    first_day:firstDay||null,
+    last_day:lastDay||null,
+    no_school_days:ncCalendarData.noSchoolDays.length ? ncCalendarData.noSchoolDays : null,
+    staar_sitting:staarSitting,
+    staar_dates:staarDates,
+    instructional_days:ncCalendarData.instructionalDays||null,
+    calendar_raw:ncCalendarData.calendarRaw||null
   };
   supa.from('courses').insert(data).select().then(function(r){
     if(r.error){toast('Error: '+r.error.message,'error');return;}
@@ -1831,6 +1927,232 @@ function saveTemplate(){
       toast('Lesson sections updated','success');
     });
   }
+}
+
+
+// ── COURSE CREATION CALENDAR FLOW ────────────────────────────────────────────
+var ncCalendarData = {
+  firstDay: '2025-08-19',
+  lastDay: '2026-05-28',
+  noSchoolDays: [],
+  staarSitting: 'april',
+  staarDates: [],
+  instructionalDays: 0,
+  calendarRaw: '',
+  skipped: false
+};
+
+function ncGoStep2(skipped){
+  ncCalendarData.skipped = skipped;
+  ncCalendarData.firstDay = document.getElementById('nc-first-day').value;
+  ncCalendarData.lastDay = document.getElementById('nc-last-day').value;
+  ncCalendarData.staarSitting = document.getElementById('nc-staar').value;
+
+  // If manual dates entered, parse them
+  var manualText = document.getElementById('nc-no-school-text').value.trim();
+  if(manualText && ncCalendarData.noSchoolDays.length === 0){
+    ncCalendarData.noSchoolDays = parseManualDates(manualText);
+  }
+
+  // Calculate instructional days
+  ncCalendarData.instructionalDays = calcInstructionalDays(
+    ncCalendarData.firstDay,
+    ncCalendarData.lastDay,
+    ncCalendarData.noSchoolDays
+  );
+
+  // Show step 2 with smart defaults
+  document.getElementById('nc-step1').style.display = 'none';
+  document.getElementById('nc-step2').style.display = '';
+  document.getElementById('nc-step-ind-1').style.color = 'var(--ink3)';
+  document.getElementById('nc-step-ind-2').style.color = 'var(--ink)';
+  document.getElementById('nc-step2-dot').style.background = 'var(--ink)';
+  document.getElementById('nc-step2-dot').style.color = '#fff';
+
+  // Set smart defaults based on calendar
+  if(!skipped && ncCalendarData.instructionalDays > 0){
+    var days = +document.getElementById('nc-days').value || 4;
+    var totalWeeks = Math.floor(ncCalendarData.instructionalDays / days);
+    // Suggest 7 units of 4 weeks, or 9 units of 3 weeks, etc.
+    var suggestedUnits = totalWeeks >= 36 ? 9 : totalWeeks >= 28 ? 7 : 6;
+    var suggestedWeeks = Math.floor(totalWeeks / suggestedUnits);
+    document.getElementById('nc-units').value = suggestedUnits;
+    document.getElementById('nc-weeks').value = suggestedWeeks;
+
+    var hint = ncCalendarData.instructionalDays + ' instructional days calculated. '
+      + 'Suggested: ' + suggestedUnits + ' units x ' + suggestedWeeks + ' weeks = '
+      + (suggestedUnits * suggestedWeeks * days) + ' lessons. Adjust as needed.';
+    var hintEl = document.getElementById('nc-schedule-hint');
+    hintEl.textContent = hint;
+    hintEl.style.display = '';
+  }
+  ncUpdateHint();
+}
+
+function ncGoStep1(){
+  document.getElementById('nc-step1').style.display = '';
+  document.getElementById('nc-step2').style.display = 'none';
+  document.getElementById('nc-step-ind-1').style.color = 'var(--ink)';
+  document.getElementById('nc-step-ind-2').style.color = 'var(--ink3)';
+  document.getElementById('nc-step2-dot').style.background = 'var(--border)';
+  document.getElementById('nc-step2-dot').style.color = 'var(--ink3)';
+}
+
+function ncUpdateHint(){
+  var days = +document.getElementById('nc-days').value || 4;
+  var units = +document.getElementById('nc-units').value || 9;
+  var weeks = +document.getElementById('nc-weeks').value || 3;
+  var total = units * weeks * days;
+  document.getElementById('nc-units-hint').textContent = units + ' units';
+  document.getElementById('nc-weeks-hint').textContent = weeks + ' weeks = ' + (weeks*days) + ' lessons per unit';
+  if(ncCalendarData.instructionalDays > 0){
+    var diff = ncCalendarData.instructionalDays - total;
+    var msg = total + ' lessons planned vs ' + ncCalendarData.instructionalDays + ' instructional days';
+    if(Math.abs(diff) > 10) msg += ' (' + (diff > 0 ? diff + ' days unplanned' : Math.abs(diff) + ' days over') + ')';
+    document.getElementById('nc-schedule-hint').textContent = msg;
+  }
+}
+
+function calcInstructionalDays(firstDay, lastDay, noSchoolDays){
+  if(!firstDay || !lastDay) return 0;
+  var start = new Date(firstDay);
+  var end = new Date(lastDay);
+  var noSchoolSet = new Set(noSchoolDays);
+  var count = 0;
+  var cur = new Date(start);
+  while(cur <= end){
+    var dow = cur.getDay();
+    if(dow !== 0 && dow !== 6){ // skip weekends
+      var ds = cur.toISOString().split('T')[0];
+      if(!noSchoolSet.has(ds)) count++;
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+
+function parseManualDates(text){
+  // Simple parser for ranges like "Nov 24-28", "Dec 22-Jan 2"
+  // Returns array of YYYY-MM-DD strings
+  var dates = [];
+  var year = 2025;
+  var months = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+  // This is a simplified version — the AI handles complex cases
+  var ranges = text.split(/[,;\n]/);
+  ranges.forEach(function(range){
+    range = range.trim().toLowerCase();
+    var m = range.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*(\d+)(?:\s*-\s*(?:(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*)?(\d+))?/i);
+    if(!m) return;
+    var mon = months[m[1]];
+    var day1 = parseInt(m[2]);
+    var mon2 = m[3] ? months[m[3]] : mon;
+    var day2 = m[4] ? parseInt(m[4]) : day1;
+    var y1 = (mon >= 8) ? 2025 : 2026;
+    var y2 = (mon2 >= 8) ? 2025 : 2026;
+    var d = new Date(y1, mon-1, day1);
+    var end = new Date(y2, mon2-1, day2);
+    while(d <= end){
+      dates.push(d.toISOString().split('T')[0]);
+      d.setDate(d.getDate()+1);
+    }
+  });
+  return dates;
+}
+
+function toggleManualDates(){
+  var el = document.getElementById('nc-no-school-manual');
+  var btn = document.getElementById('nc-manual-toggle');
+  var showing = el.style.display !== 'none';
+  el.style.display = showing ? 'none' : '';
+  btn.textContent = showing ? '+ Add no-school dates manually instead' : '- Hide manual dates';
+}
+
+// Calendar file upload for course creation
+function ncCalDragOver(e){ e.preventDefault(); document.getElementById('nc-cal-drop').style.borderColor='var(--accent)'; }
+function ncCalDragLeave(e){ document.getElementById('nc-cal-drop').style.borderColor='var(--border)'; }
+function ncCalDrop(e){ e.preventDefault(); ncCalDragLeave(e); if(e.dataTransfer.files[0]) ncCalProcess(e.dataTransfer.files[0]); }
+function ncCalFileChosen(inp){ if(inp.files[0]) ncCalProcess(inp.files[0]); }
+
+function ncCalProcess(file){
+  var spin = document.getElementById('nc-cal-spin');
+  var spinMsg = document.getElementById('nc-cal-spin-msg');
+  var result = document.getElementById('nc-cal-result');
+  var label = document.getElementById('nc-cal-label');
+  result.style.display = 'none';
+  spin.style.display = 'flex';
+  spinMsg.textContent = 'Reading ' + file.name + '...';
+
+  var ext = file.name.split('.').pop().toLowerCase();
+  var readPromise;
+  if(ext === 'txt') readPromise = file.text();
+  else if(ext === 'docx') readPromise = readDocxFile(file);
+  else readPromise = readPdfFile(file);
+
+  readPromise.then(function(text){
+    spinMsg.textContent = 'Extracting dates with AI...';
+    ncCalendarData.calendarRaw = text;
+
+    var prompt = 'Extract no-school days from this school district calendar for the 2025-2026 school year.'
+      + ' Output ONLY a JSON array of date strings in YYYY-MM-DD format for every day students do NOT have school'
+      + ' (holidays, breaks, professional development days, teacher planning days, etc.).'
+      + ' Include every individual date in multi-day ranges.'
+      + ' Do not include weekends. Output ONLY the JSON array, no other text.'
+      + '\n\nCALENDAR TEXT:\n' + text.substring(0, 4000);
+
+    return fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})});
+  }).then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.error) throw new Error(d.error);
+    var raw = d.text.trim();
+    // Extract JSON array from response
+    var m = raw.match(/\[([\s\S]*?)\]/);
+    var dates = [];
+    if(m){
+      try{ dates = JSON.parse('[' + m[1] + ']'); }
+      catch(e){ dates = []; }
+    }
+    if(!dates.length){
+      try{ dates = JSON.parse(raw); }
+      catch(e){ dates = []; }
+    }
+    ncCalendarData.noSchoolDays = dates.filter(function(d){ return /^\d{4}-\d{2}-\d{2}$/.test(d); });
+
+    var instructional = calcInstructionalDays(
+      document.getElementById('nc-first-day').value,
+      document.getElementById('nc-last-day').value,
+      ncCalendarData.noSchoolDays
+    );
+    ncCalendarData.instructionalDays = instructional;
+
+    var staarDate = document.getElementById('nc-staar').value === 'april' ? 'April 7-14, 2026'
+      : document.getElementById('nc-staar').value === 'december' ? 'December 2-9, 2025'
+      : 'June 16-22, 2026';
+
+    label.textContent = file.name + ' processed';
+    result.textContent = ncCalendarData.noSchoolDays.length + ' no-school days extracted. '
+      + instructional + ' instructional days calculated. '
+      + 'STAAR EOC window: ' + staarDate + '.';
+    result.style.display = '';
+
+    // Show summary
+    var summary = document.getElementById('nc-cal-summary');
+    var summaryText = document.getElementById('nc-cal-summary-text');
+    summaryText.innerHTML = '<strong>' + instructional + '</strong> instructional days<br>'
+      + '<strong>' + ncCalendarData.noSchoolDays.length + '</strong> no-school days removed<br>'
+      + 'First day: <strong>' + document.getElementById('nc-first-day').value + '</strong><br>'
+      + 'Last day: <strong>' + document.getElementById('nc-last-day').value + '</strong><br>'
+      + 'STAAR EOC: <strong>' + staarDate + '</strong>';
+    summary.style.display = '';
+  }).catch(function(e){
+    result.textContent = 'Error: ' + e.message + '. Try adding dates manually below.';
+    result.style.background = 'var(--red-lt)';
+    result.style.borderColor = '#f5a0a0';
+    result.style.color = 'var(--red)';
+    result.style.display = '';
+    document.getElementById('nc-no-school-manual').style.display = '';
+  }).finally(function(){
+    spin.style.display = 'none';
+  });
 }
 
 
