@@ -236,7 +236,7 @@ select.input{cursor:pointer}
       <div class="field"><label>Email</label><input class="input" type="email" id="su-email" placeholder="you@school.edu"></div>
       <div class="field"><label>Password (min 8 characters)</label><input class="input" type="password" id="su-pass" placeholder="Choose a password" onkeydown="if(event.key==='Enter')signUp()"></div>
       <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="signUp()">Create account</button>
-      <div class="auth-note">By signing up you agree to use this tool for educational purposes.</div>
+      <div class="auth-note">By signing up you agree to use this tool for educational purposes and acknowledge our <a href="/privacy" target="_blank" rel="noopener" style="color:var(--accent)">Privacy Policy</a>.</div>
     </div>
   </div>
 </div>
@@ -262,6 +262,9 @@ select.input{cursor:pointer}
       <div id="sidebar-courses"></div>
     </nav>
     <div class="sidebar-footer">
+      <div style="font-size:10px;margin-bottom:10px">
+        <a href="/privacy" target="_blank" rel="noopener" style="color:rgba(255,255,255,.3);text-decoration:none;letter-spacing:.04em" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Privacy Policy</a>
+      </div>
       <div class="user-info">
         <div class="user-avatar" id="user-avatar">?</div>
         <div><div class="user-name" id="user-name"></div><div class="user-email" id="user-email"></div></div>
