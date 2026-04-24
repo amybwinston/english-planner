@@ -6,42 +6,47 @@
 <title>English Lesson Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --ink: #1a1714;
-  --ink2: #4a4540;
-  --ink3: #8a857f;
-  --paper: #f7f4ef;
-  --paper2: #ede9e2;
-  --paper3: #e0dbd2;
-  --accent: #c17f3b;
-  --accent2: #8b4513;
-  --green: #2d6a4f;
-  --green-lt: #eaf4ef;
-  --amber: #b8860b;
-  --amber-lt: #fdf6e3;
-  --red: #8b2020;
-  --red-lt: #fdf0f0;
-  --blue: #1a3a5c;
-  --blue-lt: #eef3f9;
-  --border: #d4cec6;
-  --shadow: 0 2px 12px rgba(26,23,20,.08);
-  --shadow-lg: 0 8px 32px rgba(26,23,20,.14);
-  --radius: 10px;
-  --radius-sm: 6px;
+:root{
+  --ink:#1a1714;--ink2:#4a4540;--ink3:#8a857f;
+  --paper:#f7f4ef;--paper2:#ede9e2;--paper3:#e0dbd2;
+  --accent:#c17f3b;--accent2:#8b4513;
+  --green:#2d6a4f;--green-lt:#eaf4ef;
+  --amber:#b8860b;--amber-lt:#fdf6e3;
+  --red:#8b2020;--red-lt:#fdf0f0;
+  --border:#d4cec6;
+  --shadow:0 2px 12px rgba(26,23,20,.08);
+  --shadow-lg:0 8px 32px rgba(26,23,20,.14);
+  --radius:10px;--radius-sm:6px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.6;min-height:100vh}
 h1,h2,h3,h4{font-family:'Playfair Display',serif;line-height:1.2}
-code,pre{font-family:'DM Mono',monospace}
 
-/* LAYOUT */
-.app{display:flex;min-height:100vh}
-.sidebar{width:260px;flex-shrink:0;background:var(--ink);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .25s}
+/* AUTH SCREEN */
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--ink)}
+.auth-box{background:#fff;border-radius:16px;padding:40px;width:100%;max-width:420px;box-shadow:var(--shadow-lg)}
+.auth-logo{font-family:'Playfair Display',serif;font-size:22px;color:var(--ink);margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--ink3);margin-bottom:28px}
+.auth-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:24px;gap:0}
+.auth-tab{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:500;cursor:pointer;color:var(--ink3);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.auth-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.auth-form{display:none}.auth-form.active{display:block}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:12px;color:var(--ink3)}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.google-btn{width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s;color:var(--ink)}
+.google-btn:hover{background:var(--paper);border-color:var(--ink3)}
+.google-icon{width:18px;height:18px}
+.auth-err{font-size:13px;color:var(--red);min-height:20px;margin-bottom:8px}
+.auth-note{font-size:12px;color:var(--ink3);text-align:center;margin-top:16px;line-height:1.5}
+
+/* APP LAYOUT */
+.app{display:flex;min-height:100vh;display:none}
+.sidebar{width:260px;flex-shrink:0;background:var(--ink);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
 .sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
 .sidebar-logo h1{font-size:18px;color:#fff;line-height:1.3}
-.sidebar-logo p{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:.04em}
+.sidebar-logo p{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;font-family:'DM Mono',monospace}
 .sidebar-nav{flex:1;overflow-y:auto;padding:12px 0}
 .nav-section{padding:16px 20px 6px;font-size:10px;font-weight:600;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase;font-family:'DM Mono',monospace}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
@@ -49,10 +54,16 @@ code,pre{font-family:'DM Mono',monospace}
 .nav-item.active{color:#fff;background:rgba(255,255,255,.1);border-left-color:var(--accent)}
 .nav-item svg{flex-shrink:0;opacity:.7}
 .nav-item.active svg{opacity:1}
-.nav-sub{padding:6px 20px 6px 46px;font-size:12px;color:rgba(255,255,255,.45);cursor:pointer;transition:all .15s;border-radius:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-sub{padding:6px 20px 6px 46px;font-size:12px;color:rgba(255,255,255,.45);cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav-sub:hover{color:#fff}
 .nav-sub.active{color:var(--accent)}
-.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.3)}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.user-info{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0}
+.user-name{font-size:12px;color:rgba(255,255,255,.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-email{font-size:10px;color:rgba(255,255,255,.35);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.signout-btn{width:100%;padding:7px;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-sm);background:transparent;color:rgba(255,255,255,.5);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s}
+.signout-btn:hover{border-color:rgba(255,255,255,.3);color:#fff}
 
 .main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{background:var(--paper);border-bottom:1px solid var(--border);padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
@@ -60,10 +71,9 @@ code,pre{font-family:'DM Mono',monospace}
 .topbar-actions{display:flex;gap:8px;align-items:center}
 .content{padding:32px;flex:1}
 
-/* CARDS & PANELS */
+/* CARDS */
 .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:var(--shadow)}
-.card-sm{padding:16px}
-.card-title{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:16px;color:var(--ink)}
+.card-title{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:16px}
 .panel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 
 /* COURSE CARDS */
@@ -74,7 +84,7 @@ code,pre{font-family:'DM Mono',monospace}
 .course-card-meta{font-size:12px;color:var(--ink3)}
 .course-card-stats{display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
 .stat{text-align:center}
-.stat-n{font-family:'Playfair Display',serif;font-size:20px;color:var(--ink)}
+.stat-n{font-family:'Playfair Display',serif;font-size:20px}
 .stat-l{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
 
 /* UNIT CARDS */
@@ -92,7 +102,7 @@ code,pre{font-family:'DM Mono',monospace}
 .unit-status.complete{background:var(--green-lt);color:var(--green)}
 
 /* LESSON CARDS */
-.lesson-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);transition:all .15s}
+.lesson-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);transition:all .15s;margin-bottom:8px}
 .lesson-card-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px}
 .lesson-card-header:hover{background:var(--paper)}
 .lesson-card-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink3);white-space:nowrap}
@@ -106,36 +116,15 @@ code,pre{font-family:'DM Mono',monospace}
 .lesson-section{margin-bottom:14px}
 .lesson-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px}
 .section-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:6px}
-.section-label .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.section-dot-hook{background:#7b68ee}
-.section-dot-read{background:#20b2aa}
-.section-dot-discuss{background:#ff8c00}
-.section-dot-write{background:#3cb371}
-.section-dot-close{background:#cd853f}
-.section-dot-obj{background:var(--ink3)}
-.section-dot-strand{background:var(--accent)}
-.section-content{font-size:13px;line-height:1.65;color:var(--ink2);background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;min-height:36px;cursor:text;white-space:pre-wrap;word-break:break-word}
-.section-content:focus{outline:none;border-color:var(--accent);background:#fff}
-.section-content[contenteditable=true]:empty::before{content:attr(data-placeholder);color:var(--ink3);font-style:italic}
-.regen-btn{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.section-content{font-size:13px;line-height:1.65;color:var(--ink2);background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;min-height:36px;cursor:text;white-space:pre-wrap;word-break:break-word;outline:none;transition:border .15s}
+.section-content:focus{border-color:var(--accent);background:#fff}
+.section-content:empty::before{content:attr(data-placeholder);color:var(--ink3);font-style:italic}
+.regen-btn{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
 .regen-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--amber-lt)}
-.regen-panel{display:none;margin-top:8px;padding:10px;background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-sm)}
-.regen-panel.open{display:block}
-.regen-input{width:100%;padding:7px 10px;font-size:12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;background:#fff;color:var(--ink);margin-bottom:8px;resize:none}
-.regen-input:focus{outline:none;border-color:var(--accent)}
-
-/* TEKS COVERAGE */
-.coverage-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.coverage-bar-label{font-size:12px;color:var(--ink2);width:140px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.coverage-bar-track{flex:1;height:6px;background:var(--paper3);border-radius:3px;overflow:hidden}
-.coverage-bar-fill{height:100%;border-radius:3px;transition:width .4s}
-.coverage-bar-pct{font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;width:32px;text-align:right}
-.gap-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 8px;border-radius:4px;font-family:'DM Mono',monospace}
-.gap-badge.staar{background:var(--red-lt);color:var(--red)}
-.gap-badge.ok{background:var(--green-lt);color:var(--green)}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;font-size:13px;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid transparent;transition:all .15s;text-decoration:none;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;font-size:13px;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid transparent;transition:all .15s;white-space:nowrap}
 .btn:active{transform:scale(.98)}
 .btn-primary{background:var(--ink);color:#fff;border-color:var(--ink)}
 .btn-primary:hover{background:var(--ink2)}
@@ -146,45 +135,35 @@ code,pre{font-family:'DM Mono',monospace}
 .btn-ghost{background:transparent;color:var(--ink3);border-color:transparent}
 .btn-ghost:hover{background:var(--paper2);color:var(--ink)}
 .btn-sm{padding:6px 13px;font-size:12px}
-.btn-xs{padding:4px 10px;font-size:11px}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 
 /* FORMS */
 .field{margin-bottom:16px}
-.field label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px;letter-spacing:.02em}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px}
 .input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--ink);transition:border .15s}
 .input:focus{outline:none;border-color:var(--accent)}
-.input-sm{padding:6px 10px;font-size:13px}
 select.input{cursor:pointer}
-.tab-group{display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;width:fit-content}
-.tab-btn{padding:7px 18px;font-size:13px;font-weight:500;border:none;background:var(--paper);color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;border-right:1px solid var(--border)}
-.tab-btn:last-child{border-right:none}
-.tab-btn.active{background:#fff;color:var(--ink)}
 
-/* WEEK VIEW */
-.week-grid{display:grid;gap:12px}
-.day-col{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.day-header{padding:10px 14px;background:var(--paper2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.day-name{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-family:'DM Mono',monospace}
-.day-lesson{font-size:12px;color:var(--ink2);padding:12px 14px;cursor:pointer;transition:background .15s}
-.day-lesson:hover{background:var(--paper)}
-
-/* SPIN & STATES */
-.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spin-row{display:flex;align-items:center;gap:10px;padding:12px 0;font-size:13px;color:var(--ink3)}
-.empty-state{text-align:center;padding:60px 20px;color:var(--ink3)}
-.empty-state h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px;color:var(--ink2)}
-.empty-state p{font-size:13px;line-height:1.6;max-width:340px;margin:0 auto 20px}
+/* BADGES */
 .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
 .badge-green{background:var(--green-lt);color:var(--green)}
 .badge-amber{background:var(--amber-lt);color:var(--amber)}
-.badge-red{background:var(--red-lt);color:var(--red)}
 .badge-gray{background:var(--paper2);color:var(--ink3)}
+.badge-red{background:var(--red-lt);color:var(--red)}
+
+/* SPINNER */
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-row{display:flex;align-items:center;gap:10px;padding:12px 0;font-size:13px;color:var(--ink3)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--ink3)}
+.empty-state h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px;color:var(--ink2)}
+.empty-state p{font-size:13px;line-height:1.6;max-width:340px;margin:0 auto 20px}
+
+/* MISC */
 .divider{height:1px;background:var(--border);margin:20px 0}
-.text-sm{font-size:13px}
-.text-xs{font-size:11px}
-.text-muted{color:var(--ink3)}
+.text-sm{font-size:13px}.text-xs{font-size:11px}.text-muted{color:var(--ink3)}
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .section-header h2{font-family:'Playfair Display',serif;font-size:22px}
 .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:var(--paper2);color:var(--ink3);font-family:'DM Mono',monospace}
@@ -199,50 +178,77 @@ select.input{cursor:pointer}
 /* TOAST */
 .toast-container{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{background:var(--ink);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;animation:toastIn .2s ease;pointer-events:auto}
-.toast.success{background:var(--green)}
-.toast.error{background:var(--red)}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}
 @keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* TEKS AUDIT PANEL */
-.teks-audit{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:16px}
-.teks-audit-header{padding:12px 16px;background:var(--paper2);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
-.teks-row{padding:8px 16px;border-top:1px solid var(--border);display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:start;font-size:12px}
-.teks-row:hover{background:var(--paper)}
-.teks-code{font-family:'DM Mono',monospace;color:var(--ink3);font-size:11px;padding-top:2px}
-.teks-text{color:var(--ink2);line-height:1.5}
-.teks-status{font-size:10px;padding:2px 7px;border-radius:20px;white-space:nowrap;font-weight:500}
-.teks-status.covered{background:var(--green-lt);color:var(--green)}
-.teks-status.gap{background:var(--red-lt);color:var(--red)}
-.teks-status.staar{background:var(--amber-lt);color:var(--amber)}
-
-/* GENERATE PROGRESS */
+/* GENERATE STEPS */
 .gen-steps{padding:16px 0}
 .gen-step{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;color:var(--ink3);transition:color .2s}
-.gen-step.active{color:var(--ink)}
-.gen-step.done{color:var(--green)}
+.gen-step.active{color:var(--ink)}.gen-step.done{color:var(--green)}
 .step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .2s}
 .gen-step.active .step-dot{background:var(--accent);box-shadow:0 0 0 3px var(--amber-lt)}
 .gen-step.done .step-dot{background:var(--green)}
 
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0}
-  .content{padding:16px}
-  .panel-grid{grid-template-columns:1fr}
-}
+/* TEKS */
+.teks-audit{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.teks-audit-header{padding:12px 16px;background:var(--paper2);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.teks-audit.open .teks-rows{display:block}
+.teks-rows{display:none}
+.teks-row{padding:8px 16px;border-top:1px solid var(--border);display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:start;font-size:12px}
+.teks-row:hover{background:var(--paper)}
+.teks-code{font-family:'DM Mono',monospace;color:var(--ink3);font-size:11px;padding-top:2px}
+.teks-text{color:var(--ink2);line-height:1.5}
+.teks-staar{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--amber-lt);color:var(--amber);white-space:nowrap;font-weight:500}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:16px}}
 </style>
 </head>
 <body>
-<div class="app">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
+<!-- AUTH SCREEN -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">English Lesson Planner</div>
+    <div class="auth-sub">Texas TEKS - Backward Design - Coverage auditable</div>
+
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+
+    <div class="auth-divider">or</div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('signin')">Sign in</div>
+      <div class="auth-tab" onclick="switchAuthTab('signup')">Create account</div>
+    </div>
+
+    <div class="auth-err" id="auth-err"></div>
+
+    <div class="auth-form active" id="form-signin">
+      <div class="field"><label>Email</label><input class="input" type="email" id="si-email" placeholder="you@school.edu" onkeydown="if(event.key==='Enter')signIn()"></div>
+      <div class="field"><label>Password</label><input class="input" type="password" id="si-pass" placeholder="Your password" onkeydown="if(event.key==='Enter')signIn()"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="signIn()">Sign in</button>
+      <div class="auth-note"><a href="#" onclick="sendReset()" style="color:var(--accent)">Forgot password?</a></div>
+    </div>
+
+    <div class="auth-form" id="form-signup">
+      <div class="field"><label>Email</label><input class="input" type="email" id="su-email" placeholder="you@school.edu"></div>
+      <div class="field"><label>Password (min 8 characters)</label><input class="input" type="password" id="su-pass" placeholder="Choose a password" onkeydown="if(event.key==='Enter')signUp()"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="signUp()">Create account</button>
+      <div class="auth-note">By signing up you agree to use this tool for educational purposes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app" id="app">
+  <aside class="sidebar">
     <div class="sidebar-logo">
       <h1>English<br>Lesson Planner</h1>
       <p>Texas TEKS - Backward Design</p>
     </div>
-    <nav class="sidebar-nav" id="sidebar-nav">
+    <nav class="sidebar-nav">
       <div class="nav-section">Workspace</div>
       <div class="nav-item active" id="nav-home" onclick="showView('home')">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -250,29 +256,30 @@ select.input{cursor:pointer}
       </div>
       <div class="nav-item" id="nav-teks" onclick="showView('teks')">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-        TEKS Coverage
+        TEKS Reference
       </div>
-      <div class="nav-section" style="margin-top:8px">Courses</div>
+      <div class="nav-section" style="margin-top:8px">My Courses</div>
       <div id="sidebar-courses"></div>
     </nav>
     <div class="sidebar-footer">
-      <div>2025-2026 School Year</div>
-      <div style="margin-top:2px;color:rgba(255,255,255,.2)">19 TAC Ch.110 Subch.C</div>
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div><div class="user-name" id="user-name"></div><div class="user-email" id="user-email"></div></div>
+      </div>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
     <header class="topbar">
       <div class="topbar-title" id="topbar-title">My Courses</div>
       <div class="topbar-actions">
         <div id="topbar-extra"></div>
-        <button class="btn btn-primary btn-sm" id="topbar-action-btn" style="display:none"></button>
+        <button class="btn btn-primary btn-sm" id="topbar-btn" style="display:none"></button>
       </div>
     </header>
-
     <div class="content" id="main-content">
-      <div class="empty-state"><div class="spin"></div></div>
+      <div class="spin-row"><div class="spin"></div> Loading...</div>
     </div>
   </main>
 </div>
@@ -287,22 +294,15 @@ select.input{cursor:pointer}
         <option>English III</option><option>English IV</option>
       </select>
     </div>
-    <div class="field"><label>Section / Period (optional)</label>
-      <input class="input" id="nc-label" placeholder="e.g. Period 2 or Honors Block"></div>
-    <div class="field"><label>School year</label>
-      <input class="input" id="nc-year" value="2025-2026"></div>
+    <div class="field"><label>Section / Period (optional)</label><input class="input" id="nc-label" placeholder="e.g. Period 2 or Honors Block"></div>
+    <div class="field"><label>School year</label><input class="input" id="nc-year" value="2025-2026"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="field"><label>Class duration (min)</label>
-        <input class="input" type="number" id="nc-dur" value="50" min="30" max="120"></div>
-      <div class="field"><label>Days per week</label>
-        <input class="input" type="number" id="nc-days" value="4" min="3" max="5"></div>
-      <div class="field"><label>Units per year</label>
-        <input class="input" type="number" id="nc-units" value="9" min="4" max="18"></div>
-      <div class="field"><label>Weeks per unit</label>
-        <input class="input" type="number" id="nc-weeks" value="3" min="1" max="10"></div>
+      <div class="field"><label>Class duration (min)</label><input class="input" type="number" id="nc-dur" value="50"></div>
+      <div class="field"><label>Days per week</label><input class="input" type="number" id="nc-days" value="4"></div>
+      <div class="field"><label>Units per year</label><input class="input" type="number" id="nc-units" value="9"></div>
+      <div class="field"><label>Weeks per unit</label><input class="input" type="number" id="nc-weeks" value="3"></div>
     </div>
-    <div class="field"><label>Context (optional)</label>
-      <input class="input" id="nc-ctx" placeholder="e.g. Title I school, inclusion classroom, honors"></div>
+    <div class="field"><label>Context (optional)</label><input class="input" id="nc-ctx" placeholder="e.g. Title I school, inclusion classroom"></div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-new-course')">Cancel</button>
       <button class="btn btn-primary" onclick="createCourse()">Create course</button>
@@ -312,25 +312,25 @@ select.input{cursor:pointer}
 
 <div class="modal-overlay" id="modal-generate">
   <div class="modal">
-    <div class="modal-title" id="gen-modal-title">Generate annual map</div>
-    <p class="text-sm text-muted" id="gen-modal-desc">The AI will build your annual curriculum map using the complete TEKS for this course, ensuring all student expectations are planned across the year.</p>
+    <div class="modal-title" id="gen-title">Generating...</div>
+    <p class="text-sm text-muted" id="gen-desc" style="margin-bottom:4px"></p>
     <div class="gen-steps" id="gen-steps"></div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" id="gen-cancel-btn" onclick="closeModal('modal-generate')">Cancel</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-generate')">Close</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-regen-section">
+<div class="modal-overlay" id="modal-regen">
   <div class="modal">
     <div class="modal-title">Regenerate section</div>
-    <p class="text-sm text-muted" id="regen-section-name" style="margin-bottom:12px"></p>
-    <div class="field"><label>What would you like changed? (optional)</label>
-      <textarea class="input" id="regen-instruction" rows="3" placeholder="e.g. Make the hook more hands-on, the current writing task is too long, focus more on (c)(4)(F)..."></textarea>
+    <p class="text-sm text-muted" id="regen-label" style="margin-bottom:12px"></p>
+    <div class="field"><label>Instruction (optional)</label>
+      <textarea class="input" id="regen-instruction" rows="3" placeholder="e.g. Make the hook more collaborative, focus on (c)(4)(F), the writing task is too long..."></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-regen-section')">Cancel</button>
-      <button class="btn btn-accent" onclick="doRegenSection()">Regenerate</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-regen')">Cancel</button>
+      <button class="btn btn-accent" onclick="doRegen()">Regenerate</button>
     </div>
   </div>
 </div>
@@ -341,153 +341,185 @@ select.input{cursor:pointer}
 var SUPABASE_URL = 'https://hwtkpbfllloaptbyuoxt.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_VRpAqIQcOIyCc_-755oi0Q_HJbfHcuj';
 
-// ── APP STATE ─────────────────────────────────────────────────────────────────
+// Init Supabase client
+var supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+var currentUser = null;
 var state = {
-  view: 'home',
   courses: [],
   activeCourse: null,
   activeUnit: null,
-  activeLesson: null,
   units: {},
-  lessons: {},
-  teksData: {}
+  lessons: {}
 };
+var regenCtx = {lessonId:null, field:null, label:null};
 
-// ── SUPABASE CLIENT ───────────────────────────────────────────────────────────
-function sbUrl(path){ return SUPABASE_URL + '/rest/v1/' + path; }
-function sbHeaders(extra){
-  return Object.assign({
-    'apikey': SUPABASE_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_KEY,
-    'Content-Type': 'application/json',
-    'Prefer': 'return=representation'
-  }, extra||{});
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function switchAuthTab(tab){
+  document.querySelectorAll('.auth-tab').forEach(function(el,i){el.classList.toggle('active',i===(tab==='signin'?0:1))});
+  document.querySelectorAll('.auth-form').forEach(function(el,i){el.classList.toggle('active',i===(tab==='signin'?0:1))});
+  document.getElementById('auth-err').textContent='';
 }
-function sb(method, path, body, extra){
-  return fetch(sbUrl(path), {
-    method: method,
-    headers: sbHeaders(extra),
-    body: body ? JSON.stringify(body) : undefined
-  }).then(function(r){
-    if(r.status === 204) return [];
-    return r.json().then(function(d){
-      if(!r.ok) throw new Error((d.message||d.error||'Supabase error')+' ['+r.status+']');
-      return d;
-    });
-  });
-}
-var db = {
-  get: function(table, query){ return sb('GET', table+(query?'?'+query:''), null); },
-  post: function(table, body){ return sb('POST', table, body); },
-  patch: function(table, query, body){ return sb('PATCH', table+'?'+query, body, {'Prefer':'return=representation'}); },
-  delete: function(table, query){ return sb('DELETE', table+'?'+query, null); }
-};
 
-// ── AI API ────────────────────────────────────────────────────────────────────
-function callAI(prompt){
-  return fetch('/api/generate', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({prompt: prompt})
-  }).then(function(r){ return r.json(); })
-  .then(function(d){
-    if(d.error) throw new Error(d.error);
-    return d.text;
+function setAuthErr(msg){ document.getElementById('auth-err').textContent = msg||''; }
+
+function signIn(){
+  var email = document.getElementById('si-email').value.trim();
+  var pass = document.getElementById('si-pass').value;
+  if(!email||!pass){ setAuthErr('Please enter your email and password.'); return; }
+  supa.auth.signInWithPassword({email:email,password:pass}).then(function(r){
+    if(r.error) setAuthErr(r.error.message);
   });
 }
 
-// ── TEKS DATA ─────────────────────────────────────────────────────────────────
-// Full TEKS stored in JS — exact TEA wording, never altered
+function signUp(){
+  var email = document.getElementById('su-email').value.trim();
+  var pass = document.getElementById('su-pass').value;
+  if(!email||!pass){ setAuthErr('Please fill in all fields.'); return; }
+  if(pass.length<8){ setAuthErr('Password must be at least 8 characters.'); return; }
+  supa.auth.signUp({email:email,password:pass}).then(function(r){
+    if(r.error){ setAuthErr(r.error.message); return; }
+    setAuthErr('');
+    toast('Check your email to confirm your account','success');
+    switchAuthTab('signin');
+  });
+}
+
+function signInWithGoogle(){
+  supa.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo: window.location.origin}
+  });
+}
+
+function sendReset(){
+  var email = document.getElementById('si-email').value.trim();
+  if(!email){ setAuthErr('Enter your email address first.'); return; }
+  supa.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin}).then(function(r){
+    if(r.error){ setAuthErr(r.error.message); return; }
+    toast('Password reset email sent','success');
+  });
+}
+
+function signOut(){
+  supa.auth.signOut().then(function(){
+    currentUser=null;
+    document.getElementById('app').style.display='none';
+    document.getElementById('auth-screen').style.display='flex';
+  });
+}
+
+// Listen for auth state changes
+supa.auth.onAuthStateChange(function(event, session){
+  if(session && session.user){
+    currentUser = session.user;
+    document.getElementById('auth-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    updateUserUI();
+    showView('home');
+  } else {
+    currentUser = null;
+    document.getElementById('app').style.display='none';
+    document.getElementById('auth-screen').style.display='flex';
+  }
+});
+
+function updateUserUI(){
+  if(!currentUser) return;
+  var name = currentUser.user_metadata && currentUser.user_metadata.full_name
+    ? currentUser.user_metadata.full_name
+    : currentUser.email.split('@')[0];
+  var email = currentUser.email;
+  document.getElementById('user-name').textContent = name;
+  document.getElementById('user-email').textContent = email;
+  document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+}
+
+// ── DB HELPERS ────────────────────────────────────────────────────────────────
+function db(){
+  return supa;
+}
+
+// ── TEKS DATA (exact TEA wording, never altered) ───────────────────────────
 var TEKS_ALL = [
-  // STRAND 1 - Foundational language skills
-  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(1)',subsection_title:'Oral language',expectation_code:'(c)(1)(A)',expectation_text:'listen actively to interpret a message by summarizing, asking questions, and making comments',staar_tested:false,course:'ALL'},
-  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(1)',subsection_title:'Oral language',expectation_code:'(c)(1)(B)',expectation_text:'follow and give complex oral instructions to perform specific tasks, answer questions, solve problems, and complete processes',staar_tested:false,course:'ALL'},
-  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(1)',subsection_title:'Oral language',expectation_code:'(c)(1)(C)',expectation_text:'give a formal presentation that incorporates a clear thesis or controlling idea, evidence from primary and secondary sources, and controlled organizational structure',staar_tested:false,course:'ALL'},
-  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(1)',subsection_title:'Oral language',expectation_code:'(c)(1)(D)',expectation_text:'engage in meaningful discourse that includes following rules for discussion such as listening actively, speaking purposefully, building on others\' ideas, clarifying, synthesizing, and making connections',staar_tested:false,course:'ALL'},
-  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(2)',subsection_title:'Vocabulary',expectation_code:'(c)(2)(A)',expectation_text:'use print or digital resources to determine the meaning, syllabication, pronunciation, word origin, and part of speech',staar_tested:false,course:'ALL'},
-  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(2)',subsection_title:'Vocabulary',expectation_code:'(c)(2)(B)',expectation_text:'analyze context to draw conclusions about the nuanced meanings of words',staar_tested:false,course:'ALL'},
-  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(2)',subsection_title:'Vocabulary',expectation_code:'(c)(2)(C)',expectation_text:'determine the meaning of foreign words or phrases used frequently in English such as in medias res or status quo and the etymology of these words or phrases',staar_tested:false,course:'ALL'},
-  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(2)',subsection_title:'Vocabulary',expectation_code:'(c)(2)(D)',expectation_text:'analyze the effect of figures of speech such as oxymoron, paradox, and irony on the meaning of the text',staar_tested:false,course:'ALL'},
-  {strand_id:1,strand_name:'Foundational language skills',subsection_code:'(c)(3)',subsection_title:'Self-sustained reading',expectation_code:'(c)(3)(A)',expectation_text:'self-select text and read independently for a sustained period of time',staar_tested:false,course:'ALL'},
-  // STRAND 2 - Comprehension
-  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(A)',expectation_text:'establish a purpose for reading assigned and self-selected texts',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(B)',expectation_text:'generate questions about text before, during, and after reading to deepen understanding and gain information',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(C)',expectation_text:'make and correct or confirm predictions using text features, characteristics of genre, and structures',staar_tested:false,course:'ALL'},
-  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(D)',expectation_text:'create mental images or make use of text features such as print styles and graphics to better understand and remember information',staar_tested:false,course:'ALL'},
-  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(E)',expectation_text:'make connections to personal experiences, ideas in other texts, and society',staar_tested:false,course:'ALL'},
-  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(F)',expectation_text:'make inferences and use evidence to support understanding',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(G)',expectation_text:'evaluate details read to determine key ideas',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(H)',expectation_text:'synthesize information from two or more texts to create new understanding',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:2,strand_name:'Comprehension',subsection_code:'(c)(4)',subsection_title:'Comprehension skills',expectation_code:'(c)(4)(I)',expectation_text:'monitor comprehension and make adjustments such as re-reading, using background knowledge, checking for visual cues, and asking questions when understanding breaks down',staar_tested:false,course:'ALL'},
-  // STRAND 3 - Response
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(A)',expectation_text:'describe personal connections to a variety of sources, including self-selected texts',staar_tested:false,course:'ALL'},
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(B)',expectation_text:'write responses that demonstrate understanding of texts, including comparing sources within and across genres',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(C)',expectation_text:'use text evidence and original commentary to support an interpretive response',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(D)',expectation_text:'paraphrase and summarize texts in ways that maintain meaning and logical order',staar_tested:false,course:'ALL'},
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(E)',expectation_text:'interact with sources in meaningful ways such as notetaking, annotating, freewriting, or illustrating',staar_tested:false,course:'ALL'},
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(F)',expectation_text:'respond using newly acquired vocabulary as appropriate',staar_tested:false,course:'ALL'},
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(G)',expectation_text:'discuss and write about the explicit or implicit meanings of text',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(H)',expectation_text:'respond orally or in writing with appropriate register and with attention to audience, purpose, and context',staar_tested:false,course:'ALL'},
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(I)',expectation_text:'reflect on and adjust responses when valid evidence warrants',staar_tested:false,course:'ALL'},
-  {strand_id:3,strand_name:'Response',subsection_code:'(c)(5)',subsection_title:'Response skills',expectation_code:'(c)(5)(J)',expectation_text:'defend or challenge the authors\' claims using relevant text evidence',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  // STRAND 4 - Multiple genres
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(6)',subsection_title:'Literary elements',expectation_code:'(c)(6)(A)',expectation_text:'analyze how themes are developed through characterization and plot in a variety of literary texts',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(6)',subsection_title:'Literary elements',expectation_code:'(c)(6)(B)',expectation_text:'analyze how the characters\' internal and external responses to situations reveal their character and how this affects plot and theme',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(6)',subsection_title:'Literary elements',expectation_code:'(c)(6)(C)',expectation_text:'analyze the function of linear and nonlinear plot structures such as foreshadowing, flashbacks, and subplots',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(6)',subsection_title:'Literary elements',expectation_code:'(c)(6)(D)',expectation_text:'analyze the influence of the historical, social, and economic context of setting on the plot, characters, and theme',staar_tested:false,course:'ALL'},
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(A)',expectation_text:'read and respond to American, British, and world literature across literary periods',staar_tested:false,course:'ALL'},
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(B)',expectation_text:'analyze the effects of metrics, rhyme schemes, and other conventions in poetry',staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(C)',expectation_text:'analyze the function of dramatic conventions such as asides, monologues, and the use of a chorus',staar_tested:false,course:'ALL'},
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(D)',expectation_text:'analyze characteristics and structural elements of informational texts such as thesis or controlling idea, facts and details, inferences and conclusions, and organizational patterns',staar_tested:true,staar_category:'Informational Text Analysis',course:'ALL'},
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(E)',expectation_text:'analyze characteristics and structural elements of argumentative texts such as the relationship between the controlling idea and supporting evidence and the use of logical, emotional, or ethical appeals',staar_tested:true,staar_category:'Informational Text Analysis',course:'ALL'},
-  {strand_id:4,strand_name:'Multiple genres',subsection_code:'(c)(7)',subsection_title:'Genre study',expectation_code:'(c)(7)(F)',expectation_text:'analyze characteristics of multimodal and digital texts',staar_tested:false,course:'ALL'},
-  // STRAND 5 - Author's purpose and craft
-  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(A)',expectation_text:"analyze the author's purpose, audience, and message within a text",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(B)',expectation_text:"analyze the use of text structure to achieve the author's purpose",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(C)',expectation_text:"evaluate the use of print and graphic features in informational texts such as headings, photographs, charts, and sidebars to inform or persuade",staar_tested:false,course:'ALL'},
-  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(D)',expectation_text:"analyze how the author's use of language informs and shapes the perception of readers",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(E)',expectation_text:"analyze the use of literary devices such as irony, sarcasm, and motif and how these affect the meaning of a text",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(F)',expectation_text:"analyze the author's diction and its effect on the tone of a text",staar_tested:true,staar_category:'Literary Text Analysis',course:'ALL'},
-  {strand_id:5,strand_name:"Author's purpose and craft",subsection_code:'(c)(8)',subsection_title:"Author's purpose and craft",expectation_code:'(c)(8)(G)',expectation_text:"analyze the purpose of rhetorical devices such as analogy, rhetorical question, and antithesis and the effect of logical fallacies such as loaded language and either/or fallacy on the quality of an argument",staar_tested:true,staar_category:'Informational Text Analysis',course:'ALL'},
-  // STRAND 6 - Composition
-  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(A)',expectation_text:'plan a first draft by selecting a genre for a particular topic, purpose, and audience using a range of strategies such as brainstorming, freewriting, and mapping',staar_tested:false,course:'ALL'},
-  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(B)',expectation_text:'develop drafts into a focused, structured, and coherent piece of writing in timed and open-ended situations by organizing with purpose and logic',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
-  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(C)',expectation_text:'revise drafts to improve clarity, development, organization, style, diction, and sentence effectiveness',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
-  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(D)',expectation_text:'edit drafts using standard English conventions, including complete sentences; agreement; consistent, appropriate use of verb tenses; correct mechanics, capitalization, and punctuation; and correct spelling',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
-  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(9)',subsection_title:'Writing process',expectation_code:'(c)(9)(E)',expectation_text:'publish written work for appropriate audiences',staar_tested:false,course:'ALL'},
-  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(10)',subsection_title:'Composition genres',expectation_code:'(c)(10)(A)',expectation_text:'compose literary texts such as fiction, poetry, and personal narratives using genre characteristics and craft',staar_tested:false,course:'ALL'},
-  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(10)',subsection_title:'Composition genres',expectation_code:'(c)(10)(B)',expectation_text:'compose informational texts such as explanatory essays, reports, and personal essays using genre characteristics and craft',staar_tested:false,course:'ALL'},
-  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(10)',subsection_title:'Composition genres',expectation_code:'(c)(10)(C)',expectation_text:'compose argumentative texts, including opinion essays and persuasive essays, using genre characteristics and craft',staar_tested:true,staar_category:'Written Composition',course:'ALL'},
-  {strand_id:6,strand_name:'Composition',subsection_code:'(c)(10)',subsection_title:'Composition genres',expectation_code:'(c)(10)(D)',expectation_text:'compose correspondence in a professional or friendly structure',staar_tested:false,course:'ALL'},
-  // STRAND 7 - Inquiry and research
-  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(A)',expectation_text:'develop questions for formal and informal inquiry',staar_tested:false,course:'ALL'},
-  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(B)',expectation_text:'critique the research process at each step to implement changes as needs occur and are identified',staar_tested:false,course:'ALL'},
-  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(C)',expectation_text:'develop and revise a plan',staar_tested:false,course:'ALL'},
-  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(D)',expectation_text:'modify the major research question as necessary to refocus the research plan',staar_tested:false,course:'ALL'},
-  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(E)',expectation_text:'locate relevant sources',staar_tested:false,course:'ALL'},
-  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(F)',expectation_text:'synthesize information from a variety of sources',staar_tested:false,course:'ALL'},
-  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(G)',expectation_text:'examine sources for credibility and bias, including omission',staar_tested:false,course:'ALL'},
-  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(H)',expectation_text:'display academic citations, including for quoted, paraphrased, and summarized information, and use source material ethically to avoid plagiarism',staar_tested:false,course:'ALL'},
-  {strand_id:7,strand_name:'Inquiry and research',subsection_code:'(c)(11)',subsection_title:'Inquiry and research',expectation_code:'(c)(11)(I)',expectation_text:'use an appropriate mode of delivery, whether written, oral, or multimodal, to present results',staar_tested:false,course:'ALL'}
+  {sid:1,sn:'Foundational language skills',code:'(c)(1)(A)',text:'listen actively to interpret a message by summarizing, asking questions, and making comments',staar:false},
+  {sid:1,sn:'Foundational language skills',code:'(c)(1)(B)',text:'follow and give complex oral instructions to perform specific tasks, answer questions, solve problems, and complete processes',staar:false},
+  {sid:1,sn:'Foundational language skills',code:'(c)(1)(C)',text:'give a formal presentation that incorporates a clear thesis or controlling idea, evidence from primary and secondary sources, and controlled organizational structure',staar:false},
+  {sid:1,sn:'Foundational language skills',code:'(c)(1)(D)',text:"engage in meaningful discourse that includes following rules for discussion such as listening actively, speaking purposefully, building on others' ideas, clarifying, synthesizing, and making connections",staar:false},
+  {sid:1,sn:'Foundational language skills',code:'(c)(2)(A)',text:'use print or digital resources to determine the meaning, syllabication, pronunciation, word origin, and part of speech',staar:false},
+  {sid:1,sn:'Foundational language skills',code:'(c)(2)(B)',text:'analyze context to draw conclusions about the nuanced meanings of words',staar:false},
+  {sid:1,sn:'Foundational language skills',code:'(c)(2)(C)',text:'determine the meaning of foreign words or phrases used frequently in English such as in medias res or status quo and the etymology of these words or phrases',staar:false},
+  {sid:1,sn:'Foundational language skills',code:'(c)(2)(D)',text:'analyze the effect of figures of speech such as oxymoron, paradox, and irony on the meaning of the text',staar:false},
+  {sid:1,sn:'Foundational language skills',code:'(c)(3)(A)',text:'self-select text and read independently for a sustained period of time',staar:false},
+  {sid:2,sn:'Comprehension',code:'(c)(4)(A)',text:'establish a purpose for reading assigned and self-selected texts',staar:true,sc:'Literary Text Analysis'},
+  {sid:2,sn:'Comprehension',code:'(c)(4)(B)',text:'generate questions about text before, during, and after reading to deepen understanding and gain information',staar:true,sc:'Literary Text Analysis'},
+  {sid:2,sn:'Comprehension',code:'(c)(4)(C)',text:'make and correct or confirm predictions using text features, characteristics of genre, and structures',staar:false},
+  {sid:2,sn:'Comprehension',code:'(c)(4)(D)',text:'create mental images or make use of text features such as print styles and graphics to better understand and remember information',staar:false},
+  {sid:2,sn:'Comprehension',code:'(c)(4)(E)',text:'make connections to personal experiences, ideas in other texts, and society',staar:false},
+  {sid:2,sn:'Comprehension',code:'(c)(4)(F)',text:'make inferences and use evidence to support understanding',staar:true,sc:'Literary Text Analysis'},
+  {sid:2,sn:'Comprehension',code:'(c)(4)(G)',text:'evaluate details read to determine key ideas',staar:true,sc:'Literary Text Analysis'},
+  {sid:2,sn:'Comprehension',code:'(c)(4)(H)',text:'synthesize information from two or more texts to create new understanding',staar:true,sc:'Literary Text Analysis'},
+  {sid:2,sn:'Comprehension',code:'(c)(4)(I)',text:'monitor comprehension and make adjustments such as re-reading, using background knowledge, checking for visual cues, and asking questions when understanding breaks down',staar:false},
+  {sid:3,sn:'Response',code:'(c)(5)(A)',text:'describe personal connections to a variety of sources, including self-selected texts',staar:false},
+  {sid:3,sn:'Response',code:'(c)(5)(B)',text:'write responses that demonstrate understanding of texts, including comparing sources within and across genres',staar:true,sc:'Written Composition'},
+  {sid:3,sn:'Response',code:'(c)(5)(C)',text:'use text evidence and original commentary to support an interpretive response',staar:true,sc:'Written Composition'},
+  {sid:3,sn:'Response',code:'(c)(5)(D)',text:'paraphrase and summarize texts in ways that maintain meaning and logical order',staar:false},
+  {sid:3,sn:'Response',code:'(c)(5)(E)',text:'interact with sources in meaningful ways such as notetaking, annotating, freewriting, or illustrating',staar:false},
+  {sid:3,sn:'Response',code:'(c)(5)(F)',text:'respond using newly acquired vocabulary as appropriate',staar:false},
+  {sid:3,sn:'Response',code:'(c)(5)(G)',text:'discuss and write about the explicit or implicit meanings of text',staar:true,sc:'Literary Text Analysis'},
+  {sid:3,sn:'Response',code:'(c)(5)(H)',text:'respond orally or in writing with appropriate register and with attention to audience, purpose, and context',staar:false},
+  {sid:3,sn:'Response',code:'(c)(5)(I)',text:'reflect on and adjust responses when valid evidence warrants',staar:false},
+  {sid:3,sn:'Response',code:'(c)(5)(J)',text:"defend or challenge the authors' claims using relevant text evidence",staar:true,sc:'Literary Text Analysis'},
+  {sid:4,sn:'Multiple genres',code:'(c)(6)(A)',text:'analyze how themes are developed through characterization and plot in a variety of literary texts',staar:true,sc:'Literary Text Analysis'},
+  {sid:4,sn:'Multiple genres',code:'(c)(6)(B)',text:"analyze how the characters' internal and external responses to situations reveal their character and how this affects plot and theme",staar:true,sc:'Literary Text Analysis'},
+  {sid:4,sn:'Multiple genres',code:'(c)(6)(C)',text:'analyze the function of linear and nonlinear plot structures such as foreshadowing, flashbacks, and subplots',staar:true,sc:'Literary Text Analysis'},
+  {sid:4,sn:'Multiple genres',code:'(c)(6)(D)',text:'analyze the influence of the historical, social, and economic context of setting on the plot, characters, and theme',staar:false},
+  {sid:4,sn:'Multiple genres',code:'(c)(7)(A)',text:'read and respond to American, British, and world literature across literary periods',staar:false},
+  {sid:4,sn:'Multiple genres',code:'(c)(7)(B)',text:'analyze the effects of metrics, rhyme schemes, and other conventions in poetry',staar:true,sc:'Literary Text Analysis'},
+  {sid:4,sn:'Multiple genres',code:'(c)(7)(C)',text:'analyze the function of dramatic conventions such as asides, monologues, and the use of a chorus',staar:false},
+  {sid:4,sn:'Multiple genres',code:'(c)(7)(D)',text:'analyze characteristics and structural elements of informational texts such as thesis or controlling idea, facts and details, inferences and conclusions, and organizational patterns',staar:true,sc:'Informational Text Analysis'},
+  {sid:4,sn:'Multiple genres',code:'(c)(7)(E)',text:'analyze characteristics and structural elements of argumentative texts such as the relationship between the controlling idea and supporting evidence and the use of logical, emotional, or ethical appeals',staar:true,sc:'Informational Text Analysis'},
+  {sid:4,sn:'Multiple genres',code:'(c)(7)(F)',text:'analyze characteristics of multimodal and digital texts',staar:false},
+  {sid:5,sn:"Author's purpose and craft",code:'(c)(8)(A)',text:"analyze the author's purpose, audience, and message within a text",staar:true,sc:'Literary Text Analysis'},
+  {sid:5,sn:"Author's purpose and craft",code:'(c)(8)(B)',text:"analyze the use of text structure to achieve the author's purpose",staar:true,sc:'Literary Text Analysis'},
+  {sid:5,sn:"Author's purpose and craft",code:'(c)(8)(C)',text:'evaluate the use of print and graphic features in informational texts such as headings, photographs, charts, and sidebars to inform or persuade',staar:false},
+  {sid:5,sn:"Author's purpose and craft",code:'(c)(8)(D)',text:"analyze how the author's use of language informs and shapes the perception of readers",staar:true,sc:'Literary Text Analysis'},
+  {sid:5,sn:"Author's purpose and craft",code:'(c)(8)(E)',text:'analyze the use of literary devices such as irony, sarcasm, and motif and how these affect the meaning of a text',staar:true,sc:'Literary Text Analysis'},
+  {sid:5,sn:"Author's purpose and craft",code:'(c)(8)(F)',text:"analyze the author's diction and its effect on the tone of a text",staar:true,sc:'Literary Text Analysis'},
+  {sid:5,sn:"Author's purpose and craft",code:'(c)(8)(G)',text:'analyze the purpose of rhetorical devices such as analogy, rhetorical question, and antithesis and the effect of logical fallacies such as loaded language and either/or fallacy on the quality of an argument',staar:true,sc:'Informational Text Analysis'},
+  {sid:6,sn:'Composition',code:'(c)(9)(A)',text:'plan a first draft by selecting a genre for a particular topic, purpose, and audience using a range of strategies such as brainstorming, freewriting, and mapping',staar:false},
+  {sid:6,sn:'Composition',code:'(c)(9)(B)',text:'develop drafts into a focused, structured, and coherent piece of writing in timed and open-ended situations by organizing with purpose and logic',staar:true,sc:'Written Composition'},
+  {sid:6,sn:'Composition',code:'(c)(9)(C)',text:'revise drafts to improve clarity, development, organization, style, diction, and sentence effectiveness',staar:true,sc:'Written Composition'},
+  {sid:6,sn:'Composition',code:'(c)(9)(D)',text:'edit drafts using standard English conventions, including complete sentences; agreement; consistent, appropriate use of verb tenses; correct mechanics, capitalization, and punctuation; and correct spelling',staar:true,sc:'Written Composition'},
+  {sid:6,sn:'Composition',code:'(c)(9)(E)',text:'publish written work for appropriate audiences',staar:false},
+  {sid:6,sn:'Composition',code:'(c)(10)(A)',text:'compose literary texts such as fiction, poetry, and personal narratives using genre characteristics and craft',staar:false},
+  {sid:6,sn:'Composition',code:'(c)(10)(B)',text:'compose informational texts such as explanatory essays, reports, and personal essays using genre characteristics and craft',staar:false},
+  {sid:6,sn:'Composition',code:'(c)(10)(C)',text:'compose argumentative texts, including opinion essays and persuasive essays, using genre characteristics and craft',staar:true,sc:'Written Composition'},
+  {sid:6,sn:'Composition',code:'(c)(10)(D)',text:'compose correspondence in a professional or friendly structure',staar:false},
+  {sid:7,sn:'Inquiry and research',code:'(c)(11)(A)',text:'develop questions for formal and informal inquiry',staar:false},
+  {sid:7,sn:'Inquiry and research',code:'(c)(11)(B)',text:'critique the research process at each step to implement changes as needs occur and are identified',staar:false},
+  {sid:7,sn:'Inquiry and research',code:'(c)(11)(C)',text:'develop and revise a plan',staar:false},
+  {sid:7,sn:'Inquiry and research',code:'(c)(11)(D)',text:'modify the major research question as necessary to refocus the research plan',staar:false},
+  {sid:7,sn:'Inquiry and research',code:'(c)(11)(E)',text:'locate relevant sources',staar:false},
+  {sid:7,sn:'Inquiry and research',code:'(c)(11)(F)',text:'synthesize information from a variety of sources',staar:false},
+  {sid:7,sn:'Inquiry and research',code:'(c)(11)(G)',text:'examine sources for credibility and bias, including omission',staar:false},
+  {sid:7,sn:'Inquiry and research',code:'(c)(11)(H)',text:'display academic citations, including for quoted, paraphrased, and summarized information, and use source material ethically to avoid plagiarism',staar:false},
+  {sid:7,sn:'Inquiry and research',code:'(c)(11)(I)',text:'use an appropriate mode of delivery, whether written, oral, or multimodal, to present results',staar:false}
 ];
 
-function getTeksForCourse(course){
-  return TEKS_ALL.filter(function(t){ return t.course === course || t.course === 'ALL'; });
-}
-
-function getTeksText(course){
-  var teks = getTeksForCourse(course);
+function getTeksText(){
   var byStrand = {};
-  teks.forEach(function(t){
-    if(!byStrand[t.strand_id]) byStrand[t.strand_id] = {name:t.strand_name, items:[]};
-    byStrand[t.strand_id].items.push(t);
+  TEKS_ALL.forEach(function(t){
+    if(!byStrand[t.sid]) byStrand[t.sid]={name:t.sn,items:[]};
+    byStrand[t.sid].items.push(t);
   });
-  var lines = [];
-  Object.keys(byStrand).sort().forEach(function(sid){
-    var s = byStrand[sid];
-    lines.push('STRAND ' + sid + ': ' + s.name.toUpperCase());
-    s.items.forEach(function(t){
-      lines.push('  ' + t.expectation_code + ' ' + t.expectation_text + (t.staar_tested?' [STAAR: '+t.staar_category+']':''));
+  var lines=[];
+  Object.keys(byStrand).sort().forEach(function(s){
+    var strand=byStrand[s];
+    lines.push('STRAND '+s+': '+strand.name.toUpperCase());
+    strand.items.forEach(function(t){
+      lines.push('  '+t.code+' '+t.text+(t.staar?' [STAAR - '+t.sc+']':''));
     });
   });
   return lines.join('\n');
@@ -495,688 +527,589 @@ function getTeksText(course){
 
 // ── ROUTING ───────────────────────────────────────────────────────────────────
 function showView(view, params){
-  state.view = view;
-  params = params || {};
-
+  params = params||{};
   document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active')});
-  var navEl = document.getElementById('nav-' + view);
-  if(navEl) navEl.classList.add('active');
+  var nav = document.getElementById('nav-'+view);
+  if(nav) nav.classList.add('active');
+  document.getElementById('topbar-btn').style.display='none';
+  document.getElementById('topbar-extra').innerHTML='';
 
-  var btn = document.getElementById('topbar-action-btn');
-  btn.style.display = 'none';
-  document.getElementById('topbar-extra').innerHTML = '';
-
-  if(view === 'home') renderHome();
-  else if(view === 'teks') renderTeksView();
-  else if(view === 'course') renderCourseView(params.courseId);
-  else if(view === 'unit') renderUnitView(params.unitId);
-  else if(view === 'lesson') renderLessonView(params.lessonId);
+  if(view==='home') renderHome();
+  else if(view==='teks') renderTeksView();
+  else if(view==='course') renderCourseView(params.id);
+  else if(view==='unit') renderUnitView(params.id);
 }
 
-// ── HOME VIEW ─────────────────────────────────────────────────────────────────
+// ── VIEWS ─────────────────────────────────────────────────────────────────────
 function renderHome(){
-  document.getElementById('topbar-title').textContent = 'My Courses';
-  var btn = document.getElementById('topbar-action-btn');
-  btn.textContent = '+ Add course';
-  btn.style.display = '';
-  btn.onclick = function(){ openModal('modal-new-course'); };
-
-  var content = document.getElementById('main-content');
-  content.innerHTML = '<div class="spin-row"><div class="spin"></div> Loading courses...</div>';
-
-  db.get('courses', 'order=created_at.asc').then(function(courses){
-    state.courses = courses;
+  setTopbar('My Courses','+ Add course',function(){ openModal('modal-new-course'); });
+  var c = document.getElementById('main-content');
+  c.innerHTML='<div class="spin-row"><div class="spin"></div> Loading...</div>';
+  supa.from('courses').select('*').order('created_at',{ascending:true}).then(function(r){
+    if(r.error){ c.innerHTML='<div class="empty-state"><p style="color:var(--red)">'+r.error.message+'</p></div>'; return; }
+    state.courses = r.data||[];
     renderSidebarCourses();
-    if(courses.length === 0){
-      content.innerHTML = '<div class="empty-state"><h3>No courses yet</h3><p>Add your first course to get started. You can add multiple courses and sections.</p><button class="btn btn-primary" onclick="openModal(\'modal-new-course\')">+ Add your first course</button></div>';
+    if(!state.courses.length){
+      c.innerHTML='<div class="empty-state"><h3>No courses yet</h3><p>Add your first course to start planning. Each course gets its own annual map and lesson plans.</p><button class="btn btn-primary" onclick="openModal(\'modal-new-course\')">+ Add your first course</button></div>';
       return;
     }
-    var html = '<div class="panel-grid">';
-    courses.forEach(function(c){
-      html += '<div class="course-card" onclick="showView(\'course\',{courseId:\''+c.id+'\'})">';
-      html += '<div class="course-card-name">'+c.name+'</div>';
-      html += '<div class="course-card-meta">'+(c.section_label||'')+(c.school_year?' &middot; '+c.school_year:'')+'</div>';
-      html += '<div class="course-card-stats">';
-      html += '<div class="stat"><div class="stat-n">'+c.units_per_year+'</div><div class="stat-l">Units</div></div>';
-      html += '<div class="stat"><div class="stat-n">'+(c.units_per_year*c.weeks_per_unit*c.days_per_week)+'</div><div class="stat-l">Lessons</div></div>';
-      html += '<div class="stat"><div class="stat-n">'+c.class_duration+'</div><div class="stat-l">Min/class</div></div>';
-      html += '</div></div>';
+    var html='<div class="panel-grid">';
+    state.courses.forEach(function(course){
+      html+='<div class="course-card" onclick="showView(\'course\',{id:\''+course.id+'\'})">';
+      html+='<div class="course-card-name">'+course.name+'</div>';
+      html+='<div class="course-card-meta">'+(course.section_label||'')+(course.school_year?' &middot; '+course.school_year:'')+'</div>';
+      html+='<div class="course-card-stats">';
+      html+='<div class="stat"><div class="stat-n">'+course.units_per_year+'</div><div class="stat-l">Units</div></div>';
+      html+='<div class="stat"><div class="stat-n">'+(course.units_per_year*course.weeks_per_unit*course.days_per_week)+'</div><div class="stat-l">Lessons</div></div>';
+      html+='<div class="stat"><div class="stat-n">'+course.class_duration+'</div><div class="stat-l">Min/class</div></div>';
+      html+='</div></div>';
     });
-    html += '</div>';
-    content.innerHTML = html;
-  }).catch(function(e){ content.innerHTML = '<div class="empty-state"><p style="color:var(--red)">Error loading courses: '+e.message+'</p></div>'; });
+    html+='</div>';
+    c.innerHTML=html;
+  });
 }
 
 function renderSidebarCourses(){
-  var el = document.getElementById('sidebar-courses');
-  el.innerHTML = state.courses.map(function(c){
-    return '<div class="nav-sub" onclick="showView(\'course\',{courseId:\''+c.id+'\'})">'+(c.name+(c.section_label?' ('+c.section_label+')':''))+'</div>';
+  document.getElementById('sidebar-courses').innerHTML=state.courses.map(function(c){
+    return '<div class="nav-sub" onclick="showView(\'course\',{id:\''+c.id+'\'})">'+(c.name+(c.section_label?' ('+c.section_label+')':''))+'</div>';
   }).join('');
 }
 
-// ── COURSE VIEW ───────────────────────────────────────────────────────────────
 function renderCourseView(courseId){
-  var course = state.courses.find(function(c){return c.id === courseId;});
-  if(!course) return showView('home');
-  state.activeCourse = course;
-
-  document.getElementById('topbar-title').textContent = course.name + (course.section_label ? ' - ' + course.section_label : '');
-  var btn = document.getElementById('topbar-action-btn');
-  btn.textContent = 'Generate annual map';
-  btn.style.display = '';
-  btn.onclick = function(){ generateAnnualMap(course); };
-
-  var content = document.getElementById('main-content');
-  content.innerHTML = '<div class="spin-row"><div class="spin"></div> Loading units...</div>';
-
-  db.get('units', 'course_id=eq.'+courseId+'&order=num.asc').then(function(units){
-    state.units[courseId] = units;
-    if(units.length === 0){
-      content.innerHTML = '<div class="empty-state"><h3>No units yet</h3><p>Generate your annual map to create units for this course. The AI will use the complete TEKS to plan coverage across the year.</p><button class="btn btn-primary" onclick="generateAnnualMap(state.activeCourse)">Generate annual map</button></div>';
+  state.activeCourse = state.courses.find(function(c){return c.id===courseId;});
+  if(!state.activeCourse) return showView('home');
+  var course = state.activeCourse;
+  setTopbar(course.name+(course.section_label?' - '+course.section_label:''),'Generate annual map',function(){ generateAnnualMap(course); });
+  var c = document.getElementById('main-content');
+  c.innerHTML='<div class="spin-row"><div class="spin"></div> Loading units...</div>';
+  supa.from('units').select('*').eq('course_id',courseId).order('num',{ascending:true}).then(function(r){
+    if(r.error){c.innerHTML='<p style="color:var(--red)">'+r.error.message+'</p>';return;}
+    state.units[courseId]=r.data||[];
+    if(!state.units[courseId].length){
+      c.innerHTML='<div class="empty-state"><h3>No units yet</h3><p>Generate your annual map to plan '+course.units_per_year+' units using the complete TEKS. STAAR expectations will be distributed across the year.</p><button class="btn btn-primary" onclick="generateAnnualMap(state.activeCourse)">Generate annual map</button></div>';
       return;
     }
-    renderUnitList(units, course, content);
+    renderUnitList(state.units[courseId], course, c);
   });
 }
 
-function renderUnitList(units, course, content){
-  var html = '<div class="section-header"><h2>'+units.length+' units &mdash; '+course.name+'</h2>';
-  html += '<div class="btn-row"><button class="btn btn-secondary btn-sm" onclick="showView(\'teks\')">View TEKS coverage</button><button class="btn btn-secondary btn-sm" onclick="generateAnnualMap(state.activeCourse)">Regenerate map</button></div></div>';
-
-  html += '<div style="display:flex;flex-direction:column;gap:10px">';
+function renderUnitList(units, course, c){
+  var html='<div class="section-header"><h2>'+units.length+' units</h2>';
+  html+='<div class="btn-row"><button class="btn btn-secondary btn-sm" onclick="showView(\'teks\')">TEKS reference</button><button class="btn btn-secondary btn-sm" onclick="generateAnnualMap(state.activeCourse)">Regenerate map</button></div></div>';
+  html+='<div style="display:flex;flex-direction:column;gap:10px">';
   units.forEach(function(u){
-    var emph = u.emph_strands || [];
-    var strands = u.strands || [1,2,3,4,5,6,7];
-    var strandPills = strands.map(function(s){
-      return '<span class="strand-pill'+(emph.includes(s)?' emph':'')+'">S'+s+'</span>';
-    }).join('');
-    var statusCls = u.status === 'complete' ? 'complete' : u.status === 'in_progress' ? 'in-progress' : 'planned';
-    var statusTxt = u.status === 'complete' ? 'Complete' : u.status === 'in_progress' ? 'In progress' : 'Planned';
-    html += '<div class="unit-card" onclick="showView(\'unit\',{unitId:\''+u.id+'\'})">';
-    html += '<div class="unit-num">'+u.num+'</div>';
-    html += '<div><div class="unit-title">'+u.title+'</div>';
-    if(u.essential_question) html += '<div class="unit-eq">'+u.essential_question+'</div>';
-    html += '<div class="unit-strand-pills">'+strandPills+'</div></div>';
-    html += '<span class="unit-status '+statusCls+'">'+statusTxt+'</span>';
-    html += '</div>';
+    var emph=u.emph_strands||[];
+    var strands=u.strands||[1,2,3,4,5,6,7];
+    var pills=strands.map(function(s){return '<span class="strand-pill'+(emph.includes(s)?' emph':'')+'">S'+s+'</span>';}).join('');
+    var sc=u.status==='complete'?'complete':u.status==='in_progress'?'in-progress':'planned';
+    var st=u.status==='complete'?'Complete':u.status==='in_progress'?'In progress':'Planned';
+    html+='<div class="unit-card" onclick="showView(\'unit\',{id:\''+u.id+'\'})">';
+    html+='<div class="unit-num">'+u.num+'</div>';
+    html+='<div><div class="unit-title">'+u.title+'</div>';
+    if(u.essential_question) html+='<div class="unit-eq">'+u.essential_question+'</div>';
+    html+='<div class="unit-strand-pills">'+pills+'</div></div>';
+    html+='<span class="unit-status '+sc+'">'+st+'</span></div>';
   });
-  html += '</div>';
-  content.innerHTML = html;
+  html+='</div>';
+  c.innerHTML=html;
 }
 
-// ── UNIT VIEW ─────────────────────────────────────────────────────────────────
 function renderUnitView(unitId){
-  var content = document.getElementById('main-content');
-  content.innerHTML = '<div class="spin-row"><div class="spin"></div> Loading unit...</div>';
-
-  db.get('units', 'id=eq.'+unitId).then(function(rows){
-    var unit = rows[0];
-    if(!unit) return showView('home');
-    state.activeUnit = unit;
-
-    var course = state.activeCourse || state.courses.find(function(c){return c.id===unit.course_id;});
-    document.getElementById('topbar-title').textContent = 'Unit '+unit.num+' - '+unit.title;
-    var btn = document.getElementById('topbar-action-btn');
-    btn.textContent = 'Generate lessons';
-    btn.style.display = '';
-    btn.onclick = function(){ generateLessons(unit, course); };
-
-    return db.get('lessons', 'unit_id=eq.'+unitId+'&order=num.asc').then(function(lessons){
-      state.lessons[unitId] = lessons;
-      renderUnitDetail(unit, lessons, course, content);
+  var c = document.getElementById('main-content');
+  c.innerHTML='<div class="spin-row"><div class="spin"></div> Loading...</div>';
+  supa.from('units').select('*').eq('id',unitId).single().then(function(r){
+    if(r.error){c.innerHTML='<p style="color:var(--red)">'+r.error.message+'</p>';return;}
+    state.activeUnit=r.data;
+    var unit=r.data;
+    var course=state.activeCourse;
+    setTopbar('Unit '+unit.num+' - '+unit.title,'Generate lessons',function(){generateLessons(unit,course);});
+    return supa.from('lessons').select('*').eq('unit_id',unitId).order('num',{ascending:true}).then(function(lr){
+      state.lessons[unitId]=lr.data||[];
+      renderUnitDetail(unit,lr.data||[],course,c);
     });
   });
 }
 
-function renderUnitDetail(unit, lessons, course, content){
-  var html = '<button class="btn btn-ghost btn-sm" onclick="showView(\'course\',{courseId:\''+unit.course_id+'\'})" style="margin-bottom:16px">&larr; Back to course</button>';
-
-  html += '<div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">';
-  html += '<div><div style="font-size:11px;font-weight:600;letter-spacing:.07em;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Essential question</div>';
-  html += '<div style="font-size:15px;font-style:italic;color:var(--ink2);line-height:1.5">'+(unit.essential_question||'Not set')+'</div></div>';
-  html += '<div><div style="font-size:11px;font-weight:600;letter-spacing:.07em;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Summative assessment</div>';
-  html += '<div style="font-size:14px;color:var(--ink2)">'+(unit.summative_assessment||'Not set')+'</div></div>';
-  if(unit.big_idea){ html += '<div style="grid-column:1/-1"><div style="font-size:11px;font-weight:600;letter-spacing:.07em;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Big idea</div>';
-  html += '<div style="font-size:14px;color:var(--ink2);line-height:1.6">'+unit.big_idea+'</div></div>'; }
-  html += '</div></div>';
-
-  if(lessons.length === 0){
-    html += '<div class="empty-state"><h3>No lessons yet</h3><p>Generate lessons for this unit. The AI will plan each class day addressing the assigned TEKS.</p><button class="btn btn-primary" onclick="generateLessons(state.activeUnit, state.activeCourse)">Generate lessons</button></div>';
+function renderUnitDetail(unit, lessons, course, c){
+  var html='<button class="btn btn-ghost btn-sm" onclick="showView(\'course\',{id:\''+unit.course_id+'\'})" style="margin-bottom:16px">&larr; Back to course</button>';
+  html+='<div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">';
+  html+='<div><div class="text-xs text-muted" style="font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Essential question</div><div style="font-size:15px;font-style:italic;color:var(--ink2);line-height:1.5">'+(unit.essential_question||'Not set')+'</div></div>';
+  html+='<div><div class="text-xs text-muted" style="font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Summative assessment</div><div style="font-size:14px;color:var(--ink2)">'+(unit.summative_assessment||'Not set')+'</div></div>';
+  if(unit.big_idea) html+='<div style="grid-column:1/-1"><div class="text-xs text-muted" style="font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Big idea</div><div style="font-size:14px;color:var(--ink2);line-height:1.6">'+unit.big_idea+'</div></div>';
+  html+='</div></div>';
+  if(!lessons.length){
+    html+='<div class="empty-state"><h3>No lessons yet</h3><p>Generate lessons for this unit. The AI will create detailed daily plans citing specific TEKS expectation codes.</p><button class="btn btn-primary" onclick="generateLessons(state.activeUnit,state.activeCourse)">Generate lessons</button></div>';
   } else {
-    html += '<div class="section-header" style="margin-top:8px"><h2>'+lessons.length+' lessons</h2>';
-    html += '<div class="btn-row">';
-    var weeks = Array.from(new Set(lessons.map(function(l){return l.week_num}))).sort();
-    weeks.forEach(function(w){
-      html += '<button class="btn btn-secondary btn-sm week-filter-btn" data-week="'+w+'" onclick="filterWeek('+w+',this)">Week '+w+'</button>';
-    });
-    html += '<button class="btn btn-secondary btn-sm week-filter-btn active" data-week="0" onclick="filterWeek(0,this)">All weeks</button>';
-    html += '</div></div>';
-    html += '<div id="lessons-list">';
-    html += renderLessonCards(lessons);
-    html += '</div>';
+    html+='<div class="section-header" style="margin-top:8px"><h2>'+lessons.length+' lessons</h2>';
+    html+='<div class="btn-row">';
+    var weeks=[...new Set(lessons.map(function(l){return l.week_num;}))].sort();
+    html+='<button class="btn btn-secondary btn-sm wf active" data-w="0" onclick="filterWeek(0,this)">All</button>';
+    weeks.forEach(function(w){html+='<button class="btn btn-secondary btn-sm wf" data-w="'+w+'" onclick="filterWeek('+w+',this)">Week '+w+'</button>';});
+    html+='</div></div>';
+    html+='<div id="lessons-list">'+renderLessonCards(lessons)+'</div>';
   }
-  content.innerHTML = html;
+  c.innerHTML=html;
 }
 
-function filterWeek(week, btn){
-  document.querySelectorAll('.week-filter-btn').forEach(function(b){b.classList.remove('active')});
+function filterWeek(w,btn){
+  document.querySelectorAll('.wf').forEach(function(b){b.classList.remove('active')});
   btn.classList.add('active');
-  var cards = document.querySelectorAll('[data-week-card]');
-  cards.forEach(function(c){
-    c.style.display = (week === 0 || parseInt(c.dataset.weekCard) === week) ? '' : 'none';
+  document.querySelectorAll('[data-wc]').forEach(function(el){
+    el.style.display=(w===0||parseInt(el.dataset.wc)===w)?'':'none';
   });
 }
 
 function renderLessonCards(lessons){
-  var html = '';
-  var byWeek = {};
-  lessons.forEach(function(l){
-    if(!byWeek[l.week_num]) byWeek[l.week_num] = [];
-    byWeek[l.week_num].push(l);
-  });
-  Object.keys(byWeek).sort().forEach(function(w){
-    html += '<div style="margin-bottom:6px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);font-family:DM Mono,monospace;margin-top:16px">Week '+w+'</div>';
+  var byWeek={};
+  lessons.forEach(function(l){if(!byWeek[l.week_num])byWeek[l.week_num]=[];byWeek[l.week_num].push(l);});
+  var html='';
+  Object.keys(byWeek).sort(function(a,b){return a-b;}).forEach(function(w){
+    html+='<div class="text-xs text-muted" style="font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin:16px 0 6px;font-family:DM Mono,monospace">Week '+w+'</div>';
     byWeek[w].forEach(function(l){
-      html += '<div class="lesson-card" data-week-card="'+l.week_num+'" data-lesson-id="'+l.id+'" style="margin-bottom:8px">';
-      html += '<div class="lesson-card-header" onclick="toggleLesson(\''+l.id+'\')">';
-      html += '<span class="lesson-card-num">Lesson '+l.num+'</span>';
-      html += '<span class="lesson-card-title">'+(l.title||'Untitled lesson')+'</span>';
-      html += '<span class="badge '+(l.status==='approved'?'badge-green':l.status==='edited'?'badge-amber':'badge-gray')+'">'+( l.status||'generated')+'</span>';
-      html += '<svg class="lesson-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
-      html += '</div>';
-      html += '<div class="lesson-card-body">';
-      html += renderLessonBody(l);
-      html += '</div></div>';
+      var sc=l.status==='approved'?'badge-green':l.status==='edited'?'badge-amber':'badge-gray';
+      html+='<div class="lesson-card" data-wc="'+l.week_num+'" data-lid="'+l.id+'">';
+      html+='<div class="lesson-card-header" onclick="toggleLesson(\''+l.id+'\')">';
+      html+='<span class="lesson-card-num">Lesson '+l.num+'</span>';
+      html+='<span class="lesson-card-title">'+(l.title||'Untitled lesson')+'</span>';
+      html+='<span class="badge '+sc+'">'+(l.status||'generated')+'</span>';
+      html+='<svg class="lesson-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
+      html+='</div>';
+      html+='<div class="lesson-card-body">'+renderLessonBody(l)+'</div>';
+      html+='</div>';
     });
   });
   return html;
 }
 
-function renderLessonBody(lesson){
-  var sections = [
-    {key:'objective', label:'Objective', dotClass:'section-dot-obj'},
-    {key:'strands_today', label:'TEKS strands today', dotClass:'section-dot-strand'},
-    {key:'hook', label:'Hook', dotClass:'section-dot-hook', timing:'opening'},
-    {key:'read_analyze', label:'Read & analyze', dotClass:'section-dot-read'},
-    {key:'discuss', label:'Discuss', dotClass:'section-dot-discuss'},
-    {key:'write_practice', label:'Write & practice', dotClass:'section-dot-write'},
-    {key:'close', label:'Close / exit ticket', dotClass:'section-dot-close'},
-    {key:'support', label:'Support & scaffolding', dotClass:'section-dot-obj'},
-    {key:'materials', label:'Materials', dotClass:'section-dot-obj'},
-    {key:'teacher_notes', label:'Teacher notes', dotClass:'section-dot-obj'}
+function renderLessonBody(l){
+  var secs=[
+    {k:'objective',lb:'Objective',dot:'#888'},
+    {k:'hook',lb:'Hook',dot:'#7b68ee'},
+    {k:'read_analyze',lb:'Read & Analyze',dot:'#20b2aa'},
+    {k:'discuss',lb:'Discuss',dot:'#ff8c00'},
+    {k:'write_practice',lb:'Write & Practice',dot:'#3cb371'},
+    {k:'close',lb:'Close / Exit ticket',dot:'#cd853f'},
+    {k:'support',lb:'Support & Scaffolding',dot:'#888'},
+    {k:'materials',lb:'Materials',dot:'#888'},
+    {k:'teacher_notes',lb:'Teacher notes',dot:'#888'}
   ];
-  var html = '';
-  sections.forEach(function(s){
-    var val = lesson[s.key];
-    if(s.key === 'strands_today' && Array.isArray(val)) val = val.map(function(n){return 'Strand '+n;}).join(', ');
+  var html='';
+  secs.forEach(function(s){
+    var val=l[s.k];
     if(!val) return;
-    html += '<div class="lesson-section">';
-    html += '<div class="lesson-section-header">';
-    html += '<div class="section-label"><div class="dot '+s.dotClass+'"></div>'+s.label+'</div>';
-    if(s.key !== 'teacher_notes' && s.key !== 'strands_today'){
-      html += '<button class="regen-btn" onclick="openRegenModal(\''+lesson.id+'\',\''+s.key+'\',\''+s.label+'\')">&#8635; Regenerate</button>';
-    }
-    html += '</div>';
-    html += '<div class="section-content" contenteditable="true" data-lesson-id="'+lesson.id+'" data-field="'+s.key+'" onblur="saveField(this)" data-placeholder="Click to add '+s.label.toLowerCase()+'">'+escHtml(String(val))+'</div>';
-    html += '</div>';
+    html+='<div class="lesson-section">';
+    html+='<div class="lesson-section-header">';
+    html+='<div class="section-label"><div class="sdot" style="background:'+s.dot+'"></div>'+s.lb+'</div>';
+    if(s.k!=='teacher_notes') html+='<button class="regen-btn" onclick="openRegen(\''+l.id+'\',\''+s.k+'\',\''+s.lb+'\')">&#8635; Regenerate</button>';
+    html+='</div>';
+    html+='<div class="section-content" contenteditable="true" data-lid="'+l.id+'" data-field="'+s.k+'" onblur="saveField(this)" data-placeholder="'+s.lb+' — click to edit">'+esc(String(val))+'</div>';
+    html+='</div>';
   });
-  html += '<div class="btn-row" style="margin-top:16px">';
-  html += '<button class="btn btn-sm btn-secondary" onclick="markApproved(\''+lesson.id+'\')">Mark approved</button>';
-  html += '<button class="btn btn-sm btn-ghost" onclick="deleteLesson(\''+lesson.id+'\')">Delete lesson</button>';
-  html += '</div>';
+  html+='<div class="btn-row" style="margin-top:12px">';
+  html+='<button class="btn btn-sm btn-secondary" onclick="markApproved(\''+l.id+'\')">Mark approved</button>';
+  html+='<button class="btn btn-sm btn-ghost" onclick="delLesson(\''+l.id+'\')">Delete</button>';
+  html+='</div>';
   return html;
 }
 
 function toggleLesson(id){
-  var card = document.querySelector('[data-lesson-id="'+id+'"].lesson-card');
-  if(card) card.classList.toggle('open');
+  document.querySelector('[data-lid="'+id+'"].lesson-card').classList.toggle('open');
 }
 
 function saveField(el){
-  var lessonId = el.dataset.lessonId;
-  var field = el.dataset.field;
-  var value = el.innerText.trim();
-  var patch = {};
-  patch[field] = value;
-  patch['status'] = 'edited';
-  db.patch('lessons', 'id=eq.'+lessonId, patch).then(function(){
-    toast('Saved', 'success');
-    var card = document.querySelector('[data-lesson-id="'+lessonId+'"].lesson-card .badge');
-    if(card){card.className='badge badge-amber';card.textContent='edited';}
-  }).catch(function(e){ toast('Save failed: '+e.message, 'error'); });
-}
-
-function markApproved(lessonId){
-  db.patch('lessons', 'id=eq.'+lessonId, {status:'approved'}).then(function(){
-    toast('Marked approved','success');
-    var el = document.querySelector('[data-lesson-id="'+lessonId+'"].lesson-card .badge');
-    if(el){el.className='badge badge-green';el.textContent='approved';}
+  var id=el.dataset.lid, field=el.dataset.field, val=el.innerText.trim();
+  var patch={status:'edited'};patch[field]=val;
+  supa.from('lessons').update(patch).eq('id',id).then(function(r){
+    if(r.error){toast('Save failed: '+r.error.message,'error');return;}
+    toast('Saved','success');
+    var badge=document.querySelector('[data-lid="'+id+'"].lesson-card .badge');
+    if(badge){badge.className='badge badge-amber';badge.textContent='edited';}
   });
 }
 
-function deleteLesson(lessonId){
+function markApproved(id){
+  supa.from('lessons').update({status:'approved'}).eq('id',id).then(function(r){
+    if(r.error){toast(r.error.message,'error');return;}
+    toast('Approved','success');
+    var badge=document.querySelector('[data-lid="'+id+'"].lesson-card .badge');
+    if(badge){badge.className='badge badge-green';badge.textContent='approved';}
+  });
+}
+
+function delLesson(id){
   if(!confirm('Delete this lesson?')) return;
-  db.delete('lessons', 'id=eq.'+lessonId).then(function(){
-    var card = document.querySelector('[data-lesson-id="'+lessonId+'"].lesson-card');
-    if(card) card.remove();
-    toast('Lesson deleted');
+  supa.from('lessons').delete().eq('id',id).then(function(r){
+    if(r.error){toast(r.error.message,'error');return;}
+    document.querySelector('[data-lid="'+id+'"].lesson-card').remove();
+    toast('Deleted');
   });
 }
 
-// ── SECTION REGENERATION ─────────────────────────────────────────────────────
-var regenState = {lessonId:null, field:null, label:null};
-function openRegenModal(lessonId, field, label){
-  regenState = {lessonId:lessonId, field:field, label:label};
-  document.getElementById('regen-section-name').textContent = 'Regenerating: ' + label;
-  document.getElementById('regen-instruction').value = '';
-  openModal('modal-regen-section');
+// ── SECTION REGEN ─────────────────────────────────────────────────────────────
+function openRegen(lid,field,label){
+  regenCtx={lessonId:lid,field:field,label:label};
+  document.getElementById('regen-label').textContent='Regenerating: '+label;
+  document.getElementById('regen-instruction').value='';
+  openModal('modal-regen');
 }
 
-function doRegenSection(){
-  var instruction = document.getElementById('regen-instruction').value.trim();
-  var lessonId = regenState.lessonId;
-  var field = regenState.field;
-  closeModal('modal-regen-section');
+function doRegen(){
+  var instruction=document.getElementById('regen-instruction').value.trim();
+  var lid=regenCtx.lessonId, field=regenCtx.field;
+  closeModal('modal-regen');
 
-  var lessons = Object.values(state.lessons).reduce(function(a,b){return a.concat(b)},[]);
-  var lesson = lessons.find(function(l){return l.id===lessonId;});
+  var allLessons=Object.values(state.lessons).reduce(function(a,b){return a.concat(b);},[]);
+  var lesson=allLessons.find(function(l){return l.id===lid;});
   if(!lesson) return;
 
-  var unit = state.activeUnit;
-  var course = state.activeCourse;
-  var teksText = getTeksText(course ? course.name : 'English I');
+  var unit=state.activeUnit;
+  var course=state.activeCourse;
+  var labels={hook:'Hook (opening activity)',read_analyze:'Read & Analyze segment',discuss:'Discussion segment',write_practice:'Write & Practice segment',close:'Close/exit ticket',objective:'Lesson objective',support:'Support & scaffolding notes',materials:'Materials list'};
 
-  var fieldLabels = {hook:'Hook (opening activity)',read_analyze:'Read & Analyze segment',discuss:'Discussion segment',write_practice:'Write & Practice segment',close:'Close/exit ticket',objective:'Lesson objective',support:'Support & scaffolding',materials:'Materials list'};
+  var prompt='Regenerate one section of a daily lesson plan for Texas ELA.\n'
+    +'Course: '+(course?course.name:'')+'\n'
+    +'Unit '+( unit?unit.num+' - '+unit.title:'')+'\n'
+    +'Lesson '+lesson.num+': '+(lesson.title||'')+'\n'
+    +'Section to regenerate: '+(labels[field]||field)+'\n'
+    +'Current content: '+(lesson[field]||'(empty)')+'\n'
+    +(instruction?'Teacher instruction: '+instruction+'\n':'')+'\n'
+    +'TEKS (exact TEA wording - cite codes in your response):\n'+getTeksText().substring(0,1500)+'\n\n'
+    +'Write ONLY the new content for the '+(labels[field]||field)+'. 2-4 sentences, specific and actionable. Reference TEKS codes like (c)(4)(F) where relevant. No headings or labels.';
 
-  var prompt = 'You are regenerating one section of a daily lesson plan.\n\n'
-    + 'Course: ' + (course?course.name:'') + '\n'
-    + 'Unit: ' + (unit?unit.num+' - '+unit.title:'') + '\n'
-    + 'Lesson: ' + lesson.num + ' - ' + (lesson.title||'') + '\n'
-    + 'Section to regenerate: ' + (fieldLabels[field]||field) + '\n\n'
-    + 'Current content:\n' + (lesson[field]||'(empty)') + '\n\n'
-    + (instruction ? 'Teacher instruction: ' + instruction + '\n\n' : '')
-    + 'Relevant TEKS (exact TEA wording):\n' + teksText.substring(0, 1500) + '\n\n'
-    + 'Write ONLY the new content for the ' + (fieldLabels[field]||field) + ' section. '
-    + 'Do not include section labels or headings. Write 2-4 sentences of specific, actionable content. '
-    + 'Reference specific TEKS expectation codes where relevant.';
+  var el=document.querySelector('[data-lid="'+lid+'"][data-field="'+field+'"]');
+  if(el){el.textContent='Regenerating...';el.style.color='var(--ink3)';}
 
-  var el = document.querySelector('[data-lesson-id="'+lessonId+'"][data-field="'+field+'"]');
-  if(el){ el.textContent = 'Regenerating...'; el.style.color='var(--ink3)'; }
-
-  callAI(prompt).then(function(text){
-    text = text.trim();
-    if(el){ el.textContent = text; el.style.color=''; }
-    var patch = {status:'edited'};
-    patch[field] = text;
-    db.patch('lessons', 'id=eq.'+lessonId, patch).then(function(){toast('Section regenerated','success');});
-  }).catch(function(e){
-    if(el){ el.textContent = lesson[field]||''; el.style.color=''; }
-    toast('Error: '+e.message,'error');
-  });
+  fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error) throw new Error(d.error);
+      var text=d.text.trim();
+      if(el){el.textContent=text;el.style.color='';}
+      var patch={status:'edited'};patch[field]=text;
+      supa.from('lessons').update(patch).eq('id',lid);
+      // Update local state
+      allLessons.forEach(function(l){if(l.id===lid)l[field]=text;});
+      toast('Section regenerated','success');
+    }).catch(function(e){
+      if(el){el.textContent=lesson[field]||'';el.style.color='';}
+      toast('Error: '+e.message,'error');
+    });
 }
 
 // ── GENERATE ANNUAL MAP ───────────────────────────────────────────────────────
 function generateAnnualMap(course){
-  var steps = [
-    {id:'s1', label:'Reading TEKS expectations for '+course.name},
-    {id:'s2', label:'Building annual curriculum map'},
-    {id:'s3', label:'Parsing units and strand assignments'},
-    {id:'s4', label:'Saving to your course'}
-  ];
-  openGenerateModal('Generate annual map', 'Building a full-year plan using exact TEKS wording. STAAR expectations will be prioritized.', steps);
-  setGenStep('s1', 'active');
+  var steps=['l1:Reading TEKS for '+course.name,'l2:Building annual map','l3:Parsing units','l4:Saving to database'];
+  openGenModal('Generate annual map','Building a full-year plan. All STAAR expectations will be distributed across units.',steps);
+  setStep('l1','active');
 
-  var teksText = getTeksText(course.name);
-  var staarExpectations = TEKS_ALL.filter(function(t){return t.staar_tested;}).map(function(t){return t.expectation_code+': '+t.expectation_text;}).join('\n');
+  var teksText=getTeksText();
+  var staarList=TEKS_ALL.filter(function(t){return t.staar;}).map(function(t){return t.code+': '+t.text;}).join('\n');
 
-  setTimeout(function(){ setGenStep('s1','done'); setGenStep('s2','active');
+  setTimeout(function(){
+    setStep('l1','done');setStep('l2','active');
 
-  var prompt = 'You are a Texas ELA curriculum specialist building an annual curriculum map for '+course.name+'.\n\n'
-    +'COMPLETE TEKS (19 TAC Chapter 110, Subchapter C - exact TEA wording, do not alter):\n'
-    +teksText+'\n\n'
-    +'STAAR-TESTED EXPECTATIONS (must appear multiple times across the year):\n'
-    +staarExpectations+'\n\n'
-    +'Schedule: '+course.units_per_year+' units, '+course.weeks_per_unit+' weeks/unit, '+course.days_per_week+' days/week, '+course.class_duration+' min/class\n'
-    +(course.context?'Context: '+course.context+'\n':'')+'\n'
-    +'REQUIREMENTS:\n'
-    +'- Every TEKS expectation must be addressed at least once across the year\n'
-    +'- STAAR-tested expectations must appear as primary focus in multiple units\n'
-    +'- All 7 strands must appear in every unit\n'
-    +'- Units increase in complexity across the year\n'
-    +'- Emphasis strands are the 2-3 that are the PRIMARY instructional focus of that unit\n\n'
-    +'For each unit output EXACTLY this format with no deviations:\n'
-    +'UNIT [N]\n'
-    +'Title: [thematic title]\n'
-    +'Text: [suggested texts or genre]\n'
-    +'Question: [essential question]\n'
-    +'Strands: 1,2,3,4,5,6,7\n'
-    +'Emphasis: [2-3 strand numbers]\n'
-    +'Summative: [assessment description]\n'
-    +'BigIdea: [2-sentence big idea]\n'
-    +'Weeks: Week 1: [focus] | Week 2: [focus] | Week 3: [focus]';
+    var nl='\n';
+    var prompt='You are a Texas ELA curriculum specialist building an annual map for '+course.name+'.'+nl+nl
+      +'COMPLETE TEKS - 19 TAC Chapter 110, Subchapter C (exact TEA wording - do not alter):'+nl
+      +teksText+nl+nl
+      +'STAAR-TESTED EXPECTATIONS (must appear multiple times across units - these are highest priority):'+nl
+      +staarList+nl+nl
+      +'Schedule: '+course.units_per_year+' units, '+course.weeks_per_unit+' weeks/unit, '+course.days_per_week+' days/week, '+course.class_duration+' min/class'+nl
+      +(course.context?'Context: '+course.context+nl:'')+nl
+      +'REQUIREMENTS:'+nl
+      +'- Every TEKS expectation code must be planned at least once across the year'+nl
+      +'- STAAR-tested expectations must appear as primary focus in multiple units'+nl
+      +'- All 7 strands addressed in every unit'+nl
+      +'- Units increase in complexity and rigor'+nl
+      +'- Emphasis = 2-3 strands that are the PRIMARY instructional focus'+nl+nl
+      +'Output EXACTLY this format for each unit:'+nl
+      +'UNIT [N]'+nl
+      +'Title: [thematic title]'+nl
+      +'Text: [suggested texts or genre]'+nl
+      +'Question: [essential question]'+nl
+      +'Strands: 1,2,3,4,5,6,7'+nl
+      +'Emphasis: [2-3 strand numbers]'+nl
+      +'Summative: [assessment description]'+nl
+      +'BigIdea: [2-sentence big idea]'+nl
+      +'Weeks: Week 1: [focus] | Week 2: [focus] | Week 3: [focus]';
 
-  callAI(prompt).then(function(raw){
-    setGenStep('s2','done'); setGenStep('s3','active');
-
-    var units = parseMapUnits(raw);
-    setGenStep('s3','done'); setGenStep('s4','active');
-
-    var existing = db.delete('units', 'course_id=eq.'+course.id);
-    return existing.then(function(){
-      var saves = units.map(function(u){
-        return db.post('units', {
-          course_id: course.id,
-          num: u.num,
-          title: u.title,
-          essential_question: u.question,
-          suggested_text: u.text,
-          summative_assessment: u.summative,
-          big_idea: u.bigIdea,
-          weeks_breakdown: u.weeks,
-          strands: u.strands,
-          emph_strands: u.emph,
-          map_raw: raw,
-          status: 'planned'
+    fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.error) throw new Error(d.error);
+        setStep('l2','done');setStep('l3','active');
+        var units=parseMapUnits(d.text);
+        setStep('l3','done');setStep('l4','active');
+        return supa.from('units').delete().eq('course_id',course.id).then(function(){
+          var rows=units.map(function(u){
+            return {
+              course_id:course.id,
+              num:u.num, title:u.title,
+              essential_question:u.question,
+              suggested_text:u.text,
+              summative_assessment:u.summative,
+              big_idea:u.bigIdea,
+              weeks_breakdown:u.weeks,
+              strands:u.strands,
+              emph_strands:u.emph,
+              map_raw:d.text,
+              status:'planned'
+            };
+          });
+          return supa.from('units').insert(rows);
         });
+      }).then(function(r){
+        if(r&&r.error) throw new Error(r.error.message);
+        setStep('l4','done');
+        setTimeout(function(){
+          closeModal('modal-generate');
+          showView('course',{id:course.id});
+          toast('Annual map created - '+course.units_per_year+' units','success');
+        },800);
+      }).catch(function(e){
+        closeModal('modal-generate');
+        toast('Error: '+e.message,'error');
       });
-      return Promise.all(saves);
-    });
-  }).then(function(){
-    setGenStep('s4','done');
-    setTimeout(function(){
-      closeModal('modal-generate');
-      showView('course', {courseId: course.id});
-      toast('Annual map created - '+course.units_per_year+' units planned','success');
-    }, 800);
-  }).catch(function(e){
-    closeModal('modal-generate');
-    toast('Error: '+e.message,'error');
-  });
-  }, 600);
+  },600);
 }
 
 function parseMapUnits(text){
-  var units = [];
-  var cur = null;
+  var units=[],cur=null;
   text.split('\n').forEach(function(line){
-    var clean = line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
+    var clean=line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
     if(/^UNIT\s+\d+/i.test(clean)){
-      if(cur) units.push(finalizeUnit(cur));
-      var m = clean.match(/\d+/);
-      cur = {num: m?+m[0]:units.length+1, raw:''};
-    } else if(cur){
-      cur.raw += line + '\n';
-    }
+      if(cur) units.push(finUnit(cur));
+      cur={num:+clean.match(/\d+/)[0],raw:''};
+    } else if(cur){ cur.raw+=line+'\n'; }
   });
-  if(cur) units.push(finalizeUnit(cur));
+  if(cur) units.push(finUnit(cur));
   return units;
 }
-
-function finalizeUnit(cur){
-  var r = cur.raw.replace(/\*+/g,'');
-  function get(k){ var m=r.match(new RegExp(k+'[:\\s]+([^\\n]+)','im')); return m?m[1].trim().replace(/^[:\\s]+/,''):''; }
-  var strStr = get('Strands');
-  var emStr = get('Emphasis');
-  return {
-    num: cur.num,
-    title: get('Title') || 'Unit '+cur.num,
-    text: get('Text'),
-    question: get('Question'),
-    strands: (strStr.match(/\d+/g)||[1,2,3,4,5,6,7]).map(Number),
-    emph: (emStr.match(/\d+/g)||[]).map(Number),
-    summative: get('Summative'),
-    bigIdea: get('BigIdea'),
-    weeks: get('Weeks')
-  };
+function finUnit(cur){
+  var r=cur.raw.replace(/\*+/g,'');
+  function g(k){var m=r.match(new RegExp(k+'[:\\s]+([^\\n]+)','im'));return m?m[1].trim().replace(/^[:\\s]+/,''):'';}
+  var ss=g('Strands'),es=g('Emphasis');
+  return {num:cur.num,title:g('Title')||'Unit '+cur.num,text:g('Text'),question:g('Question'),
+    strands:(ss.match(/\d+/g)||[1,2,3,4,5,6,7]).map(Number),emph:(es.match(/\d+/g)||[]).map(Number),
+    summative:g('Summative'),bigIdea:g('BigIdea'),weeks:g('Weeks')};
 }
 
 // ── GENERATE LESSONS ─────────────────────────────────────────────────────────
 function generateLessons(unit, course){
-  var steps = [
-    {id:'l1', label:'Analyzing TEKS coverage gaps'},
-    {id:'l2', label:'Building lesson sequence'},
-    {id:'l3', label:'Writing detailed lesson plans'},
-    {id:'l4', label:'Saving lessons'}
-  ];
-  openGenerateModal('Generate lessons', 'Unit '+unit.num+' - '+unit.title+'. Generating '+course.weeks_per_unit*course.days_per_week+' lesson plans with full TEKS integration.', steps);
-  setGenStep('l1','active');
+  var tot=course.weeks_per_unit*course.days_per_week;
+  var steps=['m1:Analyzing TEKS coverage gaps','m2:Building lesson sequence','m3:Writing detailed plans','m4:Saving lessons'];
+  openGenModal('Generate lessons','Unit '+unit.num+' - '+unit.title+'. Generating '+tot+' lessons with TEKS citations.',steps);
+  setStep('m1','active');
 
-  var teksText = getTeksText(course.name);
-  var emphStrands = (unit.emph_strands||[]).map(function(sid){
-    var items = TEKS_ALL.filter(function(t){return t.strand_id===sid;});
-    return 'Strand '+sid+' ('+( items[0]?items[0].strand_name:'')+'):\n'+items.map(function(t){return '  '+t.expectation_code+' '+t.expectation_text;}).join('\n');
+  var teksText=getTeksText();
+  var emphText=(unit.emph_strands||[]).map(function(sid){
+    var items=TEKS_ALL.filter(function(t){return t.sid===sid;});
+    return 'Strand '+sid+' ('+( items[0]?items[0].sn:'')+'):\n'+items.map(function(t){return '  '+t.code+' '+t.text;}).join('\n');
   }).join('\n\n');
 
-  setTimeout(function(){ setGenStep('l1','done'); setGenStep('l2','active');
+  var dur=course.class_duration;
+  var nl='\n';
 
-  var dur = course.class_duration;
-  var tot = course.weeks_per_unit * course.days_per_week;
-  var nl = '\n';
+  setTimeout(function(){
+    setStep('m1','done');setStep('m2','active');
 
-  var prompt = 'You are writing detailed daily lesson plans for a Texas ELA unit.'
-    +nl+'Course: '+course.name
-    +nl+'Unit '+unit.num+': "'+unit.title+'"'
-    +nl+'Essential question: '+(unit.essential_question||'')
-    +nl+'Big idea: '+(unit.big_idea||'')
-    +nl+'Summative: '+(unit.summative_assessment||'')
-    +nl+'Class duration: '+dur+' minutes'
-    +nl+'Total lessons: '+tot+' ('+course.weeks_per_unit+' weeks x '+course.days_per_week+' days)'
-    +nl+nl+'COMPLETE TEKS FOR THIS COURSE (exact TEA wording - cite these codes in lessons):'
-    +nl+teksText
-    +nl+nl+'PRIMARY EMPHASIS STRANDS FOR THIS UNIT:'
-    +nl+emphStrands
-    +nl+nl+'REQUIREMENTS:'
-    +nl+'- Every lesson must reference specific TEKS expectation codes e.g. (c)(4)(F)'
-    +nl+'- STAAR-tested expectations must be explicitly addressed multiple times'
-    +nl+'- Include all 4 elements every day: reading, writing, speaking, listening'
-    +nl+'- Complexity increases within each week and across the unit'
-    +nl+'- Each segment must include what students DO, not just what is taught'
-    +nl+nl+'For each lesson output EXACTLY:'
-    +nl+'WEEK [N]'
-    +nl+'LESSON [N]: [title]'
-    +nl+'TEKS: [list expectation codes addressed today, e.g. (c)(4)(F), (c)(5)(C)]'
-    +nl+'OBJ: [specific objective referencing TEKS codes]'
-    +nl+'HOOK('+Math.round(dur*.1)+'min): [specific entry activity]'
-    +nl+'READ('+Math.round(dur*.25)+'min): [reading task with TEKS code]'
-    +nl+'DISCUSS('+Math.round(dur*.2)+'min): [discussion task with TEKS code]'
-    +nl+'WRITE('+Math.round(dur*.35)+'min): [writing task with TEKS code]'
-    +nl+'CLOSE('+Math.round(dur*.1)+'min): [exit ticket]'
-    +nl+'SUPPORT: [specific scaffolds for struggling students]'
-    +nl+'MATERIALS: [texts, handouts, resources needed]';
+    var prompt='Write detailed daily lesson plans for a Texas ELA unit.'+nl
+      +'Course: '+course.name+nl
+      +'Unit '+unit.num+': "'+unit.title+'"'+nl
+      +'Essential question: '+(unit.essential_question||'')+nl
+      +'Big idea: '+(unit.big_idea||'')+nl
+      +'Summative: '+(unit.summative_assessment||'')+nl
+      +'Class duration: '+dur+' minutes | Total lessons: '+tot+' ('+course.weeks_per_unit+' weeks x '+course.days_per_week+' days)'+nl+nl
+      +'COMPLETE TEKS (cite specific codes in every lesson - exact TEA wording):'+nl
+      +teksText+nl+nl
+      +'PRIMARY EMPHASIS STRANDS FOR THIS UNIT:'+nl
+      +emphText+nl+nl
+      +'REQUIREMENTS:'+nl
+      +'- Every lesson must list specific TEKS expectation codes (e.g. (c)(4)(F), (c)(5)(C))'+nl
+      +'- STAAR-tested expectations must appear explicitly and repeatedly'+nl
+      +'- All 4 literacy domains daily: reading, writing, speaking, listening'+nl
+      +'- Complexity increases within and across weeks'+nl
+      +'- Each segment must describe what STUDENTS do, not just what is taught'+nl+nl
+      +'Output EXACTLY this format:'+nl
+      +'WEEK [N]'+nl
+      +'LESSON [N]: [title]'+nl
+      +'TEKS: [list codes, e.g. (c)(4)(F), (c)(5)(C), (c)(8)(A)]'+nl
+      +'OBJ: [specific objective citing TEKS codes]'+nl
+      +'HOOK('+Math.round(dur*.1)+'min): [specific opening activity]'+nl
+      +'READ('+Math.round(dur*.25)+'min): [reading task with TEKS code]'+nl
+      +'DISCUSS('+Math.round(dur*.2)+'min): [discussion task with TEKS code]'+nl
+      +'WRITE('+Math.round(dur*.35)+'min): [writing task with TEKS code]'+nl
+      +'CLOSE('+Math.round(dur*.1)+'min): [exit ticket]'+nl
+      +'SUPPORT: [specific scaffolds]'+nl
+      +'MATERIALS: [texts and resources]';
 
-  callAI(prompt).then(function(raw){
-    setGenStep('l2','done'); setGenStep('l3','active');
-    var lessons = parseLessons(raw, course.weeks_per_unit, course.days_per_week);
-    setGenStep('l3','done'); setGenStep('l4','active');
-
-    return db.delete('lessons','unit_id=eq.'+unit.id).then(function(){
-      var saves = lessons.map(function(l){
-        return db.post('lessons',{
-          unit_id: unit.id,
-          num: l.num,
-          week_num: l.week,
-          title: l.title,
-          strands_today: l.teks ? extractStrandNums(l.teks) : unit.emph_strands||[1,2,3,4,5,6,7],
-          objective: l.obj,
-          hook: l.hook,
-          read_analyze: l.read,
-          discuss: l.discuss,
-          write_practice: l.write,
-          close: l.close,
-          support: l.support,
-          materials: l.materials,
-          status: 'generated'
+    fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.error) throw new Error(d.error);
+        setStep('m2','done');setStep('m3','active');
+        var lessons=parseLessons(d.text);
+        setStep('m3','done');setStep('m4','active');
+        return supa.from('lessons').delete().eq('unit_id',unit.id).then(function(){
+          var rows=lessons.map(function(l){
+            return {
+              unit_id:unit.id,
+              num:l.num, week_num:l.week, title:l.title,
+              strands_today:l.teks?extractStrands(l.teks):unit.emph_strands||[1,2,3,4,5,6,7],
+              objective:l.obj, hook:l.hook, read_analyze:l.read,
+              discuss:l.discuss, write_practice:l.write, close:l.close,
+              support:l.support, materials:l.materials, status:'generated'
+            };
+          });
+          return supa.from('lessons').insert(rows);
         });
+      }).then(function(r){
+        if(r&&r.error) throw new Error(r.error.message);
+        setStep('m4','done');
+        supa.from('units').update({status:'in_progress'}).eq('id',unit.id);
+        setTimeout(function(){
+          closeModal('modal-generate');
+          showView('unit',{id:unit.id});
+          toast('Generated '+tot+' lessons','success');
+        },800);
+      }).catch(function(e){
+        closeModal('modal-generate');
+        toast('Error: '+e.message,'error');
       });
-      return Promise.all(saves);
-    });
-  }).then(function(){
-    setGenStep('l4','done');
-    db.patch('units','id=eq.'+unit.id,{status:'in_progress'});
-    setTimeout(function(){
-      closeModal('modal-generate');
-      showView('unit',{unitId:unit.id});
-      toast('Generated '+course.weeks_per_unit*course.days_per_week+' lessons','success');
-    },800);
-  }).catch(function(e){
-    closeModal('modal-generate');
-    toast('Error: '+e.message,'error');
-  });
   },600);
 }
 
-function extractStrandNums(teksStr){
+function extractStrands(teksStr){
   if(!teksStr) return [];
-  var codes = teksStr.match(/\(c\)\(\d+\)/g)||[];
-  var strandMap = {1:1,2:1,3:1,4:2,5:3,6:4,7:4,8:5,9:6,10:6,11:7};
-  var strands = [];
-  codes.forEach(function(c){ var n=+c.match(/\d+/)[0]; if(strandMap[n]&&!strands.includes(strandMap[n]))strands.push(strandMap[n]); });
-  return strands;
+  var map={1:1,2:1,3:1,4:2,5:3,6:4,7:4,8:5,9:6,10:6,11:7};
+  var out=[];
+  (teksStr.match(/\(c\)\((\d+)\)/g)||[]).forEach(function(c){
+    var n=+c.match(/\d+/)[0];
+    if(map[n]&&!out.includes(map[n])) out.push(map[n]);
+  });
+  return out;
 }
 
-function parseLessons(text, numWeeks, daysPerWeek){
-  var lessons = [];
-  var curWeek = 1;
-  var curLesson = null;
-  var lessonNum = 0;
-
+function parseLessons(text){
+  var lessons=[],cur=null,week=1,num=0;
   text.split('\n').forEach(function(line){
-    var clean = line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
-    if(/^WEEK\s+\d+/i.test(clean)){
-      var m = clean.match(/\d+/);
-      curWeek = m ? +m[0] : curWeek+1;
-    } else if(/^LESSON\s+\d+/i.test(clean)){
-      if(curLesson) lessons.push(curLesson);
-      lessonNum++;
-      var m = clean.match(/LESSON\s+\d+[:\s-]+(.+)/i);
-      curLesson = {num:lessonNum, week:curWeek, title:m?m[1].trim():'', teks:'', obj:'', hook:'', read:'', discuss:'', write:'', close:'', support:'', materials:''};
-    } else if(curLesson){
-      var fields = [
-        {key:'teks', rx:/^TEKS[:\s]+(.+)/i},
-        {key:'obj', rx:/^OBJ[^:]*:\s*(.+)/i},
-        {key:'hook', rx:/^HOOK[^:]*:\s*(.+)/i},
-        {key:'read', rx:/^READ[^:]*:\s*(.+)/i},
-        {key:'discuss', rx:/^DISCUSS[^:]*:\s*(.+)/i},
-        {key:'write', rx:/^WRITE[^:]*:\s*(.+)/i},
-        {key:'close', rx:/^CLOSE[^:]*:\s*(.+)/i},
-        {key:'support', rx:/^SUPPORT[^:]*:\s*(.+)/i},
-        {key:'materials', rx:/^MATERIALS[^:]*:\s*(.+)/i}
+    var clean=line.trim().replace(/^#+\s*/,'').replace(/\*+/g,'');
+    if(/^WEEK\s+\d+/i.test(clean)){var m=clean.match(/\d+/);week=m?+m[0]:week+1;}
+    else if(/^LESSON\s+\d+/i.test(clean)){
+      if(cur) lessons.push(cur);
+      num++;
+      var m=clean.match(/LESSON\s+\d+[:\s-]+(.+)/i);
+      cur={num:num,week:week,title:m?m[1].trim():'',teks:'',obj:'',hook:'',read:'',discuss:'',write:'',close:'',support:'',materials:''};
+    } else if(cur){
+      var flds=[
+        {k:'teks',rx:/^TEKS[:\s]+(.+)/i},
+        {k:'obj',rx:/^OBJ[^:]*:\s*(.+)/i},
+        {k:'hook',rx:/^HOOK[^:]*:\s*(.+)/i},
+        {k:'read',rx:/^READ[^:]*:\s*(.+)/i},
+        {k:'discuss',rx:/^DISCUSS[^:]*:\s*(.+)/i},
+        {k:'write',rx:/^WRITE[^:]*:\s*(.+)/i},
+        {k:'close',rx:/^CLOSE[^:]*:\s*(.+)/i},
+        {k:'support',rx:/^SUPPORT[^:]*:\s*(.+)/i},
+        {k:'materials',rx:/^MATERIALS[^:]*:\s*(.+)/i}
       ];
-      for(var i=0;i<fields.length;i++){
-        var m = clean.match(fields[i].rx);
-        if(m){ curLesson[fields[i].key] = (curLesson[fields[i].key]?(curLesson[fields[i].key]+' '):'') + m[1].trim(); break; }
+      for(var i=0;i<flds.length;i++){
+        var m=clean.match(flds[i].rx);
+        if(m){cur[flds[i].k]+=(cur[flds[i].k]?' ':'')+m[1].trim();break;}
       }
     }
   });
-  if(curLesson) lessons.push(curLesson);
+  if(cur) lessons.push(cur);
   return lessons;
 }
 
-// ── TEKS VIEW ─────────────────────────────────────────────────────────────────
+// ── TEKS REFERENCE VIEW ───────────────────────────────────────────────────────
 function renderTeksView(){
-  document.getElementById('topbar-title').textContent = 'TEKS Coverage';
-  var content = document.getElementById('main-content');
-  if(!state.activeCourse){
-    content.innerHTML = '<div class="empty-state"><h3>Select a course first</h3><p>Go to a course to see its TEKS coverage.</p></div>';
-    return;
-  }
-  var course = state.activeCourse;
-  var teks = getTeksForCourse(course.name);
-  var byStrand = {};
-  teks.forEach(function(t){
-    if(!byStrand[t.strand_id]) byStrand[t.strand_id]={name:t.strand_name,items:[],staar:0};
-    byStrand[t.strand_id].items.push(t);
-    if(t.staar_tested) byStrand[t.strand_id].staar++;
+  setTopbar('TEKS Reference','','');
+  var c=document.getElementById('main-content');
+  var byStrand={};
+  TEKS_ALL.forEach(function(t){
+    if(!byStrand[t.sid]) byStrand[t.sid]={name:t.sn,items:[],staar:0};
+    byStrand[t.sid].items.push(t);
+    if(t.staar) byStrand[t.sid].staar++;
   });
-
-  var html = '<h2 style="font-family:Playfair Display,serif;font-size:22px;margin-bottom:4px">TEKS Coverage &mdash; '+course.name+'</h2>';
-  html += '<p class="text-sm text-muted" style="margin-bottom:24px">All student expectations from 19 TAC Chapter 110, Subchapter C. Exact TEA wording.</p>';
-
+  var html='<h2 style="font-family:Playfair Display,serif;font-size:22px;margin-bottom:4px">TEKS Reference</h2>';
+  html+='<p class="text-sm text-muted" style="margin-bottom:24px">19 TAC Chapter 110, Subchapter C. Exact TEA wording. These expectations drive all lesson plan generation.</p>';
   Object.keys(byStrand).sort().forEach(function(sid){
-    var s = byStrand[sid];
-    html += '<div class="teks-audit" style="margin-bottom:16px">';
-    html += '<div class="teks-audit-header" onclick="this.parentElement.classList.toggle(\'open\')">';
-    html += '<div><strong>Strand '+sid+': '+s.name+'</strong><span class="text-muted text-xs" style="margin-left:10px">'+s.items.length+' expectations</span>';
-    if(s.staar>0) html += '<span class="badge badge-amber" style="margin-left:8px">'+s.staar+' STAAR</span>';
-    html += '</div><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>';
+    var s=byStrand[sid];
+    html+='<div class="teks-audit" id="teks-strand-'+sid+'">';
+    html+='<div class="teks-audit-header" onclick="document.getElementById(\'teks-strand-'+sid+'\').classList.toggle(\'open\')">';
+    html+='<div><strong>Strand '+sid+': '+s.name+'</strong><span class="text-xs text-muted" style="margin-left:10px">'+s.items.length+' expectations</span>';
+    if(s.staar) html+='<span class="badge badge-amber" style="margin-left:8px">'+s.staar+' STAAR</span>';
+    html+='</div><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>';
+    html+='<div class="teks-rows">';
     s.items.forEach(function(t){
-      html += '<div class="teks-row">';
-      html += '<div class="teks-code">'+t.expectation_code+'</div>';
-      html += '<div class="teks-text">'+t.expectation_text+'</div>';
-      html += '<div>';
-      if(t.staar_tested) html += '<span class="teks-status staar">STAAR: '+t.staar_category+'</span>';
-      html += '</div></div>';
+      html+='<div class="teks-row"><div class="teks-code">'+t.code+'</div><div class="teks-text">'+t.text+'</div><div>'+(t.staar?'<span class="teks-staar">'+t.sc+'</span>':'')+'</div></div>';
     });
-    html += '</div>';
+    html+='</div></div>';
   });
-  content.innerHTML = html;
+  c.innerHTML=html;
 }
 
 // ── COURSE CREATION ───────────────────────────────────────────────────────────
 function createCourse(){
-  var data = {
-    name: document.getElementById('nc-name').value,
-    section_label: document.getElementById('nc-label').value.trim() || null,
-    school_year: document.getElementById('nc-year').value.trim() || '2025-2026',
-    class_duration: +document.getElementById('nc-dur').value || 50,
-    days_per_week: +document.getElementById('nc-days').value || 4,
-    units_per_year: +document.getElementById('nc-units').value || 9,
-    weeks_per_unit: +document.getElementById('nc-weeks').value || 3,
-    context: document.getElementById('nc-ctx').value.trim() || null
+  if(!currentUser){toast('Not signed in','error');return;}
+  var data={
+    user_id:currentUser.id,
+    name:document.getElementById('nc-name').value,
+    section_label:document.getElementById('nc-label').value.trim()||null,
+    school_year:document.getElementById('nc-year').value.trim()||'2025-2026',
+    class_duration:+document.getElementById('nc-dur').value||50,
+    days_per_week:+document.getElementById('nc-days').value||4,
+    units_per_year:+document.getElementById('nc-units').value||9,
+    weeks_per_unit:+document.getElementById('nc-weeks').value||3,
+    context:document.getElementById('nc-ctx').value.trim()||null
   };
-  db.post('courses', data).then(function(rows){
+  supa.from('courses').insert(data).select().then(function(r){
+    if(r.error){toast('Error: '+r.error.message,'error');return;}
     closeModal('modal-new-course');
-    state.courses.push(rows[0]);
+    state.courses.push(r.data[0]);
     renderSidebarCourses();
     toast('Course created','success');
-    showView('course',{courseId:rows[0].id});
-  }).catch(function(e){ toast('Error: '+e.message,'error'); });
+    showView('course',{id:r.data[0].id});
+  });
 }
 
-// ── MODAL & TOAST HELPERS ─────────────────────────────────────────────────────
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-
-function openGenerateModal(title, desc, steps){
-  document.getElementById('gen-modal-title').textContent = title;
-  document.getElementById('gen-modal-desc').textContent = desc;
-  document.getElementById('gen-cancel-btn').textContent = 'Close';
-  var stepsEl = document.getElementById('gen-steps');
-  stepsEl.innerHTML = steps.map(function(s){
-    return '<div class="gen-step" id="gstep-'+s.id+'"><div class="step-dot"></div>'+s.label+'</div>';
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function setTopbar(title,btnTxt,btnFn){
+  document.getElementById('topbar-title').textContent=title;
+  var btn=document.getElementById('topbar-btn');
+  if(btnTxt){btn.textContent=btnTxt;btn.style.display='';btn.onclick=btnFn;}
+  else{btn.style.display='none';}
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openGenModal(title,desc,steps){
+  document.getElementById('gen-title').textContent=title;
+  document.getElementById('gen-desc').textContent=desc;
+  document.getElementById('gen-steps').innerHTML=steps.map(function(s){
+    var p=s.split(':');return '<div class="gen-step" id="gstep-'+p[0]+'"><div class="step-dot"></div>'+p[1]+'</div>';
   }).join('');
   openModal('modal-generate');
 }
-
-function setGenStep(id, state){
-  var el = document.getElementById('gstep-'+id);
+function setStep(id,st){
+  var el=document.getElementById('gstep-'+id);
   if(!el) return;
-  el.className = 'gen-step '+(state==='active'?'active':state==='done'?'done':'');
-  if(state==='active'){
-    var dot = el.querySelector('.step-dot');
-    if(dot){ dot.innerHTML=''; }
-    var spinEl = document.createElement('div');
-    spinEl.className='spin';
-    spinEl.style.width='8px';spinEl.style.height='8px';spinEl.style.borderWidth='1.5px';
-    el.replaceChild(spinEl, el.querySelector('.spin, .step-dot'));
+  el.className='gen-step '+st;
+  if(st==='active'){
+    var sp=document.createElement('div');
+    sp.className='spin';sp.style.cssText='width:8px;height:8px;border-width:1.5px';
+    el.replaceChild(sp,el.firstChild);
   }
 }
-
-function toast(msg, type){
-  var c = document.getElementById('toasts');
-  var el = document.createElement('div');
-  el.className = 'toast'+(type?' '+type:'');
-  el.textContent = msg;
+function toast(msg,type){
+  var c=document.getElementById('toasts');
+  var el=document.createElement('div');
+  el.className='toast'+(type?' '+type:'');
+  el.textContent=msg;
   c.appendChild(el);
-  setTimeout(function(){ el.remove(); }, 3000);
+  setTimeout(function(){el.remove();},3000);
 }
-
-function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function(){
-  showView('home');
-});
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 </script>
 </body>
 </html>
